@@ -1,0 +1,8 @@
+[
+  "Could we limit the rollout and watch the key error metrics for 30 minutes?",
+  "I suggest isolating flaky tests and rerunning the pipeline with reduced parallelism.",
+  "Let’s prepare a rollback plan and a brief incident note just in case."
+]
+
+
+
