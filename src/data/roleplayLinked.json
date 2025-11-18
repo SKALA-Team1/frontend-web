@@ -1,0 +1,25 @@
+[
+  { "title": "배포 이슈 핫픽스 공지", "body": "Prod 오류 발견. 영향 범위/대응 계획 공유 후 협조 요청.", "provider": "slack", "completed": true },
+  { "title": "미팅 일정 조율", "body": "파트너와 킥오프 시간 제안, 대안 시간/아젠다 공유.", "provider": "slack", "completed": false },
+  { "title": "코드 리뷰 요청", "body": "성능 개선 PR 핵심 변경점/테스트 결과 요약 후 리뷰 요청.", "provider": "slack", "completed": true },
+  { "title": "온콜 인수인계", "body": "온콜 일정/매뉴얼/연락 포인트 정리 전달.", "provider": "slack", "completed": false },
+  { "title": "회고 일정 공지", "body": "스프린트 회고 일정과 사전 설문 링크 안내.", "provider": "slack", "completed": false },
+  { "title": "장애 보고 템플릿", "body": "요약/원인/대응/재발방지 템플릿 공유.", "provider": "slack", "completed": true },
+  { "title": "휴가 공지", "body": "부재 기간과 대체 담당자 안내.", "provider": "slack", "completed": false },
+  { "title": "기술 공유 세미나 홍보", "body": "주제/일정/신청 링크 안내.", "provider": "slack", "completed": false },
+  { "title": "릴리즈 노트 공유", "body": "새 기능 요약과 유의사항 링크 제공.", "provider": "slack", "completed": true },
+  { "title": "보안 점검 안내", "body": "2FA 적용 일정 공지.", "provider": "slack", "completed": false },
+  { "title": "이슈 생성 및 설명", "body": "재현 단계/기대 동작/실제 결과/환경 정보 첨부.", "provider": "github", "completed": false },
+  { "title": "PR 설명 쓰기", "body": "배경/접근/영향 범위/테스트 계획 정리.", "provider": "github", "completed": false },
+  { "title": "코드 리뷰 코멘트", "body": "대안 제시와 질문 위주 코멘트 작성.", "provider": "github", "completed": false },
+  { "title": "Draft PR 열기", "body": "작업 중 공유용 Draft PR과 TODO 목록.", "provider": "github", "completed": false },
+  { "title": "커밋 메시지 가이드", "body": "Conventional Commits 형식 적용.", "provider": "github", "completed": false },
+  { "title": "레이블 관리", "body": "bug/feature/prio 등 공통 레이블 사용.", "provider": "github", "completed": false },
+  { "title": "릴리즈 태그 작성", "body": "태그와 체인지로그 링크 추가.", "provider": "github", "completed": false },
+  { "title": "CI 실패 대응", "body": "로그 첨부 후 재시도/수정 계획 공유.", "provider": "github", "completed": false },
+  { "title": "브랜치 전략 제안", "body": "main/release 전략 문서화.", "provider": "github", "completed": false },
+  { "title": "코드 오너스 규칙", "body": "CODEOWNERS로 자동 리뷰어 지정.", "provider": "github", "completed": false }
+]
+
+
+

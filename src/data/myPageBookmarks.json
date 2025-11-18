@@ -1,0 +1,26 @@
+[
+  {
+    "id": "bookmark-1",
+    "ai": "Could you walk me through the mitigation steps for the production incident?",
+    "you": "We isolated the failing service, throttled the rollout, and shared status updates every 30 minutes.",
+    "suggestion": "Add the expected recovery time and name the point of contact for partner teams.",
+    "scenario": "Prod 핫픽스 공지"
+  },
+  {
+    "id": "bookmark-2",
+    "ai": "When can we align with the partner team on the new onboarding flow?",
+    "you": "I can host a sync Thursday morning and share a pre-read 24 hours ahead.",
+    "suggestion": "Offer two alternative slots to show flexibility and include the agenda bullets.",
+    "scenario": "파트너 일정 조율"
+  },
+  {
+    "id": "bookmark-3",
+    "ai": "What should we highlight in the release note for the search feature update?",
+    "you": "Mention the latency improvement, new filters, and the rollout schedule for APAC.",
+    "suggestion": "Add a short “Known Issues” section so support teams can respond quickly.",
+    "scenario": "릴리즈 노트 공유"
+  }
+]
+
+
+

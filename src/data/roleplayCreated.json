@@ -1,0 +1,15 @@
+[
+  { "title": "영업 콜 데모 준비", "body": "제품 데모 흐름과 예상 질문 답변 준비.", "completed": false },
+  { "title": "고객 불만 처리", "body": "문제 공감/해결 계획/후속 조치 약속.", "completed": true },
+  { "title": "신규 기능 제안 발표", "body": "문제 정의와 기대 효과를 명확히 설명.", "completed": false },
+  { "title": "분기 OKR 공유", "body": "핵심 결과와 지표 정의를 팀과 합의.", "completed": false },
+  { "title": "이직 면접 연습", "body": "STAR 기법으로 경험 구조화.", "completed": true },
+  { "title": "해외 파트너 커뮤니케이션", "body": "간결한 영어 메일/회의 진행 연습.", "completed": false },
+  { "title": "교육 세션 진행", "body": "목표/아젠다/참여 유도 방법 연습.", "completed": false },
+  { "title": "갈등 상황 중재", "body": "사실 구분/요약/합의안 제시.", "completed": true },
+  { "title": "리더십 1:1 대화", "body": "피드백/성장 계획 제안.", "completed": false },
+  { "title": "회의록 작성", "body": "결정/액션아이템/담당자 기록.", "completed": false }
+]
+
+
+

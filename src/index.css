@@ -1,0 +1,12 @@
+/* MUI와 조화롭게 보이도록 기본 바디 배경/텍스트 톤 */
+:root {
+  color-scheme: light;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+
+
+
