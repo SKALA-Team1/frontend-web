@@ -35,7 +35,7 @@ export default function SummaryView({
   }, [messages])
 
   return (
-    <Box sx={{ mt: 2 }}>
+    <Box sx={{ py: { xs: 2, sm: 2 }, px: { xs: 0, sm: 0 } }}>
       <Tabs value={summaryTab} onChange={(_, v) => setSummaryTab(v)} variant="fullWidth">
         <Tab value="summary" label="평가 요약" />
         <Tab value="transcript" label="대화 내용" />
@@ -64,7 +64,7 @@ export default function SummaryView({
                 <Stack spacing={3}>
                   {/* 발음 피드백 */}
                   <Box>
-                    <Typography variant="body2" fontWeight={600} sx={{ mb: 1, color: 'text.secondary' }}>
+                    <Typography variant="body2" fontWeight={600} sx={{ mb: 1, color: 'text.primary' }}>
                       발음
                     </Typography>
                     <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
@@ -76,7 +76,7 @@ export default function SummaryView({
                   
                   {/* 문법 피드백 */}
                   <Box>
-                    <Typography variant="body2" fontWeight={600} sx={{ mb: 1, color: 'text.secondary' }}>
+                    <Typography variant="body2" fontWeight={600} sx={{ mb: 1, color: 'text.primary' }}>
                       문법
                     </Typography>
                     <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
@@ -88,7 +88,7 @@ export default function SummaryView({
                   
                   {/* 표현 피드백 */}
                   <Box>
-                    <Typography variant="body2" fontWeight={600} sx={{ mb: 1, color: 'text.secondary' }}>
+                    <Typography variant="body2" fontWeight={600} sx={{ mb: 1, color: 'text.primary' }}>
                       표현
                     </Typography>
                     <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
@@ -110,25 +110,25 @@ export default function SummaryView({
                 <Stack spacing={1.5}>
                   <Box>
                     <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>발음</Typography>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant="body2" color="text.primary">
                       발음은 전반적으로 명확했고 강세와 리듬이 안정적이었습니다. 모음 길이에서 소폭의 일관성 문제가 있었지만 의미 전달에는 영향이 크지 않았습니다.
                     </Typography>
                   </Box>
                   <Box>
                     <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>문법</Typography>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant="body2" color="text.primary">
                       문법은 시제 일관성과 관사 사용이 좋았습니다. 다만 복합문에서 연결사 사용이 반복되는 경향이 있어 다양한 패턴으로 바꾸면 더 자연스러워집니다.
                     </Typography>
                   </Box>
                   <Box>
                     <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>표현</Typography>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant="body2" color="text.primary">
                       표현은 상황 설명과 제안 문장이 균형 있게 사용되었습니다. 완곡한 제안(soft suggestion)과 확정적 제안(direct proposal)을 상황에 맞게 구분하면 더욱 설득력이 높아집니다.
                     </Typography>
                   </Box>
                   <Box sx={{ mt: 1, pt: 1.5, borderTop: '1px solid', borderColor: 'divider' }}>
                     <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>개선 제안</Typography>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant="body2" color="text.primary">
                       다음 대화에서는 원인 가설 제시 → 근거 제시 → 실행 제안의 구조를 유지하면서, 숫자/시간 단위를 명시해 설득력을 강화해 보세요.
                     </Typography>
                   </Box>
@@ -142,7 +142,7 @@ export default function SummaryView({
       )}
 
       {summaryTab === 'transcript' && (
-        <Stack spacing={1.5} sx={{ mt: 2 }}>
+        <Stack spacing={2.5} sx={{ mt: 2 }}>
           {transcriptRows.map((m, i) => {
             const isAI = m.who === 'AI'
             const isYou = m.who === 'You'
@@ -171,10 +171,10 @@ export default function SummaryView({
                     px: 1.5,
                     py: 1,
                     borderRadius: 2,
-                    bgcolor: isYou ? 'grey.900' : 'grey.100',
-                    color: isYou ? 'common.white' : 'text.primary',
-                    border: '1px solid',
-                    borderColor: 'divider'
+                    bgcolor: isYou ? 'rgba(124,108,255,0.25)' : 'rgba(255,255,255,0.08)',
+                    color: '#F5F6FF',
+                    border: '1px solid rgba(255,255,255,0.15)',
+                    backdropFilter: 'blur(6px)'
                   }}
                 >
                   <Typography variant="caption" sx={{ opacity: 0.7 }}>
@@ -190,10 +190,10 @@ export default function SummaryView({
                       px: 1.5,
                       py: 1,
                       borderRadius: 2,
-                      bgcolor: 'background.paper',
-                      color: 'text.primary',
-                      border: '1px dashed rgba(0,0,0,0.4)',
-                      borderColor: 'rgba(0,0,0,0.3)'
+                    bgcolor: 'rgba(255,255,255,0.05)',
+                    color: '#F5F6FF',
+                    border: '1px dashed rgba(255,255,255,0.4)',
+                    borderColor: 'rgba(255,255,255,0.32)'
                     }}
                   >
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>

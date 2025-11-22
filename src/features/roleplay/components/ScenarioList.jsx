@@ -9,14 +9,13 @@ export default function ScenarioList({
   filter,
   setFilter,
   onOpenCalendar,
-  onStartRoleplay,
-  onViewFeedback
+  onStartRoleplay
 }) {
   return (
     <>
       <Tabs value={tab} onChange={(_, v) => setTab(v)} variant="fullWidth">
-        <Tab value="linked" label="연동 기반" />
-        <Tab value="created" label="생성한 롤플레잉" />
+        <Tab value="linked" label="Slack" />
+        <Tab value="created" label="나의 롤플레잉" />
       </Tabs>
 
       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -26,7 +25,7 @@ export default function ScenarioList({
       </Box>
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1, alignItems: 'center' }}>
-        <Typography variant="caption" color="text.secondary">
+        <Typography variant="caption" color="text.primary">
           총 {filteredItems.length}개 시나리오
         </Typography>
         <ToggleButtonGroup
@@ -41,32 +40,33 @@ export default function ScenarioList({
         </ToggleButtonGroup>
       </Box>
 
-      <Stack spacing={1}>
+      <Stack spacing={2}>
         {filteredItems.map((item) => (
           <Card key={`${tab}-${item.idx}`} variant="outlined">
             <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'space-between' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'space-between', mb: 2 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Typography variant="subtitle1" fontWeight={700}>{item.title}</Typography>
+                  <Typography variant="subtitle1" fontWeight={700} sx={{ fontSize: '1.25rem' }}>
+                    {item.title}
+                  </Typography>
                   {item.done && <Chip label="완료" size="small" />}
                 </Box>
-                <Typography variant="caption" color="text.secondary">{item.date}</Typography>
+                <Typography variant="caption" color="text.primary">{item.date}</Typography>
               </Box>
-              <Typography variant="body2" color="text.secondary">{item.body}</Typography>
+              <Typography 
+                variant="body2" 
+                color="text.primary"
+                sx={{ 
+                  opacity: 0.85,
+                  lineHeight: 1.6,
+                  mb: 2
+                }}
+              >
+                {item.body}
+              </Typography>
               <Box sx={{ display: 'flex', gap: 1, mt: 2, justifyContent: 'flex-end' }}>
                 <Button variant="contained" size="small" onClick={() => onStartRoleplay(item.title, item.body)}>
                   롤플레잉
-                </Button>
-                <Button
-                  variant="outlined"
-                  size="small"
-                  disabled={!item.done}
-                  onClick={() => {
-                    if (!item.done) return
-                    onViewFeedback(item)
-                  }}
-                >
-                  피드백 보기
                 </Button>
               </Box>
             </CardContent>

@@ -10,6 +10,9 @@ export default function useRoleplaySession() {
   const [summaryTab, setSummaryTab] = useState('summary') // summary | transcript
   const [evaluating, setEvaluating] = useState(false)
   const [summary, setSummary] = useState({ time: '10분', turns: 10, suggestions: 3 })
+  const [isKeyboardMode, setIsKeyboardMode] = useState(false)
+  const [textInput, setTextInput] = useState('')
+  const [isRecording, setIsRecording] = useState(false)
   const bottomRef = useRef(null)
 
   useEffect(() => {
@@ -53,6 +56,39 @@ export default function useRoleplaySession() {
     setSummaryTab('summary')
   }
 
+  const toggleKeyboardMode = () => {
+    setIsKeyboardMode(prev => !prev)
+    setTextInput('')
+  }
+
+  const handleTextInputChange = (e) => {
+    setTextInput(e.target.value)
+  }
+
+  const sendMessage = () => {
+    if (!textInput.trim()) return
+
+    const newMessage = {
+      who: 'You',
+      text: textInput.trim()
+    }
+
+    setMessages(prev => [...prev, newMessage])
+    setTextInput('')
+
+    // TODO: WebSocket으로 백엔드에 메시지 전송
+    // 웹소켓 연결 후 여기에 추가 예정
+
+    // 임시로 AI 응답 시뮬레이션 (나중에 WebSocket으로 교체)
+    setTimeout(() => {
+      const aiResponse = {
+        who: 'AI',
+        text: 'Thank you for your response. Let me think about that...'
+      }
+      setMessages(prev => [...prev, aiResponse])
+    }, 1000)
+  }
+
   return {
     isSession,
     messages,
@@ -65,9 +101,16 @@ export default function useRoleplaySession() {
     evaluating,
     summary,
     bottomRef,
+    isKeyboardMode,
+    textInput,
+    isRecording,
+    setIsRecording,
     startWithMic,
     endSession,
-    handleFeedbackView
+    handleFeedbackView,
+    toggleKeyboardMode,
+    handleTextInputChange,
+    sendMessage
   }
 }
 

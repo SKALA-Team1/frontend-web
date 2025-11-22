@@ -23,7 +23,7 @@ export default function FeedbackModal({
             >
               <Box sx={{ textAlign: 'left' }}>
                 <Typography variant="subtitle2" fontWeight={700}>{history.label}</Typography>
-                <Typography variant="body2" color="text.secondary">
+                <Typography variant="body2" color="text.primary">
                   {history.date} • {history.time}
                 </Typography>
               </Box>

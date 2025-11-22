@@ -41,11 +41,7 @@ export default function LoginForm({ onLogin, onGoogleLogin, onNavigateSignup }) 
             alignItems: 'center',
             justifyContent: 'center',
             p: 0,
-            border: '1px solid rgba(0, 0, 0, 0.12)',
-            bgcolor: 'white',
-            '&:hover': {
-              bgcolor: 'rgba(0, 0, 0, 0.04)'
-            }
+            border: '1px solid rgba(0, 0, 0, 0.12)'
           }}
         >
           <Box component="img" src={googleLogo} alt="Google" sx={{ width: 40, height: 40, objectFit: 'contain' }} />

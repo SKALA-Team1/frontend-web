@@ -47,7 +47,7 @@ export default function RoleplayPage() {
   }
 
   return (
-    <Stack spacing={2} sx={{ px: 4, py: 0 }}>
+    <Stack spacing={2} sx={{ py: 2 }}>
       {session.view === 'list' && (
         <ScenarioList
           tab={tab}
@@ -95,7 +95,7 @@ export default function RoleplayPage() {
       {session.evaluating && (
         <Box sx={{ mt: 6, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
           <CircularProgress size={56} thickness={4} />
-          <Typography variant="body2" color="text.secondary">분석 중...</Typography>
+          <Typography variant="body2" color="text.primary">분석 중...</Typography>
         </Box>
       )}
 

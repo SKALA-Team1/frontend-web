@@ -3,20 +3,20 @@ import { Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 import { AppBar, Box, Toolbar, IconButton, Drawer, List, ListItemButton, ListItemIcon, ListItemText, Divider, Container, Typography, useMediaQuery } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu'
 import HomeIcon from '@mui/icons-material/Home'
-import TheaterComedyIcon from '@mui/icons-material/TheaterComedy'
 import SchoolIcon from '@mui/icons-material/School'
+import FeedbackIcon from '@mui/icons-material/Feedback'
 import PersonIcon from '@mui/icons-material/Person'
-import HomePage from './features/home/HomePage.jsx'
-import RoleplayPage from './features/roleplay/pages/RoleplayPage.jsx'
-import LearnPage from './features/learn/LearnPage.jsx'
-import UserPage from './features/user/UserPage.jsx'
+import HomePage from './features/home/pages/HomePage.jsx'
+import LearnPage from './features/learn/pages/LearnPage.jsx'
+import FeedbackPage from './features/feedback/pages/FeedbackPage.jsx'
+import UserPage from './features/user/pages/UserPage.jsx'
 import LoginPage from './features/auth/pages/LoginPage.jsx'
 import SignUpPage from './features/auth/pages/SignUpPage.jsx'
 
 const links = [
   { label: '홈', path: '/home', icon: <HomeIcon /> },
-  { label: '롤플레잉', path: '/roleplay', icon: <TheaterComedyIcon /> },
   { label: '학습', path: '/learn', icon: <SchoolIcon /> },
+  { label: '피드백', path: '/feedback', icon: <FeedbackIcon /> },
   { label: '마이페이지', path: '/mypage', icon: <PersonIcon /> }
 ]
 
@@ -43,8 +43,10 @@ export default function App() {
             color="default"
             elevation={0}
             sx={{
-              backgroundColor: 'background.paper',
-              borderBottom: 'none',
+              backgroundColor: 'rgba(5,6,10,0.9)',
+              color: '#F5F6FF',
+              borderBottom: '1px solid rgba(255,255,255,0.08)',
+              backdropFilter: 'blur(12px)',
               ...(isDesktop && { width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px` }),
               display: { xs: 'block', md: 'none' }
             }}
@@ -55,9 +57,14 @@ export default function App() {
                 edge="start"
                 aria-label="menu"
                 onClick={handleToggle}
-                sx={{ mr: 1, display: { xs: 'inline-flex', md: 'none' } }}
+                sx={{ 
+                  mr: 1, 
+                  display: { xs: 'inline-flex', md: 'none' },
+                  width: 48,
+                  height: 48
+                }}
               >
-                <MenuIcon />
+                <MenuIcon sx={{ fontSize: 45 }} />
               </IconButton>
             </Toolbar>
           </AppBar>
@@ -71,9 +78,10 @@ export default function App() {
             PaperProps={{
               sx: {
                 width: drawerWidth,
-                background: '#ffffff',
-                color: 'text.primary',
-                borderRight: '1px solid rgba(0, 0, 0, 0.12)'
+              background: 'linear-gradient(180deg, #080910 0%, #0C0E17 100%)',
+              color: '#F5F6FF',
+              borderRight: '1px solid rgba(255,255,255,0.08)',
+              backdropFilter: 'blur(16px)'
               }
             }}
             sx={{
@@ -83,7 +91,7 @@ export default function App() {
             <Box role="presentation" sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
               <Box sx={{ px: 2, py: 2 }}>
                 <Typography variant="h6">영어회화</Typography>
-                <Typography variant="body2" color="text.secondary">SKALA</Typography>
+                <Typography variant="body2" color="text.primary">SKALA</Typography>
               </Box>
               <Divider />
               <List sx={{ flex: 1 }}>
@@ -93,25 +101,26 @@ export default function App() {
                     selected={location.pathname === item.path}
                     onClick={() => handleNavigate(item.path)}
                     sx={{
-                      borderRadius: 1,
+                      borderRadius: 2,
                       mx: 1,
+                      color: '#F5F6FF',
                       '&.Mui-selected': {
-                        backgroundColor: 'rgba(0, 0, 0, 0.06)',
-                        borderLeft: 'none'
+                        backgroundColor: 'rgba(124,108,255,0.28)',
+                        boxShadow: '0 10px 30px rgba(0,0,0,0.35)'
                       },
                       '&:hover': {
-                        backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                        backgroundColor: 'rgba(255,255,255,0.08)'
                       }
                     }}
                   >
-                    <ListItemIcon>{item.icon}</ListItemIcon>
+                    <ListItemIcon sx={{ color: 'inherit', minWidth: 40 }}>{item.icon}</ListItemIcon>
                     <ListItemText primary={item.label} primaryTypographyProps={{ sx: { fontWeight: 600 } }} />
                   </ListItemButton>
                 ))}
               </List>
               <Divider />
               <Box sx={{ p: 2 }}>
-                <Typography variant="caption" color="text.secondary">© {new Date().getFullYear()} Prototype</Typography>
+                <Typography variant="caption" color="text.primary">© {new Date().getFullYear()} Prototype</Typography>
               </Box>
             </Box>
           </Drawer>
@@ -129,15 +138,22 @@ export default function App() {
       >
         <Container
           maxWidth="sm"
-          sx={{ py: { xs: 2, sm: 3 } }}
+          disableGutters
+          sx={{ 
+            py: { xs: 3, sm: 4 },
+            px: { xs: 2.5, sm: 3 },
+            width: '100%',
+            maxWidth: { xs: '100%', sm: '600px' },
+            boxSizing: 'border-box'
+          }}
         >
           <Routes>
             <Route path="/" element={<LoginPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignUpPage />} />
             <Route path="/home" element={<HomePage />} />
-            <Route path="/roleplay" element={<RoleplayPage />} />
             <Route path="/learn" element={<LearnPage />} />
+            <Route path="/feedback" element={<FeedbackPage />} />
             <Route path="/mypage" element={<UserPage />} />
           </Routes>
         </Container>

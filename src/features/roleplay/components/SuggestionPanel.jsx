@@ -18,7 +18,7 @@ export default function SuggestionPanel({
     >
       <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2, height: '100%' }}>
         <Typography variant="subtitle1" fontWeight={700}>Question</Typography>
-        <Typography variant="body2" color="text.secondary">{currentQuestion}</Typography>
+        <Typography variant="body2" color="text.primary">{currentQuestion}</Typography>
         <Divider />
         <Typography variant="subtitle1" fontWeight={700}>Suggested sentences</Typography>
         <List dense>
