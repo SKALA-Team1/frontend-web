@@ -1,10 +1,17 @@
-/* MUI와 조화롭게 보이도록 기본 바디 배경/텍스트 톤 */
+@import url('https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/nanumsquare.css');
+
+/* speak 스타일 다크 테마 */
 :root {
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 html, body, #root {
   height: 100%;
+  font-family: 'NanumSquare', 'NanumSquareR', 'NanumSquareB', 'NanumSquareEB', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #05060A;
+  color: #F5F6FF;
 }
 
 

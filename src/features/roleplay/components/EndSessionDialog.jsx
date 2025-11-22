@@ -10,7 +10,7 @@ export default function EndSessionDialog({
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
       <DialogTitle sx={{ fontWeight: 700 }}>종료하시겠습니까?</DialogTitle>
       <DialogContent>
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="body2" color="text.primary">
           현재 진행 중인 롤플레잉이 종료됩니다. 저장된 내용은 유지되지 않습니다.
         </Typography>
       </DialogContent>

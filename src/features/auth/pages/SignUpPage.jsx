@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 
 export default function SignUpPage() {
   const navigate = useNavigate()
-  const signup = useSignupForm(() => navigate('/home'))
+  const signup = useSignupForm(() => navigate('/login'))
 
   return (
     <SignUpForm

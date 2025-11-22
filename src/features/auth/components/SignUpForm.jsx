@@ -45,7 +45,7 @@ export default function SignUpForm(props) {
       <Box sx={{ minHeight: '100dvh', display: 'flex', alignItems: 'center', py: 4 }}>
         <Stack spacing={3} sx={{ width: '100%', maxWidth: 500, mx: 'auto', px: 2 }}>
           <Typography variant="h6" fontWeight={700} align="center">직무를 선택해주세요.</Typography>
-          <Typography variant="body2" color="text.secondary" align="center">
+          <Typography variant="body2" color="text.primary" align="center">
             팀원들과 함께 학습을 진행해보세요.
           </Typography>
           {Object.entries(roles).map(([category, roleList]) => (
@@ -60,8 +60,9 @@ export default function SignUpForm(props) {
                     sx={{
                       justifyContent: 'flex-start',
                       textTransform: 'none',
-                      bgcolor: selectedRole === role ? 'grey.900' : 'grey.100',
-                      color: selectedRole === role ? 'common.white' : 'text.primary'
+                      bgcolor: selectedRole === role ? 'rgba(124,108,255,0.3)' : 'rgba(255,255,255,0.04)',
+                      borderColor: selectedRole === role ? 'rgba(124,108,255,0.8)' : 'rgba(255,255,255,0.2)',
+                      color: '#F5F6FF'
                     }}
                   >
                     {role}
@@ -108,7 +109,7 @@ export default function SignUpForm(props) {
                 error={!!errors.email}
               />
               <Button variant="outlined" sx={{ minWidth: 127 }} disabled>
-                이메일 인증하기
+                인증 코드 발송
               </Button>
             </Stack>
             {errors.email && (
@@ -118,6 +119,22 @@ export default function SignUpForm(props) {
             )}
           </Box>
 
+          
+          <Box>
+            <Typography variant="body2" sx={{ mb: 0.5 }}>이메일 인증 코드</Typography>
+            <TextField
+              type="text"
+              placeholder="이메일 인증 코드를 입력하세요"
+              fullWidth
+              error={!!errors.emailVerificationCode}
+            />
+            {errors.emailVerificationCode && (
+              <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
+                {errors.emailVerificationCode}
+              </Typography>
+            )}
+          </Box>
+          
           <Box>
             <Typography variant="body2" sx={{ mb: 0.5 }}>비밀번호</Typography>
             <TextField
@@ -279,7 +296,7 @@ export default function SignUpForm(props) {
                 • 이상 행위 탐지 등 보안 관리<br />
                 • 시스템 이용 통계 분석
               </Typography>
-              <Typography variant="body2" sx={{ mb: 2, lineHeight: 1.8, fontStyle: 'italic', color: 'text.secondary' }}>
+              <Typography variant="body2" sx={{ mb: 2, lineHeight: 1.8, fontStyle: 'italic', color: 'text.primary' }}>
                 ※ 입력된 정보는 AI 모델 학습 데이터로 직접 사용되지 않습니다.
               </Typography>
               <Typography variant="subtitle2" sx={{ fontWeight: 700, mt: 2, mb: 1 }}>3. 개인정보 보유 및 이용 기간</Typography>
