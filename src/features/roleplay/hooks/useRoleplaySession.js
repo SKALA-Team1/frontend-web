@@ -17,6 +17,8 @@ export default function useRoleplaySession() {
   const [sessionInfo, setSessionInfo] = useState(null)
   const [isInitialized, setIsInitialized] = useState(false)
   const [isTTSPlaying, setIsTTSPlaying] = useState(false) // TTS 재생 상태
+  const [isAvatarLoaded, setIsAvatarLoaded] = useState(false) // 아바타 로드 상태
+  const pendingFirstMessageRef = useRef(null) // 아바타 로드 전에 온 첫 질문 저장
   const bottomRef = useRef(null)
   const streamingTimeoutRef = useRef(null)
   const aiTypingTimeoutRef = useRef(null)
@@ -26,12 +28,39 @@ export default function useRoleplaySession() {
   const sttPartialTextRef = useRef('') // STT 부분 결과 저장
   const sttTimeoutRef = useRef(null) // STT 부분 결과 타임아웃
   const isRecordingRef = useRef(false) // 녹음 상태 ref (cleanup에서 사용)
+  const lipSyncDelayTimeoutRef = useRef(null) // 아바타 입모양 지연용
+  const lipSyncEndTimeoutRef = useRef(null) // 아바타 입모양 조기 종료용
 
   useEffect(() => {
     if (bottomRef.current) {
       bottomRef.current.scrollIntoView({ behavior: 'smooth' })
     }
   }, [messages, isSession])
+
+  const clearLipSyncDelay = () => {
+    if (lipSyncDelayTimeoutRef.current) {
+      clearTimeout(lipSyncDelayTimeoutRef.current)
+      lipSyncDelayTimeoutRef.current = null
+    }
+  }
+
+  const clearLipSyncEnd = () => {
+    if (lipSyncEndTimeoutRef.current) {
+      clearTimeout(lipSyncEndTimeoutRef.current)
+      lipSyncEndTimeoutRef.current = null
+    }
+  }
+
+  const scheduleLipSyncEnd = (text = '') => {
+    clearLipSyncEnd()
+    const estimatedDuration = Math.max(1500, text.length * 60) // 약 60ms/글자
+    const leadTime = 1000
+    const delay = Math.max(0, estimatedDuration - leadTime)
+    lipSyncEndTimeoutRef.current = setTimeout(() => {
+      setIsTTSPlaying(false)
+      lipSyncEndTimeoutRef.current = null
+    }, delay)
+  }
 
   // TTS 함수: AI 메시지를 음성으로 읽어주기 (비동기 처리로 메시지 표시에 영향 없음)
   const speakText = (text) => {
@@ -43,6 +72,9 @@ export default function useRoleplaySession() {
           window.speechSynthesis.cancel()
           currentUtteranceRef.current = null
         }
+        clearLipSyncDelay()
+        clearLipSyncEnd()
+        setIsTTSPlaying(false)
 
         if (!text || text.trim().length === 0) {
           return
@@ -71,21 +103,27 @@ export default function useRoleplaySession() {
           utterance.voice = englishVoice
         }
 
-        // TTS 재생 상태 설정
-        setIsTTSPlaying(true)
-
         // 이벤트 핸들러
         utterance.onstart = () => {
-          setIsTTSPlaying(true)
+          clearLipSyncDelay()
+          lipSyncDelayTimeoutRef.current = setTimeout(() => {
+            setIsTTSPlaying(true)
+            scheduleLipSyncEnd(text)
+            lipSyncDelayTimeoutRef.current = null
+          }, 500) // 지연 후 입모양 시작
         }
 
         utterance.onend = () => {
           currentUtteranceRef.current = null
+          clearLipSyncDelay()
+          clearLipSyncEnd()
           setIsTTSPlaying(false)
         }
 
         utterance.onerror = (error) => {
           currentUtteranceRef.current = null
+          clearLipSyncDelay()
+          clearLipSyncEnd()
           setIsTTSPlaying(false)
         }
 
@@ -103,8 +141,10 @@ export default function useRoleplaySession() {
     if (currentUtteranceRef.current) {
       window.speechSynthesis.cancel()
       currentUtteranceRef.current = null
-      setIsTTSPlaying(false)
     }
+    clearLipSyncDelay()
+    clearLipSyncEnd()
+    setIsTTSPlaying(false)
   }
 
   // 음성 목록 로드 (일부 브라우저에서 필요)
@@ -131,6 +171,19 @@ export default function useRoleplaySession() {
 
       case 'AI_TEXT':
         // 기존 방식: 한 번에 전체 메시지 받기 (고정 질문 등)
+        // ✅ 첫 질문이고 아바타가 아직 로드되지 않았으면 대기
+        if (!isAvatarLoaded && messages.length === 0) {
+          pendingFirstMessageRef.current = {
+            who: 'AI',
+            text: message.text,
+            isFixedQuestion: message.is_fixed_question || false,
+            isStreaming: false
+          }
+          // 아바타 로드 완료를 기다림 (handleAvatarLoad에서 처리)
+          break
+        }
+        
+        // 아바타가 로드되었거나 첫 질문이 아니면 즉시 표시
         setMessages(prev => [...prev, {
           who: 'AI',
           text: message.text,
@@ -387,6 +440,8 @@ export default function useRoleplaySession() {
       setIsRecording(false)
     }
     setIsInitialized(false)
+    setIsAvatarLoaded(false)
+    pendingFirstMessageRef.current = null
     alert('연결 오류가 발생했습니다. 다시 시도해주세요.')
   }
 
@@ -410,8 +465,29 @@ export default function useRoleplaySession() {
     }
     setWsConnection(null)
     setIsInitialized(false)
+    setIsAvatarLoaded(false)
+    pendingFirstMessageRef.current = null
     // TTS도 중지
     stopTTS()
+  }
+
+  // 아바타 로드 완료 핸들러
+  const handleAvatarLoad = () => {
+    setIsAvatarLoaded(true)
+    
+    // 대기 중인 첫 질문이 있으면 표시
+    if (pendingFirstMessageRef.current) {
+      const pendingMessage = pendingFirstMessageRef.current
+      pendingFirstMessageRef.current = null
+      
+      setMessages(prev => [...prev, pendingMessage])
+      
+      // 타이핑 효과 완료 후 TTS 재생
+      const typingDuration = pendingMessage.text.length * 30 + 500
+      setTimeout(() => {
+        speakText(pendingMessage.text)
+      }, typingDuration)
+    }
   }
 
   const startWithMic = async (title, body, scenarioId = 1) => {
@@ -426,6 +502,8 @@ export default function useRoleplaySession() {
       setView('session')
       setMessages([]) // 더미 데이터 제거
       setIsInitialized(false)
+      setIsAvatarLoaded(false) // 아바타 로드 상태 리셋
+      pendingFirstMessageRef.current = null // 첫 질문 대기 상태 리셋
 
       // 1. JWT 토큰 생성
       const jwtToken = await getJwtToken(1)
@@ -483,6 +561,8 @@ export default function useRoleplaySession() {
     setIsSession(false)
     setMessages([])
     setIsInitialized(false)
+    setIsAvatarLoaded(false)
+    pendingFirstMessageRef.current = null
     setSummary({ time: '10분', turns: 10, suggestions: 3 })
     setEvaluating(true)
     setTimeout(() => {
@@ -864,7 +944,9 @@ export default function useRoleplaySession() {
     handleTextInputChange,
     sendMessage,
     isTTSPlaying, // TTS 재생 상태를 반환
-    handleMicToggle // 마이크 버튼 토글 핸들러
+    handleMicToggle, // 마이크 버튼 토글 핸들러
+    isAvatarLoaded, // 아바타 로드 상태
+    handleAvatarLoad // 아바타 로드 완료 핸들러
   }
 }
 

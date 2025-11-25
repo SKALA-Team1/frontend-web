@@ -16,7 +16,10 @@ export default function LearnChapterList({ chapters }) {
             overflow: 'hidden',
             backgroundColor: 'rgba(255,255,255,0.02)',
             '&:before': { display: 'none' },
-            '&.Mui-expanded': { margin: 0 },
+            '&.Mui-expanded': { 
+              margin: 0,
+              marginTop: 3 // 펼쳐졌을 때 위쪽 마진 추가
+            },
             '&:first-of-type': { borderRadius: 3 },
             '&:last-of-type': { borderRadius: 3 }
           }}
@@ -70,9 +73,13 @@ export default function LearnChapterList({ chapters }) {
           </AccordionSummary>
           <AccordionDetails sx={{ py: 2.5, px: 2, backgroundColor: 'rgba(255,255,255,0.02)' }}>
             <List disablePadding>
-              {[1, 2, 3].map((lesson) => (
+              {[
+                '1. Warm-up Talk in Vietnam',
+                '2. Casual American Icebreakers',
+                '3. Simple Korean Small Talk'
+              ].map((lessonTitle, lessonIdx) => (
                   <ListItemButton
-                    key={lesson}
+                    key={lessonIdx}
                     sx={{
                       borderRadius: 2,
                       mb: 1.5,
@@ -96,7 +103,7 @@ export default function LearnChapterList({ chapters }) {
                           mb: 0.5
                         }}
                       >
-                        Lesson {lesson}
+                        {lessonTitle}
                       </Typography>
                     }
                     secondary={
@@ -111,7 +118,7 @@ export default function LearnChapterList({ chapters }) {
                       </Typography>
                     }
                   />
-                  {lesson === 1 && (
+                  {lessonIdx === 0 && (
                     <Chip 
                       variant="outlined" 
                       label="Start" 

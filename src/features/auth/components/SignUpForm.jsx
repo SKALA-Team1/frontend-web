@@ -90,6 +90,25 @@ export default function SignUpForm(props) {
               onChange={handleNameChange}
               fullWidth
               error={!!errors.name}
+              sx={{
+                '& .MuiInputBase-input': {
+                  color: '#F5F6FF'
+                },
+                '& .MuiInputLabel-root': {
+                  color: 'rgba(255,255,255,0.7)'
+                },
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    borderColor: 'rgba(255,255,255,0.2)'
+                  },
+                  '&:hover fieldset': {
+                    borderColor: 'rgba(255,255,255,0.3)'
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: 'rgba(124,108,255,0.8)'
+                  }
+                }
+              }}
             />
             {errors.name && (
               <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
@@ -107,6 +126,25 @@ export default function SignUpForm(props) {
                 onChange={handleEmailChange}
                 fullWidth
                 error={!!errors.email}
+                sx={{
+                  '& .MuiInputBase-input': {
+                    color: '#F5F6FF'
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: 'rgba(255,255,255,0.7)'
+                  },
+                  '& .MuiOutlinedInput-root': {
+                    '& fieldset': {
+                      borderColor: 'rgba(255,255,255,0.2)'
+                    },
+                    '&:hover fieldset': {
+                      borderColor: 'rgba(255,255,255,0.3)'
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'rgba(124,108,255,0.8)'
+                    }
+                  }
+                }}
               />
               <Button variant="outlined" sx={{ minWidth: 127 }} disabled>
                 인증 코드 발송
@@ -127,6 +165,25 @@ export default function SignUpForm(props) {
               placeholder="이메일 인증 코드를 입력하세요"
               fullWidth
               error={!!errors.emailVerificationCode}
+              sx={{
+                '& .MuiInputBase-input': {
+                  color: '#F5F6FF'
+                },
+                '& .MuiInputLabel-root': {
+                  color: 'rgba(255,255,255,0.7)'
+                },
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    borderColor: 'rgba(255,255,255,0.2)'
+                  },
+                  '&:hover fieldset': {
+                    borderColor: 'rgba(255,255,255,0.3)'
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: 'rgba(124,108,255,0.8)'
+                  }
+                }
+              }}
             />
             {errors.emailVerificationCode && (
               <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
@@ -144,6 +201,27 @@ export default function SignUpForm(props) {
               onChange={handlePasswordChange}
               fullWidth
               error={!!errors.password}
+              sx={{
+                '& .MuiInputBase-input': {
+                  color: '#F5F6FF',
+                  letterSpacing: 'normal',
+                  fontFamily: 'inherit'
+                },
+                '& .MuiInputLabel-root': {
+                  color: 'rgba(255,255,255,0.7)'
+                },
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    borderColor: 'rgba(255,255,255,0.2)'
+                  },
+                  '&:hover fieldset': {
+                    borderColor: 'rgba(255,255,255,0.3)'
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: 'rgba(124,108,255,0.8)'
+                  }
+                }
+              }}
             />
             {errors.password && (
               <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
@@ -161,6 +239,27 @@ export default function SignUpForm(props) {
               onChange={handleConfirmPasswordChange}
               fullWidth
               error={!!errors.confirmPassword}
+              sx={{
+                '& .MuiInputBase-input': {
+                  color: '#F5F6FF',
+                  letterSpacing: 'normal',
+                  fontFamily: 'inherit'
+                },
+                '& .MuiInputLabel-root': {
+                  color: 'rgba(255,255,255,0.7)'
+                },
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    borderColor: 'rgba(255,255,255,0.2)'
+                  },
+                  '&:hover fieldset': {
+                    borderColor: 'rgba(255,255,255,0.3)'
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: 'rgba(124,108,255,0.8)'
+                  }
+                }
+              }}
             />
             {errors.confirmPassword && (
               <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>

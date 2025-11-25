@@ -130,7 +130,11 @@ const theme = createTheme({
           borderColor: 'rgba(255,255,255,0.18)'
         },
         input: {
-          color: '#F5F6FF'
+          color: '#F5F6FF',
+          '&::placeholder': {
+            color: 'rgba(255,255,255,0.5)',
+            opacity: 1
+          }
         }
       }
     },

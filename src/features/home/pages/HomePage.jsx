@@ -1,9 +1,8 @@
-import React from 'react'
-import { Stack, Typography, Box, CircularProgress } from '@mui/material'
+import React, { useState, useEffect } from 'react'
+import { Stack, Typography, Box, CircularProgress, useMediaQuery, useTheme } from '@mui/material'
 import useHomePage from '../hooks/useHomePage'
 import useHomeRoleplay from '../hooks/useHomeRoleplay'
-import GreetingSection from '../components/GreetingSection'
-import SummaryCard from '../components/SummaryCard'
+import ProfileSummary from '../../user/components/ProfileSummary'
 import RoleplayCTACard from '../components/RoleplayCTACard'
 import CreateRoleplayDialog from '../components/CreateRoleplayDialog'
 import RoleplayScenarioList from '../../roleplay/components/ScenarioList'
@@ -14,6 +13,30 @@ import CalendarDialog from '../../roleplay/components/CalendarDialog'
 import SuggestionPanel from '../../roleplay/components/SuggestionPanel'
 
 export default function HomePage() {
+  const theme = useTheme()
+  const isDesktop = useMediaQuery(theme.breakpoints.up('md')) // 900px 이상
+  const drawerWidth = 280
+  
+  // 스크롤 위치 감지
+  const [isAtTop, setIsAtTop] = useState(true)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // 스크롤 위치가 맨 위(50px 이하)인지 확인
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+      setIsAtTop(scrollTop <= 50)
+    }
+
+    // 초기 상태 확인
+    handleScroll()
+
+    // 스크롤 이벤트 리스너 추가
+    window.addEventListener('scroll', handleScroll, { passive: true })
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+    }
+  }, [])
   const {
     openCreate,
     aiRole,
@@ -81,6 +104,7 @@ export default function HomePage() {
           onTextInputChange={session.handleTextInputChange}
           onSendMessage={session.sendMessage}
           isTTSPlaying={session.isTTSPlaying}
+          onAvatarLoad={session.handleAvatarLoad}
         />
         <SuggestionPanel
           open={openPanel}
@@ -133,43 +157,66 @@ export default function HomePage() {
 
   // 기본 홈 화면
   return (
-    <Stack spacing={2}>
-      <GreetingSection />
-      <SummaryCard />
-      <RoleplayCTACard onClick={handleOpenCreate} />
+    <>
+      <Stack spacing={2}>
+        <ProfileSummary />
 
-      <RoleplayScenarioList
-        tab={tab}
-        setTab={setTab}
-        filteredItems={filters.filteredItems}
-        filter={filters.filter}
-        setFilter={filters.setFilter}
-        onOpenCalendar={() => setOpenCal(true)}
-        onStartRoleplay={session.startWithMic}
-      />
+        <RoleplayScenarioList
+          tab={tab}
+          setTab={setTab}
+          filteredItems={filters.filteredItems}
+          filter={filters.filter}
+          setFilter={filters.setFilter}
+          onOpenCalendar={() => setOpenCal(true)}
+          onStartRoleplay={session.startWithMic}
+        />
 
-      <CalendarDialog
-        open={openCal}
-        onClose={() => setOpenCal(false)}
-        startDate={startDate}
-        endDate={endDate}
-        onStartDateChange={setStartDate}
-        onEndDateChange={setEndDate}
-      />
+        <CalendarDialog
+          open={openCal}
+          onClose={() => setOpenCal(false)}
+          startDate={startDate}
+          endDate={endDate}
+          onStartDateChange={setStartDate}
+          onEndDateChange={setEndDate}
+        />
 
-      <CreateRoleplayDialog
-        open={openCreate}
-        onClose={handleCloseCreate}
-        aiRole={aiRole}
-        myRole={myRole}
-        goal={goal}
-        onAiRoleChange={handleAiRoleChange}
-        onMyRoleChange={handleMyRoleChange}
-        onGoalChange={handleGoalChange}
-        onStart={handleStartRoleplay}
-      />
-    </Stack>
+        <CreateRoleplayDialog
+          open={openCreate}
+          onClose={handleCloseCreate}
+          aiRole={aiRole}
+          myRole={myRole}
+          goal={goal}
+          onAiRoleChange={handleAiRoleChange}
+          onMyRoleChange={handleMyRoleChange}
+          onGoalChange={handleGoalChange}
+          onStart={handleStartRoleplay}
+        />
+      </Stack>
+
+      {/* 고정 버튼: 스크롤이 맨 위에 있을 때만 표시 */}
+      <Box
+        sx={{
+          position: 'fixed',
+          bottom: 0,
+          left: isDesktop ? `${drawerWidth}px` : 0,
+          right: 0,
+          zIndex: 1000,
+          px: { xs: 2.5, sm: 3 },
+          pb: 4,
+          pt: 1,
+          pointerEvents: isAtTop ? 'auto' : 'none',
+          opacity: isAtTop ? 1 : 0,
+          transform: isAtTop ? 'translateY(0)' : 'translateY(100%)',
+          transition: 'opacity 0.3s ease, transform 0.3s ease',
+          maxWidth: { xs: '100%', sm: '600px' }, // 시나리오 카드와 동일한 최대 너비
+          mx: 'auto',
+          display: 'flex',
+          justifyContent: 'center'
+        }}
+      >
+        <RoleplayCTACard onClick={handleOpenCreate} />
+      </Box>
+    </>
   )
 }
-
 

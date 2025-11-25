@@ -82,6 +82,7 @@ export default function RoleplayPage() {
           isRecording={session.isRecording}
           onMicClick={session.handleMicToggle}
           isTTSPlaying={session.isTTSPlaying}
+          onAvatarLoad={session.handleAvatarLoad}
         />
       )}
 

@@ -18,26 +18,35 @@ export default function ScenarioList({
         <Tab value="created" label="나의 롤플레잉" />
       </Tabs>
 
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <IconButton onClick={onOpenCalendar} aria-label="달력 열기">
-          <CalendarMonthIcon />
-        </IconButton>
-      </Box>
-
       <Box sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1, alignItems: 'center' }}>
         <Typography variant="caption" color="text.primary">
           총 {filteredItems.length}개 시나리오
         </Typography>
-        <ToggleButtonGroup
-          value={filter}
-          exclusive
-          size="small"
-          onChange={(_, value) => value && setFilter(value)}
-        >
-          <ToggleButton value="latest">최신순</ToggleButton>
-          <ToggleButton value="done">완료</ToggleButton>
-          <ToggleButton value="pending">미완료</ToggleButton>
-        </ToggleButtonGroup>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <ToggleButtonGroup
+            value={filter}
+            exclusive
+            size="small"
+            onChange={(_, value) => value && setFilter(value)}
+            sx={{
+              '& .MuiToggleButton-root': {
+                borderWidth: '2px', // 테두리 두께 (기본값은 1px)
+                borderColor: 'rgba(255,255,255,0.3)', // 테두리 색상 (선택사항)
+                '&.Mui-selected': {
+                  borderWidth: '2px', // 선택된 버튼도 두껍게
+                  borderColor: 'rgba(124,108,255,0.8)' // 선택된 버튼 테두리 색상 (선택사항)
+                }
+              }
+            }}
+          >
+            <ToggleButton value="latest">최신순</ToggleButton>
+            <ToggleButton value="done">완료</ToggleButton>
+            <ToggleButton value="pending">미완료</ToggleButton>
+          </ToggleButtonGroup>
+          <IconButton onClick={onOpenCalendar} aria-label="달력 열기" size="small">
+            <CalendarMonthIcon />
+          </IconButton>
+        </Box>
       </Box>
 
       <Stack spacing={2}>

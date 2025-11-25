@@ -1,7 +1,8 @@
 // API 연동을 위한 함수들을 여기에 작성합니다
 
-const GATEWAY_URL = 'http://localhost:8080'
-const FASTAPI_WS_URL = 'ws://localhost:8082'
+// 환경 변수에서 API URL 가져오기 (Vite는 VITE_ 접두사 필요)
+const GATEWAY_URL = import.meta.env.VITE_GATEWAY_URL || 'http://localhost:8080'
+const FASTAPI_WS_URL = import.meta.env.VITE_FASTAPI_WS_URL || 'ws://localhost:8082'
 
 /**
  * JWT 토큰 생성 (테스트용)
@@ -9,12 +10,31 @@ const FASTAPI_WS_URL = 'ws://localhost:8082'
  * @returns {Promise<string>} JWT 토큰
  */
 export async function getJwtToken(userId = 1) {
-  const response = await fetch(`${GATEWAY_URL}/auth/test/token/${userId}`)
-  if (!response.ok) {
-    throw new Error('JWT 토큰 생성 실패')
+  const url = `${GATEWAY_URL}/auth/test/token/${userId}`
+  
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('[API] JWT 토큰 생성 실패:', response.status, errorText)
+      throw new Error(`JWT 토큰 생성 실패 (${response.status}): ${errorText}`)
+    }
+    
+    const data = await response.json()
+    return data.accessToken
+  } catch (error) {
+    console.error('[API] 네트워크 에러:', error)
+    if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+      throw new Error(`백엔드 서버에 연결할 수 없습니다. URL: ${url}`)
+    }
+    throw error
   }
-  const data = await response.json()
-  return data.accessToken
 }
 
 /**
@@ -24,21 +44,33 @@ export async function getJwtToken(userId = 1) {
  * @returns {Promise<Object>} 세션 정보 (session_id, ws_url, scenario 등)
  */
 export async function startSession(jwtToken, scenarioId) {
-  const response = await fetch(`${GATEWAY_URL}/roleplaying/sessions`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${jwtToken}`
-    },
-    body: JSON.stringify({ scenarioId })
-  })
+  const url = `${GATEWAY_URL}/roleplaying/sessions`
   
-  if (!response.ok) {
-    const error = await response.text()
-    throw new Error(`세션 생성 실패: ${error}`)
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${jwtToken}`
+      },
+      body: JSON.stringify({ scenarioId })
+    })
+    
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('[API] 세션 생성 실패:', response.status, errorText)
+      throw new Error(`세션 생성 실패 (${response.status}): ${errorText}`)
+    }
+    
+    const data = await response.json()
+    return data
+  } catch (error) {
+    console.error('[API] 네트워크 에러:', error)
+    if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+      throw new Error(`백엔드 서버에 연결할 수 없습니다. URL: ${url}`)
+    }
+    throw error
   }
-  
-  return await response.json()
 }
 
 /**
@@ -89,5 +121,4 @@ export function createWebSocketConnection(wsUrl, onMessage, onError, onClose, on
   
   return ws
 }
-
 
