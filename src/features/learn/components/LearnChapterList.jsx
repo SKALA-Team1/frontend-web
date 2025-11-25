@@ -26,7 +26,7 @@ export default function LearnChapterList({ chapters }) {
               <ExpandMoreIcon 
                 sx={{ 
                   color: '#F5F6FF',
-                  fontSize: 28
+                  fontSize: 21
                 }} 
               />
             }
@@ -53,14 +53,14 @@ export default function LearnChapterList({ chapters }) {
                   borderColor: 'rgba(124,108,255,0.5)',
                   color: '#6C63FF',
                   fontWeight: 600,
-                  fontSize: '0.75rem'
+                  fontSize: '0.5625rem'
                 }}
               />
               <Typography 
                 variant="subtitle1" 
                 sx={{ 
                   fontWeight: 700,
-                  fontSize: '1.125rem',
+                  fontSize: '0.84375rem',
                   color: '#F5F6FF'
                 }}
               >
@@ -104,7 +104,7 @@ export default function LearnChapterList({ chapters }) {
                         variant="body2" 
                         sx={{ 
                           color: 'rgba(245,246,255,0.7)',
-                          fontSize: '0.875rem'
+                          fontSize: '0.65625rem'
                         }}
                       >
                         {title} - 핵심 표현 익히기

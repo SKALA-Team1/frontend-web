@@ -9,7 +9,7 @@ export default function SessionHeader({ title, onEndSession }) {
         alignItems: 'center', 
         mb: 2,
         px: 1,
-        py: 1.5
+        py: 0
       }}
     >
       <Box sx={{ width: 72 }} />
@@ -19,7 +19,7 @@ export default function SessionHeader({ title, onEndSession }) {
         sx={{ 
           fontWeight: 700, 
           flex: 1,
-          fontSize: '1.25rem',
+          fontSize: '0.9375rem',
           color: '#F5F6FF'
         }}
       >

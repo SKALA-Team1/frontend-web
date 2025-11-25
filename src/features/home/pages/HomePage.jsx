@@ -73,13 +73,14 @@ export default function HomePage() {
           bottomRef={session.bottomRef}
           onEndSession={() => setOpenEnd(true)}
           onOpenPanel={() => setOpenPanel(true)}
-          onMicClick={() => session.setIsRecording(!session.isRecording)}
+          onMicClick={session.handleMicToggle}
           isRecording={session.isRecording}
           isKeyboardMode={session.isKeyboardMode}
           onKeyboardToggle={session.toggleKeyboardMode}
           textInput={session.textInput}
           onTextInputChange={session.handleTextInputChange}
           onSendMessage={session.sendMessage}
+          isTTSPlaying={session.isTTSPlaying}
         />
         <SuggestionPanel
           open={openPanel}

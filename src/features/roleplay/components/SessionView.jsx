@@ -19,12 +19,13 @@ export default function SessionView({
   onKeyboardToggle,
   textInput = '',
   onTextInputChange,
-  onSendMessage
+  onSendMessage,
+  isTTSPlaying = false
 }) {
   return (
     <Box
       sx={{
-        py: { xs: 2, sm: 2 },
+        py: 0,
         px: { xs: 0, sm: 0 },
         height: { xs: 'calc(100dvh - 120px)', sm: 'calc(100dvh - 120px)' },
         display: 'flex',
@@ -34,7 +35,7 @@ export default function SessionView({
       }}
     >
       <SessionHeader title={selectedTitle} onEndSession={onEndSession} />
-      <AvatarWindow />
+      <AvatarWindow isTTSPlaying={isTTSPlaying} />
       <MessageList messages={messages} bottomRef={bottomRef} />
       
       {isKeyboardMode ? (
@@ -42,10 +43,13 @@ export default function SessionView({
           value={textInput}
           onChange={onTextInputChange}
           onSend={onSendMessage}
+          onKeyboardToggle={onKeyboardToggle}
+          onMicToggle={onKeyboardToggle}
+          isKeyboardMode={isKeyboardMode}
         />
       ) : (
         <MicButton 
-          onClick={onMicClick} 
+          onClick={onMicClick || (() => {})} 
           isRecording={isRecording}
           onKeyboardToggle={onKeyboardToggle}
           isKeyboardMode={isKeyboardMode}

@@ -31,7 +31,7 @@ export default function CreateRoleplayDialog({
       <DialogTitle
         sx={{
           fontWeight: 700,
-          fontSize: '1.5rem',
+          fontSize: '1.125rem',
           color: '#F5F6FF',
           pb: 2,
           borderBottom: '1px solid rgba(255,255,255,0.1)'

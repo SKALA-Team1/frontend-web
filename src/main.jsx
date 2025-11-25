@@ -21,14 +21,15 @@ const theme = createTheme({
   typography: {
     fontFamily:
       "'NanumSquare', 'NanumSquareR', 'NanumSquareB', 'NanumSquareEB', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
-    h5: { fontSize: '1.5rem', fontWeight: 700, letterSpacing: -0.2 }, // 24px
-    h6: { fontSize: '1.25rem', fontWeight: 600, letterSpacing: -0.1 }, // 20px
-    subtitle1: { fontSize: '1.25rem' }, // 20px
-    subtitle2: { fontSize: '1.125rem' }, // 18px
-    body1: { fontSize: '1.125rem' }, // 18px
-    body2: { fontSize: '1.125rem' }, // 18px
-    button: { fontSize: '1.125rem', textTransform: 'none', fontWeight: 600 }, // 18px
-    caption: { fontSize: '1rem' } // 16px
+    h4: { fontSize: '1.3125rem', fontWeight: 700, letterSpacing: -0.2 }, // 21px (28px * 0.75)
+    h5: { fontSize: '1.125rem', fontWeight: 700, letterSpacing: -0.2 }, // 18px (24px * 0.75)
+    h6: { fontSize: '0.9375rem', fontWeight: 600, letterSpacing: -0.1 }, // 15px (20px * 0.75)
+    subtitle1: { fontSize: '0.9375rem' }, // 15px (20px * 0.75)
+    subtitle2: { fontSize: '0.84375rem' }, // 13.5px (18px * 0.75)
+    body1: { fontSize: '0.84375rem' }, // 13.5px (18px * 0.75)
+    body2: { fontSize: '0.84375rem' }, // 13.5px (18px * 0.75)
+    button: { fontSize: '0.84375rem', textTransform: 'none', fontWeight: 600 }, // 13.5px (18px * 0.75)
+    caption: { fontSize: '0.75rem' } // 12px (16px * 0.75)
   },
   components: {
     MuiCssBaseline: {
