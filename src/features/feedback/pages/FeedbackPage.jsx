@@ -59,7 +59,7 @@ export default function FeedbackPage() {
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'space-between', mb: 2 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Typography variant="subtitle1" fontWeight={700} sx={{ fontSize: '1.25rem' }}>
+                    <Typography variant="subtitle1" fontWeight={700} sx={{ fontSize: '0.9375rem' }}>
                       {item.title}
                     </Typography>
                   </Box>

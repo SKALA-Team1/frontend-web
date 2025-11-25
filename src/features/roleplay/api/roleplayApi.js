@@ -1,72 +1,93 @@
 // API 연동을 위한 함수들을 여기에 작성합니다
-// 예시:
+
+const GATEWAY_URL = 'http://localhost:8080'
+const FASTAPI_WS_URL = 'ws://localhost:8082'
 
 /**
- * 시나리오 목록 조회
- * @param {string} type - 'linked' | 'created'
- * @returns {Promise<Array>}
+ * JWT 토큰 생성 (테스트용)
+ * @param {number} userId - 사용자 ID
+ * @returns {Promise<string>} JWT 토큰
  */
-export async function getScenarios(type) {
-  // TODO: API 호출 구현
-  // const response = await fetch(`/api/roleplay/scenarios?type=${type}`)
-  // return response.json()
-  return []
+export async function getJwtToken(userId = 1) {
+  const response = await fetch(`${GATEWAY_URL}/auth/test/token/${userId}`)
+  if (!response.ok) {
+    throw new Error('JWT 토큰 생성 실패')
+  }
+  const data = await response.json()
+  return data.accessToken
 }
 
 /**
  * 롤플레잉 세션 시작
- * @param {string} scenarioId
- * @returns {Promise<Object>}
+ * @param {string} jwtToken - JWT 토큰
+ * @param {number} scenarioId - 시나리오 ID
+ * @returns {Promise<Object>} 세션 정보 (session_id, ws_url, scenario 등)
  */
-export async function startSession(scenarioId) {
-  // TODO: API 호출 구현
-  // const response = await fetch('/api/roleplay/session/start', {
-  //   method: 'POST',
-  //   body: JSON.stringify({ scenarioId })
-  // })
-  // return response.json()
-  return {}
+export async function startSession(jwtToken, scenarioId) {
+  const response = await fetch(`${GATEWAY_URL}/roleplaying/sessions`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${jwtToken}`
+    },
+    body: JSON.stringify({ scenarioId })
+  })
+  
+  if (!response.ok) {
+    const error = await response.text()
+    throw new Error(`세션 생성 실패: ${error}`)
+  }
+  
+  return await response.json()
 }
 
 /**
- * 롤플레잉 세션 종료 및 평가 요청
- * @param {string} sessionId
- * @returns {Promise<Object>}
+ * WebSocket 연결 생성
+ * @param {string} wsUrl - WebSocket URL
+ * @param {Function} onMessage - 메시지 수신 콜백
+ * @param {Function} onError - 에러 콜백
+ * @param {Function} onClose - 연결 종료 콜백
+ * @param {Function} onOpen - 연결 완료 콜백 (선택사항)
+ * @returns {WebSocket} WebSocket 인스턴스
  */
-export async function endSession(sessionId) {
-  // TODO: API 호출 구현
-  // const response = await fetch(`/api/roleplay/session/${sessionId}/end`, {
-  //   method: 'POST'
-  // })
-  // return response.json()
-  return {}
+export function createWebSocketConnection(wsUrl, onMessage, onError, onClose, onOpen) {
+  const ws = new WebSocket(wsUrl)
+  
+  // Binary 데이터 처리를 위해 arraybuffer로 설정
+  ws.binaryType = 'arraybuffer'
+  
+  ws.onopen = () => {
+    if (onOpen) {
+      onOpen(ws)
+    }
+  }
+  
+  ws.onmessage = (event) => {
+    try {
+      // Binary 데이터인 경우 (Blob 또는 ArrayBuffer)
+      if (event.data instanceof Blob || event.data instanceof ArrayBuffer) {
+        // Binary 데이터는 오디오 청크이므로 처리하지 않음 (서버에서 보내는 것이 아님)
+        // 클라이언트는 binary를 보내기만 하고, 서버는 JSON으로 응답함
+        return
+      }
+      
+      // JSON 메시지 파싱
+      const message = JSON.parse(event.data)
+      onMessage(message)
+    } catch (error) {
+      // 메시지 파싱 실패 무시
+    }
+  }
+  
+  ws.onerror = (error) => {
+    onError(error)
+  }
+  
+  ws.onclose = () => {
+    onClose()
+  }
+  
+  return ws
 }
 
-/**
- * 피드백 내역 조회
- * @param {string} scenarioId
- * @returns {Promise<Array>}
- */
-export async function getFeedbackHistory(scenarioId) {
-  // TODO: API 호출 구현
-  // const response = await fetch(`/api/roleplay/feedback?scenarioId=${scenarioId}`)
-  // return response.json()
-  return []
-}
-
-/**
- * 북마크 추가/제거
- * @param {string} suggestionId
- * @param {boolean} isBookmarked
- * @returns {Promise<Object>}
- */
-export async function toggleBookmark(suggestionId, isBookmarked) {
-  // TODO: API 호출 구현
-  // const response = await fetch(`/api/roleplay/bookmark`, {
-  //   method: isBookmarked ? 'DELETE' : 'POST',
-  //   body: JSON.stringify({ suggestionId })
-  // })
-  // return response.json()
-  return {}
-}
 

@@ -12,7 +12,7 @@ export default function LearnPage() {
       {/* 헤더 섹션 */}
       <Box sx={{ textAlign: 'center', mb: 1 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1.5, mb: 1.5 }}>
-          <SchoolIcon sx={{ fontSize: 32, color: '#6C63FF' }} />
+          <SchoolIcon sx={{ fontSize: 24, color: '#6C63FF' }} />
           <Typography variant="h4" sx={{ fontWeight: 700, color: '#F5F6FF' }}>
             학습
           </Typography>

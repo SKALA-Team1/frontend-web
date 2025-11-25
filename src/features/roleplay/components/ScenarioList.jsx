@@ -46,7 +46,7 @@ export default function ScenarioList({
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'space-between', mb: 2 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Typography variant="subtitle1" fontWeight={700} sx={{ fontSize: '1.25rem' }}>
+                  <Typography variant="subtitle1" fontWeight={700} sx={{ fontSize: '0.9375rem' }}>
                     {item.title}
                   </Typography>
                   {item.done && <Chip label="완료" size="small" />}
@@ -65,7 +65,11 @@ export default function ScenarioList({
                 {item.body}
               </Typography>
               <Box sx={{ display: 'flex', gap: 1, mt: 2, justifyContent: 'flex-end' }}>
-                <Button variant="contained" size="small" onClick={() => onStartRoleplay(item.title, item.body)}>
+                <Button 
+                  variant="contained" 
+                  size="small" 
+                  onClick={() => onStartRoleplay(item.title, item.body, item.scenarioId || 1)}
+                >
                   롤플레잉
                 </Button>
               </Box>

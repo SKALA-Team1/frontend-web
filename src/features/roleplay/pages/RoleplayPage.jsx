@@ -74,6 +74,14 @@ export default function RoleplayPage() {
           bottomRef={session.bottomRef}
           onEndSession={() => setOpenEnd(true)}
           onOpenPanel={() => setOpenPanel(true)}
+          isKeyboardMode={session.isKeyboardMode}
+          onKeyboardToggle={session.toggleKeyboardMode}
+          textInput={session.textInput}
+          onTextInputChange={session.handleTextInputChange}
+          onSendMessage={session.sendMessage}
+          isRecording={session.isRecording}
+          onMicClick={session.handleMicToggle}
+          isTTSPlaying={session.isTTSPlaying}
         />
       )}
 
