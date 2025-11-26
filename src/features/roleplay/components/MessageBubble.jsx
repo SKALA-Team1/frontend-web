@@ -256,6 +256,8 @@ function MessageBubble({ message, index }) {
     }
   }, [text, who, isStreaming, message?.isSTT])
 
+  const shouldShowCursor = isTyping && (who !== 'AI' || isStreaming)
+
   return (
     <Box sx={{ display: 'flex', justifyContent: style.justifyContent, px: 1 }}>
       <Box
@@ -291,7 +293,7 @@ function MessageBubble({ message, index }) {
           }}
         >
           {displayedText || text}
-          {isTyping && (
+          {shouldShowCursor && (
             <Box
               component="span"
               sx={{

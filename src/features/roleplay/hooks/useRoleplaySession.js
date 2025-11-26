@@ -1,42 +1,141 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
 import { getJwtToken, startSession, createWebSocketConnection } from '../api/roleplayApi'
 
+/**
+ * 롤플레이 세션 관리를 위한 커스텀 훅
+ * 
+ * 롤플레이 세션의 전체 생명주기를 관리하는 핵심 훅
+ * - WebSocket 연결 및 메시지 처리
+ * - 오디오 스트리밍 (마이크 입력 → PCM 변환 → 서버 전송)
+ * - STT (Speech-to-Text) 실시간 표시
+ * - TTS (Text-to-Speech) 음성 재생
+ * - 아바타 애니메이션 제어
+ * - 세션 상태 관리 (list, session, summary)
+ * 
+ * @returns {Object} 롤플레이 세션 관련 상태 및 핸들러
+ *   - isSession: boolean - 세션 활성화 여부
+ *   - messages: Array - 대화 메시지 목록
+ *   - selectedTitle: string - 선택된 시나리오 제목
+ *   - selectedBody: string - 선택된 시나리오 본문
+ *   - view: string - 현재 뷰 상태 ('list' | 'session' | 'summary')
+ *   - summaryTab: string - 요약 탭 상태 ('summary' | 'transcript')
+ *   - evaluating: boolean - 평가 중 여부
+ *   - summary: Object - 세션 요약 정보
+ *   - isKeyboardMode: boolean - 키보드 입력 모드 여부
+ *   - textInput: string - 텍스트 입력값
+ *   - isRecording: boolean - 녹음 중 여부
+ *   - isTTSPlaying: boolean - TTS 재생 중 여부
+ *   - isAvatarLoaded: boolean - 아바타 로드 완료 여부
+ *   - bottomRef: Ref - 메시지 리스트 하단 스크롤용 ref
+ *   - startWithMic: Function - 마이크로 세션 시작 핸들러
+ *   - startWithKeyboard: Function - 키보드로 세션 시작 핸들러
+ *   - endSession: Function - 세션 종료 핸들러
+ *   - handleMicToggle: Function - 마이크 토글 핸들러
+ *   - sendMessage: Function - 텍스트 메시지 전송 핸들러
+ *   - toggleKeyboardMode: Function - 키보드 모드 토글 핸들러
+ *   - handleTextInputChange: Function - 텍스트 입력 변경 핸들러
+ *   - handleFeedbackView: Function - 피드백 뷰로 전환 핸들러
+ *   - handleAvatarLoad: Function - 아바타 로드 완료 핸들러
+ */
 export default function useRoleplaySession() {
+  // 세션 활성화 여부
   const [isSession, setIsSession] = useState(false)
+  
+  // 대화 메시지 목록 (AI와 사용자의 메시지 포함)
   const [messages, setMessages] = useState([])
+  
+  // 선택된 시나리오 제목
   const [selectedTitle, setSelectedTitle] = useState('')
+  
+  // 선택된 시나리오 본문
   const [selectedBody, setSelectedBody] = useState('')
-  const [view, setView] = useState('list') // list | session | summary
-  const [summaryTab, setSummaryTab] = useState('summary') // summary | transcript
+  
+  // 현재 뷰 상태 ('list': 시나리오 목록, 'session': 세션 진행, 'summary': 요약)
+  const [view, setView] = useState('list')
+  
+  // 요약 탭 상태 ('summary': 요약, 'transcript': 대화록)
+  const [summaryTab, setSummaryTab] = useState('summary')
+  
+  // 평가 중 여부 (세션 종료 후 분석 중 표시)
   const [evaluating, setEvaluating] = useState(false)
+  
+  // 세션 요약 정보 (시간, 턴 수, 제안 수)
   const [summary, setSummary] = useState({ time: '10분', turns: 10, suggestions: 3 })
+  
+  // 키보드 입력 모드 여부
   const [isKeyboardMode, setIsKeyboardMode] = useState(false)
+  
+  // 텍스트 입력값 (키보드 모드에서 사용)
   const [textInput, setTextInput] = useState('')
+  
+  // 녹음 중 여부
   const [isRecording, setIsRecording] = useState(false)
+  
+  // WebSocket 연결 인스턴스
   const [wsConnection, setWsConnection] = useState(null)
+  
+  // 세션 정보 (서버에서 받은 세션 메타데이터)
   const [sessionInfo, setSessionInfo] = useState(null)
+  
+  // 세션 초기화 완료 여부 (WebSocket ACK 수신 후 true)
   const [isInitialized, setIsInitialized] = useState(false)
-  const [isTTSPlaying, setIsTTSPlaying] = useState(false) // TTS 재생 상태
-  const [isAvatarLoaded, setIsAvatarLoaded] = useState(false) // 아바타 로드 상태
-  const pendingFirstMessageRef = useRef(null) // 아바타 로드 전에 온 첫 질문 저장
+  
+  // TTS (Text-to-Speech) 재생 중 여부
+  const [isTTSPlaying, setIsTTSPlaying] = useState(false)
+  
+  // 아바타 3D 모델 로드 완료 여부
+  const [isAvatarLoaded, setIsAvatarLoaded] = useState(false)
+  
+  // 아바타 로드 전에 온 첫 질문을 임시 저장하는 ref
+  const pendingFirstMessageRef = useRef(null)
+  
+  // 메시지 리스트 하단 스크롤용 ref
   const bottomRef = useRef(null)
+  
+  // AI 스트리밍 완료 감지용 타임아웃 ref
   const streamingTimeoutRef = useRef(null)
+  
+  // AI 타이핑 효과 타임아웃 ref
   const aiTypingTimeoutRef = useRef(null)
-  const currentUtteranceRef = useRef(null) // 현재 재생 중인 TTS utterance
-  const mediaRecorderRef = useRef(null) // MediaRecorder 인스턴스
-  const audioStreamRef = useRef(null) // 오디오 스트림
-  const sttPartialTextRef = useRef('') // STT 부분 결과 저장
-  const sttTimeoutRef = useRef(null) // STT 부분 결과 타임아웃
-  const isRecordingRef = useRef(false) // 녹음 상태 ref (cleanup에서 사용)
-  const lipSyncDelayTimeoutRef = useRef(null) // 아바타 입모양 지연용
-  const lipSyncEndTimeoutRef = useRef(null) // 아바타 입모양 조기 종료용
+  
+  // 현재 재생 중인 TTS utterance ref
+  const currentUtteranceRef = useRef(null)
+  
+  // MediaRecorder 인스턴스 ref (백업용, 실제로는 AudioContext 사용)
+  const mediaRecorderRef = useRef(null)
+  
+  // 오디오 스트림 ref (마이크 입력 스트림)
+  const audioStreamRef = useRef(null)
+  
+  // STT (Speech-to-Text) 부분 결과 저장 ref
+  const sttPartialTextRef = useRef('')
+  
+  // STT 부분 결과 타임아웃 ref
+  const sttTimeoutRef = useRef(null)
+  
+  // 녹음 상태 ref (cleanup에서 사용, useState와 별도로 관리)
+  const isRecordingRef = useRef(false)
+  
+  // 아바타 입모양 애니메이션 지연 시작용 타임아웃 ref
+  const lipSyncDelayTimeoutRef = useRef(null)
+  
+  // 아바타 입모양 애니메이션 조기 종료용 타임아웃 ref
+  const lipSyncEndTimeoutRef = useRef(null)
 
+  /**
+   * 메시지 리스트 자동 스크롤
+   * 새 메시지가 추가되거나 세션이 시작/종료될 때 하단으로 스크롤
+   */
   useEffect(() => {
     if (bottomRef.current) {
       bottomRef.current.scrollIntoView({ behavior: 'smooth' })
     }
   }, [messages, isSession])
 
+  /**
+   * 아바타 입모양 지연 타임아웃 정리 함수
+   * TTS 시작 전 지연 시간을 취소
+   */
   const clearLipSyncDelay = () => {
     if (lipSyncDelayTimeoutRef.current) {
       clearTimeout(lipSyncDelayTimeoutRef.current)
@@ -44,6 +143,10 @@ export default function useRoleplaySession() {
     }
   }
 
+  /**
+   * 아바타 입모양 종료 타임아웃 정리 함수
+   * TTS 종료 예상 시간을 취소
+   */
   const clearLipSyncEnd = () => {
     if (lipSyncEndTimeoutRef.current) {
       clearTimeout(lipSyncEndTimeoutRef.current)
@@ -51,10 +154,16 @@ export default function useRoleplaySession() {
     }
   }
 
+  /**
+   * 아바타 입모양 종료 스케줄링 함수
+   * 텍스트 길이를 기반으로 TTS 재생 시간을 추정하고, 그에 맞춰 입모양 종료 시간 예약
+   * @param {string} text - TTS로 재생할 텍스트
+   */
   const scheduleLipSyncEnd = (text = '') => {
     clearLipSyncEnd()
-    const estimatedDuration = Math.max(1500, text.length * 60) // 약 60ms/글자
-    const leadTime = 1000
+    // 텍스트 길이 기반 재생 시간 추정 (약 60ms/글자, 최소 1500ms)
+    const estimatedDuration = Math.max(1500, text.length * 60)
+    const leadTime = 1000 // 여유 시간
     const delay = Math.max(0, estimatedDuration - leadTime)
     lipSyncEndTimeoutRef.current = setTimeout(() => {
       setIsTTSPlaying(false)
@@ -62,7 +171,13 @@ export default function useRoleplaySession() {
     }, delay)
   }
 
-  // TTS 함수: AI 메시지를 음성으로 읽어주기 (비동기 처리로 메시지 표시에 영향 없음)
+  /**
+   * TTS (Text-to-Speech) 함수
+   * AI 메시지를 음성으로 읽어주는 함수
+   * 비동기로 처리하여 메시지 표시에 영향 없도록 함
+   * 
+   * @param {string} text - 음성으로 변환할 텍스트
+   */
   const speakText = (text) => {
     // 비동기로 처리하여 메시지 표시에 영향 없도록
     setTimeout(() => {
@@ -136,7 +251,10 @@ export default function useRoleplaySession() {
     }, 0) // 다음 이벤트 루프에서 실행
   }
 
-  // TTS 중단 함수
+  /**
+   * TTS 중단 함수
+   * 현재 재생 중인 TTS를 중단하고 관련 상태를 정리
+   */
   const stopTTS = () => {
     if (currentUtteranceRef.current) {
       window.speechSynthesis.cancel()
@@ -147,7 +265,11 @@ export default function useRoleplaySession() {
     setIsTTSPlaying(false)
   }
 
-  // 음성 목록 로드 (일부 브라우저에서 필요)
+  /**
+   * 음성 목록 로드
+   * 일부 브라우저(특히 Chrome)에서는 음성 목록이 비동기로 로드되므로
+   * onvoiceschanged 이벤트를 통해 로드 완료를 감지
+   */
   useEffect(() => {
     if ('speechSynthesis' in window) {
       // 음성 목록이 비어있으면 로드 시도
@@ -159,7 +281,23 @@ export default function useRoleplaySession() {
     }
   }, [])
 
-  // WebSocket 메시지 처리
+  /**
+   * WebSocket 메시지 처리 함수
+   * 서버에서 받은 WebSocket 메시지를 타입에 따라 처리
+   * 
+   * 처리하는 메시지 타입:
+   * - ACK: 세션 초기화 확인
+   * - AI_TEXT: 완성된 AI 응답
+   * - AI_TEXT_STREAMING: 스트리밍 AI 응답 (실시간 타이핑 효과)
+   * - AI_TYPING: AI 타이핑 중 표시
+   * - STT_PARTIAL: STT 부분 결과 (실시간 음성 인식)
+   * - STT_FINAL: STT 최종 결과
+   * - UTTERANCE_SAVED: 발화 저장 확인
+   * - SESSION_ENDED: 세션 종료
+   * - ERROR: 에러 메시지
+   * 
+   * @param {Object} message - WebSocket 메시지 객체
+   */
   const handleWebSocketMessage = (message) => {
 
     switch (message.type) {
@@ -422,6 +560,17 @@ export default function useRoleplaySession() {
     }
   }
 
+  /**
+   * WebSocket 에러 핸들러
+   * WebSocket 연결 중 에러가 발생했을 때 호출
+   * 
+   * 에러 처리 프로세스:
+   * 1. 녹음 중이면 녹음 중지 및 리소스 정리
+   * 2. 세션 상태 초기화
+   * 3. 사용자에게 에러 알림
+   * 
+   * @param {Error} error - WebSocket 에러 객체
+   */
   const handleWebSocketError = (error) => {
     // 녹음 중이면 중지
     if (isRecording) {
@@ -445,6 +594,16 @@ export default function useRoleplaySession() {
     alert('연결 오류가 발생했습니다. 다시 시도해주세요.')
   }
 
+  /**
+   * WebSocket 연결 종료 핸들러
+   * WebSocket 연결이 끊어졌을 때 호출
+   * 
+   * 연결 종료 처리 프로세스:
+   * 1. 녹음 중이면 녹음 중지 및 리소스 정리 (UTTERANCE_END 전송 불가)
+   * 2. WebSocket 연결 상태 초기화
+   * 3. 세션 상태 초기화
+   * 4. TTS 중지
+   */
   const handleWebSocketClose = () => {
     // 녹음 중이면 중지 (WebSocket이 끊어졌으므로)
     if (isRecording) {
@@ -471,7 +630,11 @@ export default function useRoleplaySession() {
     stopTTS()
   }
 
-  // 아바타 로드 완료 핸들러
+  /**
+   * 아바타 로드 완료 핸들러
+   * 3D 아바타 모델이 로드 완료되면 호출
+   * 아바타 로드 전에 온 첫 질문이 있으면 이 시점에 표시
+   */
   const handleAvatarLoad = () => {
     setIsAvatarLoaded(true)
     
@@ -490,6 +653,19 @@ export default function useRoleplaySession() {
     }
   }
 
+  /**
+   * 마이크로 롤플레이 세션 시작
+   * 
+   * 세션 시작 프로세스:
+   * 1. 마이크 권한 확인
+   * 2. JWT 토큰 생성
+   * 3. 백엔드에 세션 생성 요청
+   * 4. WebSocket 연결 및 INIT 메시지 전송
+   * 
+   * @param {string} title - 시나리오 제목
+   * @param {string} body - 시나리오 본문
+   * @param {number} scenarioId - 시나리오 ID (기본값: 1)
+   */
   const startWithMic = async (title, body, scenarioId = 1) => {
     try {
       // 마이크 권한 확인
@@ -544,8 +720,20 @@ export default function useRoleplaySession() {
     }
   }
 
+  /**
+   * 롤플레이 세션 종료
+   * 
+   * 세션 종료 프로세스:
+   * 1. TTS 중단
+   * 2. 녹음 중지 (녹음 중인 경우)
+   * 3. WebSocket 연결 종료
+   * 4. 상태 초기화
+   * 5. 평가 화면 표시 (3초 후 요약 화면으로 전환)
+   * 
+   * 메시지는 유지하여 피드백 화면에서 대화록 표시 가능
+   */
   const endSession = () => {
-    // ✅ 세션 종료 시 TTS 중단
+    // 세션 종료 시 TTS 중단
     stopTTS()
     
     // 녹음 중이면 중지
@@ -559,7 +747,7 @@ export default function useRoleplaySession() {
     }
     setWsConnection(null)
     setIsSession(false)
-    setMessages([])
+    // messages는 피드백 화면에서 사용하므로 유지
     setIsInitialized(false)
     setIsAvatarLoaded(false)
     pendingFirstMessageRef.current = null
@@ -567,11 +755,18 @@ export default function useRoleplaySession() {
     setEvaluating(true)
     setTimeout(() => {
       setEvaluating(false)
-      setView('summary')
-      setSummaryTab('summary')
+      // 현재 세션의 제목과 본문으로 피드백 화면으로 이동
+      handleFeedbackView(selectedTitle, selectedBody)
     }, 3000)
   }
 
+  /**
+   * 피드백 뷰로 전환 핸들러
+   * 세션 종료 후 피드백 화면으로 이동할 때 사용
+   * 
+   * @param {string} title - 시나리오 제목
+   * @param {string} body - 시나리오 본문
+   */
   const handleFeedbackView = (title, body) => {
     setSelectedTitle(title)
     setSelectedBody(body)
@@ -581,16 +776,38 @@ export default function useRoleplaySession() {
     setSummaryTab('summary')
   }
 
+  /**
+   * 키보드 모드 토글 핸들러
+   * 마이크 모드와 키보드 입력 모드를 전환
+   * 모드 전환 시 텍스트 입력값 초기화
+   */
   const toggleKeyboardMode = () => {
     setIsKeyboardMode(prev => !prev)
     setTextInput('')
   }
 
+  /**
+   * 텍스트 입력 변경 핸들러
+   * 키보드 모드에서 사용자가 입력한 텍스트를 상태에 저장
+   * 
+   * @param {Event} e - 입력 이벤트 객체
+   */
   const handleTextInputChange = (e) => {
     setTextInput(e.target.value)
   }
 
-  // 오디오 녹음 시작
+  /**
+   * 오디오 녹음 시작 함수
+   * 
+   * 녹음 시작 프로세스:
+   * 1. 마이크 권한 요청 및 오디오 스트림 획득
+   * 2. AudioContext 초기화 (16kHz, Mono)
+   * 3. ScriptProcessorNode로 PCM 데이터 추출
+   * 4. Float32 → Int16 변환
+   * 5. WebSocket으로 실시간 전송
+   * 
+   * WebSocket 연결 상태와 세션 초기화 상태를 확인한 후에만 녹음 시작
+   */
   const startRecording = async () => {
     // 이미 녹음 중이면 무시
     if (isRecording) {
@@ -778,7 +995,17 @@ export default function useRoleplaySession() {
     }
   }
 
-  // 오디오 녹음 종료
+  /**
+   * 오디오 녹음 종료 함수
+   * 
+   * 녹음 종료 프로세스:
+   * 1. MediaRecorder 정지
+   * 2. 오디오 스트림 정리
+   * 3. STT 타임아웃 정리
+   * 4. WebSocket으로 UTTERANCE_END 메시지 전송
+   * 
+   * UTTERANCE_END 메시지는 서버에 발화가 끝났음을 알려 STT 최종 결과를 받기 위함
+   */
   const stopRecording = () => {
     // ref 업데이트
     isRecordingRef.current = false
@@ -815,7 +1042,10 @@ export default function useRoleplaySession() {
     }
   }
 
-  // 마이크 버튼 토글 핸들러
+  /**
+   * 마이크 버튼 토글 핸들러
+   * 녹음 중이면 중지, 녹음 중이 아니면 시작
+   */
   const handleMicToggle = () => {
     if (isRecording) {
       stopRecording()
@@ -824,6 +1054,16 @@ export default function useRoleplaySession() {
     }
   }
 
+  /**
+   * 텍스트 메시지 전송 함수
+   * 키보드 모드에서 사용자가 입력한 텍스트를 WebSocket으로 전송
+   * 
+   * 전송 프로세스:
+   * 1. 입력값 유효성 검증 (빈 문자열, WebSocket 연결 상태 확인)
+   * 2. 현재 재생 중인 TTS 중단
+   * 3. 사용자 메시지를 UI에 추가
+   * 4. WebSocket으로 USER_TEXT 메시지 전송
+   */
   const sendMessage = () => {
     if (!textInput.trim() || !wsConnection || wsConnection.readyState !== WebSocket.OPEN) {
       return
@@ -854,7 +1094,17 @@ export default function useRoleplaySession() {
     wsConnection.send(JSON.stringify(userMessage))
   }
 
-  // 컴포넌트 언마운트 시 WebSocket 연결, 타임아웃, TTS, 녹음 정리
+  /**
+   * 컴포넌트 언마운트 시 정리 (Cleanup)
+   * 
+   * 컴포넌트가 언마운트될 때 모든 리소스를 정리:
+   * 1. TTS 중단
+   * 2. 녹음 중지 및 오디오 스트림 정리
+   * 3. WebSocket 연결 종료 (END_SESSION 메시지 전송 후)
+   * 4. 모든 타임아웃 정리
+   * 
+   * isRecordingRef를 사용하여 최신 녹음 상태를 확인 (클로저 문제 방지)
+   */
   useEffect(() => {
     return () => {
       // TTS 중단
@@ -921,30 +1171,43 @@ export default function useRoleplaySession() {
     }
   }, []) // 빈 의존성 배열: 실제 컴포넌트 언마운트 시에만 실행
 
+  /**
+   * 훅 반환값
+   * 컴포넌트에서 사용할 수 있는 모든 상태와 핸들러를 반환
+   */
   return {
-    isSession,
-    messages,
-    selectedTitle,
-    selectedBody,
-    view,
-    setView,
-    summaryTab,
-    setSummaryTab,
-    evaluating,
-    summary,
-    bottomRef,
-    isKeyboardMode,
-    textInput,
-    isRecording,
-    setIsRecording,
-    startWithMic,
-    endSession,
-    handleFeedbackView,
-    toggleKeyboardMode,
-    handleTextInputChange,
-    sendMessage,
-    isTTSPlaying, // TTS 재생 상태를 반환
+    // 세션 상태
+    isSession, // 세션 활성화 여부
+    messages, // 대화 메시지 목록
+    selectedTitle, // 선택된 시나리오 제목
+    selectedBody, // 선택된 시나리오 본문
+    view, // 현재 뷰 상태 ('list' | 'session' | 'summary')
+    setView, // 뷰 상태 변경 핸들러
+    summaryTab, // 요약 탭 상태 ('summary' | 'transcript')
+    setSummaryTab, // 요약 탭 상태 변경 핸들러
+    evaluating, // 평가 중 여부
+    summary, // 세션 요약 정보
+    bottomRef, // 메시지 리스트 하단 스크롤용 ref
+    
+    // 입력 모드 상태
+    isKeyboardMode, // 키보드 입력 모드 여부
+    textInput, // 텍스트 입력값
+    isRecording, // 녹음 중 여부
+    setIsRecording, // 녹음 상태 변경 핸들러
+    
+    // 세션 제어 핸들러
+    startWithMic, // 마이크로 세션 시작 핸들러
+    endSession, // 세션 종료 핸들러
+    handleFeedbackView, // 피드백 뷰로 전환 핸들러
+    
+    // 입력 핸들러
+    toggleKeyboardMode, // 키보드 모드 토글 핸들러
+    handleTextInputChange, // 텍스트 입력 변경 핸들러
+    sendMessage, // 텍스트 메시지 전송 핸들러
     handleMicToggle, // 마이크 버튼 토글 핸들러
+    
+    // TTS 및 아바타 상태
+    isTTSPlaying, // TTS 재생 상태
     isAvatarLoaded, // 아바타 로드 상태
     handleAvatarLoad // 아바타 로드 완료 핸들러
   }

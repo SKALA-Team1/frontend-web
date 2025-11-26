@@ -17,9 +17,9 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder'
 import BookmarkIcon from '@mui/icons-material/Bookmark'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import useFeedbackPage from '../hooks/useFeedbackPage'
 import SummaryView from '../../roleplay/components/SummaryView'
+import { generateSuggestion } from '../../../utils/suggestionGenerator.js'
 
 // Mock 데이터 구조 (나중에 백엔드 연동 시 교체)
 const MOCK_PRONUNCIATION_SCORES = {
@@ -73,19 +73,22 @@ const MOCK_CONVERSATION = [
   { who: 'You', text: 'We\'re wrapping up the fix now and will run final tests soon. You can expect an update shortly, and we plan to deliver the final patch within the next few days.' }
 ]
 
-// 각 사용자 발화에 대한 제안 문장
-const SUGGESTIONS = [
-  'We\'ve identified the root cause: the report generation module isn\'t properly handling the new finance filters. As a temporary workaround, we\'re implementing result caching, which should resolve the immediate issue. We anticipate delivering a permanent fix by next week.',
-  'The caching workaround enhances report performance with complex finance filters, though it may increase memory usage and pose a risk of serving stale data. While it provides short-term relief, we need a more scalable solution soon.',
-  'For the permanent fix, we plan to optimize the filter logic and implement proper indexing and query tuning to accelerate complex filter processing. Additionally, we\'ll design the cache/DB flow to scale safely without excessive memory growth.',
-  'We\'ll first test on staging using real-world finance filter scenarios, comparing latency and DB load before and after implementation. If the results prove stable, we\'ll proceed with a gradual production rollout.',
-  'We\'ll temporarily reduce Redis pool usage by limiting concurrent connections and implementing retry logic with exponential backoff. While this may slightly increase latency under high load, it should prevent timeouts and stabilize the system.',
-  'We\'ll address the pool issue by configuring safe maximum connections and timeouts, then conduct load testing to ensure other services aren\'t impacted. We\'ll proceed with a step-by-step rollout, closely monitoring for any side effects.',
-  'We\'ll deploy the temporary fix using a gradual rollout strategy (canary → small percentage → full deployment) while continuously monitoring the system. Key metrics we\'ll track include Redis error rates, request latency, throughput, and CPU/memory utilization to ensure stability.',
-  'If we detect regressions, we\'ll immediately pause or roll back the canary deployment and investigate logs and metrics to identify the root cause. We\'ll enhance monitoring for Redis timeouts, pool usage, and endpoint latency, along with detailed error logging throughout the rollout.',
-  'We\'ll start by reviewing alerts, then perform a before-and-after metric comparison to identify what changed. If necessary, we\'ll reproduce the issue in staging, address the specific component, and redeploy promptly.',
-  'We\'re finalizing the fix and will conduct final tests shortly. You can expect an update soon, and we plan to deliver the final patch within the next few days.'
-]
+// 제안 문장 생성은 utils/suggestionGenerator에서 담당
+
+const normalizeConversationMessages = (rawMessages = []) => {
+  if (!Array.isArray(rawMessages)) return []
+  return rawMessages
+    .filter((msg) => {
+      const who = msg?.who
+      const text = typeof msg?.text === 'string' ? msg.text.trim() : ''
+      return (who === 'AI' || who === 'You' || who === 'USER') && text.length > 0
+    })
+    .map((msg) => ({
+      ...msg,
+      who: msg.who === 'USER' ? 'You' : msg.who,
+      text: msg.text.trim()
+    }))
+}
 
 export default function FeedbackPage() {
   const {
@@ -105,8 +108,9 @@ export default function FeedbackPage() {
   // 피드백 상세 화면
   if (session.view === 'summary') {
     // 더미 대화 데이터 사용 (실제 데이터가 있으면 그것을 사용)
-    const messages = (session.messages && session.messages.length > 0) ? session.messages : MOCK_CONVERSATION
-    const userMessages = messages.filter(m => m.who === 'You' || m.who === 'USER')
+    const normalizedMessages = normalizeConversationMessages(session.messages)
+    const messages = normalizedMessages.length > 0 ? normalizedMessages : MOCK_CONVERSATION
+    const scenarioTitle = session.selectedTitle || selectedFeedback?.title || '롤플레잉 시나리오'
     
     return (
       <Box sx={{ py: { xs: 2, sm: 3 }, px: { xs: 0, sm: 0 } }}>
@@ -303,9 +307,18 @@ export default function FeedbackPage() {
                   feedback: `이 발화는 전반적으로 명확했습니다. "${message.text.split(' ').slice(0, 4).join(' ')}" 부분의 강세와 리듬을 더 자연스럽게 하면 좋겠습니다.`
                 } : null
                 
-                // 제안 문장 (사용자 발화에만)
-                const suggestion = isUser ? SUGGESTIONS[userIndex] : null
-                const suggestionId = `suggestion-${index}`
+                // 제안 문장 (사용자 발화에만) - 사용자 답변에 맞게 생성
+                const suggestion = isUser ? generateSuggestion(message.text) : null
+                const relatedAiMessage = isUser && index > 0 ? messages[index - 1] : null
+                const suggestionId = `${scenarioTitle}-${index}`
+                const bookmarkPayload = isUser
+                  ? {
+                      ai: relatedAiMessage?.text || 'AI 질문',
+                      you: message.text,
+                      suggestion,
+                      scenario: scenarioTitle
+                    }
+                  : null
 
                 return (
                   <Box key={index}>
@@ -453,7 +466,7 @@ export default function FeedbackPage() {
                               <IconButton
                                 size="small"
                                 aria-label="북마크"
-                                onClick={() => toggleBookmark(suggestionId)}
+                              onClick={() => toggleBookmark(suggestionId, bookmarkPayload)}
                                 sx={{ 
                                   color: bookmarked.has(suggestionId) ? 'primary.main' : 'rgba(255,255,255,0.5)',
                                   mt: 0.5

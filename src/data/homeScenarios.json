@@ -1,5 +1,5 @@
 [
-  { "title": "배포 이슈 핫픽스 공지", "body": "Prod 오류 발견. 영향 범위/대응 계획 공유 후 협조 요청.", "provider": "slack" },
+  { "title": "리포트 오류 원인 공유", "body": "오류 파악 완료. 임시 대응·테스트 진행 예정. 협조 요청.", "provider": "slack" },
   { "title": "미팅 일정 조율", "body": "파트너와 킥오프 시간 제안, 대안 시간/아젠다 공유.", "provider": "slack" },
   { "title": "코드 리뷰 요청", "body": "성능 개선 PR 핵심 변경점/테스트 결과 요약 후 리뷰 요청.", "provider": "slack" },
   { "title": "온콜 인수인계", "body": "이번 주 온콜 일정/매뉴얼/연락 포인트 정리하여 전달.", "provider": "slack" },

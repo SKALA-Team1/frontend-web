@@ -49,6 +49,15 @@ export default function LoginForm({ onLogin, onGoogleLogin, onNavigateSignup }) 
             '& input::placeholder': {
               color: 'rgba(255,255,255,0.5)',
               opacity: 1
+            },
+            '& input:-webkit-autofill': {
+              WebkitBoxShadow: '0 0 0px 1000px transparent inset',
+              WebkitTextFillColor: '#F5F6FF',
+              transition: 'background-color 5000s ease-in-out 0s'
+            },
+            '& input:-webkit-autofill:focus': {
+              WebkitBoxShadow: '0 0 0px 1000px transparent inset',
+              WebkitTextFillColor: '#F5F6FF'
             }
           }}
         />

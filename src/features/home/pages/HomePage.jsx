@@ -150,6 +150,7 @@ export default function HomePage() {
         messages={session.messages}
         bookmarked={bookmarked}
         toggleBookmark={toggleBookmark}
+        scenarioTitle={session.selectedTitle}
         onClose={() => session.setView('list')}
       />
     )

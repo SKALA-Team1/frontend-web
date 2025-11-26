@@ -22,10 +22,8 @@ function AvatarModel({ url, onLoad, onError, isTTSPlaying = false }) {
   // 자동 회전 애니메이션 및 입 모양 애니메이션
   useFrame((state, delta) => {
     if (groupRef.current) {
-      // 부드러운 상하 움직임 (호버링 효과)
-      const hoverOffset = Math.sin(state.clock.elapsedTime) * 0.1
       groupRef.current.position.x = AVATAR_X
-      groupRef.current.position.y = AVATAR_Y + hoverOffset
+      groupRef.current.position.y = AVATAR_Y
       groupRef.current.position.z = AVATAR_Z
       
       // 매우 느린 자동 회전 (선택사항)

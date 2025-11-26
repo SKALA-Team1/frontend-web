@@ -115,6 +115,7 @@ export default function RoleplayPage() {
           messages={session.messages}
           bookmarked={bookmarked}
           toggleBookmark={toggleBookmark}
+          scenarioTitle={session.selectedTitle}
           onClose={() => session.setView('list')}
         />
       )}
