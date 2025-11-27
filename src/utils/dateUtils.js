@@ -4,6 +4,3 @@ export const dateForIndex = (idx) => {
   const day = String(base).padStart(2, '0')
   return `2025.11.${day}`
 }
-
-
-

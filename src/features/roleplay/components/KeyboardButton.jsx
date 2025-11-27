@@ -23,5 +23,3 @@ export default function KeyboardButton({ onClick, isActive = false }) {
   )
 }
 
-
-

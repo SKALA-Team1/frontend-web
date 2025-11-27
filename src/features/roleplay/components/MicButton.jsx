@@ -1,5 +1,5 @@
 import React from 'react'
-import { Box, IconButton, Stack } from '@mui/material'
+import { Box, IconButton, Stack, Typography } from '@mui/material'
 import MicNoneIcon from '@mui/icons-material/MicNone'
 import KeyboardButton from './KeyboardButton'
 
@@ -17,6 +17,20 @@ export default function MicButton({
             onClick={onKeyboardToggle} 
             isActive={isKeyboardMode}
           />
+        )}
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          {isRecording && (
+            <Typography 
+              variant="caption" 
+              sx={{ 
+                fontWeight: 600,
+                fontSize: '0.75rem',
+                color: 'rgba(255,255,255,0.85)',
+                mb: 0.5
+              }}
+            >
+              녹음 중
+            </Typography>
         )}
         <IconButton
           color="primary"
@@ -39,6 +53,7 @@ export default function MicButton({
         >
           <MicNoneIcon sx={{ fontSize: 24 }} />
         </IconButton>
+        </Box>
         {!isKeyboardMode && (
           <KeyboardButton 
             onClick={onKeyboardToggle} 

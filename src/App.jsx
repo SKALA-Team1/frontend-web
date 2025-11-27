@@ -6,12 +6,14 @@ import HomeIcon from '@mui/icons-material/Home'
 import SchoolIcon from '@mui/icons-material/School'
 import FeedbackIcon from '@mui/icons-material/Feedback'
 import PersonIcon from '@mui/icons-material/Person'
-import HomePage from './features/home/pages/HomePage.jsx'
+import RoleplayPage from './features/roleplay/pages/RoleplayPage.jsx'
 import LearnPage from './features/learn/pages/LearnPage.jsx'
 import FeedbackPage from './features/feedback/pages/FeedbackPage.jsx'
 import UserPage from './features/user/pages/UserPage.jsx'
 import LoginPage from './features/auth/pages/LoginPage.jsx'
 import SignUpPage from './features/auth/pages/SignUpPage.jsx'
+import WatchNotificationPage from './apple_watch/WatchNotificationPage.jsx'
+import WatchPage from './apple_watch/WatchPage.jsx'
 
 const links = [
   { label: '홈', path: '/home', icon: <HomeIcon /> },
@@ -27,6 +29,7 @@ export default function App() {
   const isDesktop = useMediaQuery('(min-width: 900px)') // md breakpoint
   const drawerWidth = 280
   const isLogin = location.pathname === '/' || location.pathname === '/login' || location.pathname === '/signup'
+  const isWatchPage = location.pathname === '/notification' || location.pathname === '/watch'
 
   const handleToggle = () => setOpen((v) => !v)
   const handleNavigate = (path) => {
@@ -36,7 +39,7 @@ export default function App() {
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100dvh', bgcolor: 'background.default' }}>
-      {!isLogin && (
+      {!isLogin && !isWatchPage && (
         <>
           <AppBar
             position="fixed"
@@ -132,34 +135,46 @@ export default function App() {
         sx={{
           flex: 1,
           width: '100%',
-          pt: isLogin ? 0 : { xs: 7, sm: 8 },
-          ...(isDesktop && !isLogin && { ml: `${drawerWidth}px` })
+          pt: isLogin || isWatchPage ? 0 : { xs: 7, sm: 8 },
+          ...(isDesktop && !isLogin && !isWatchPage && { ml: `${drawerWidth}px` }),
+          ...(isWatchPage && {
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#05060A'
+          })
         }}
       >
-        <Container
-          maxWidth="sm"
-          disableGutters
-          sx={{ 
-            py: { xs: 3, sm: 4 },
-            px: { xs: 2.5, sm: 3 },
-            width: '100%',
-            maxWidth: { xs: '100%', sm: '600px' },
-            boxSizing: 'border-box'
-          }}
-        >
+        {isWatchPage ? (
           <Routes>
-            <Route path="/" element={<LoginPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignUpPage />} />
-            <Route path="/home" element={<HomePage />} />
-            <Route path="/learn" element={<LearnPage />} />
-            <Route path="/feedback" element={<FeedbackPage />} />
-            <Route path="/mypage" element={<UserPage />} />
+            <Route path="/notification" element={<WatchNotificationPage />} />
+            <Route path="/watch" element={<WatchPage />} />
           </Routes>
-        </Container>
+        ) : (
+          <Container
+            maxWidth="sm"
+            disableGutters
+            sx={{ 
+              py: { xs: 3, sm: 4 },
+              px: { xs: 2.5, sm: 3 },
+              width: '100%',
+              maxWidth: { xs: '100%', sm: '600px' },
+              boxSizing: 'border-box'
+            }}
+          >
+            <Routes>
+              <Route path="/" element={<LoginPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/signup" element={<SignUpPage />} />
+              <Route path="/home" element={<RoleplayPage />} />
+              <Route path="/learn" element={<LearnPage />} />
+              <Route path="/feedback" element={<FeedbackPage />} />
+              <Route path="/mypage" element={<UserPage />} />
+            </Routes>
+          </Container>
+        )}
       </Box>
     </Box>
   )
 }
-
 

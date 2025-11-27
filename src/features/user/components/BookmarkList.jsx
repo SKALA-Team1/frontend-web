@@ -1,56 +1,77 @@
 import React from 'react'
-import { Card, CardContent, Typography, Stack, Box, Chip } from '@mui/material'
-import BookmarkIcon from '@mui/icons-material/Bookmark'
+import { Typography, Stack, Box, Chip } from '@mui/material'
 
 export default function BookmarkList({ bookmarkedSentences }) {
   return (
-    <Card
-      variant="outlined"
-      sx={{
-        border: '1px solid rgba(255,255,255,0.08)',
-        backgroundColor: 'rgba(255,255,255,0.02)',
-        backdropFilter: 'blur(12px)'
-      }}
-    >
-      <CardContent>
-        <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
-          <BookmarkIcon fontSize="small" sx={{ color: '#63D7FF' }} />
-          <Typography variant="subtitle1" fontWeight={700}>북마크한 문장</Typography>
-        </Stack>
-        <Stack spacing={3}>
-          {bookmarkedSentences.map((item, idx) => (
-            <Box
-              key={item.id}
+    <Stack spacing={2}>
+      {bookmarkedSentences.map((item, idx) => (
+        <Box
+          key={item.id}
+          sx={{
+            p: 2,
+            borderRadius: 2,
+            border: '1px solid rgba(255,255,255,0.1)',
+            backgroundColor: 'rgba(255,255,255,0.03)',
+            backdropFilter: 'blur(6px)',
+            transition: 'all 0.2s ease',
+            '&:hover': {
+              bgcolor: 'rgba(255,255,255,0.05)',
+              borderColor: 'rgba(124,108,255,0.3)'
+            }
+          }}
+        >
+          <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1.5 }}>
+            <Typography variant="subtitle2" fontWeight={700} sx={{ color: '#F5F6FF' }}>
+              {item.scenario}
+            </Typography>
+            <Chip
+              label={`#${idx + 1}`}
+              size="small"
               sx={{
-                p: 2,
-                borderRadius: 3,
-                border: '1px solid rgba(255,255,255,0.08)',
-                backgroundColor: 'rgba(255,255,255,0.02)'
+                borderRadius: 1,
+                backgroundColor: 'rgba(124,108,255,0.2)',
+                color: '#6C63FF',
+                fontWeight: 600,
+                fontSize: '0.7rem',
+                height: 20
+              }}
+            />
+          </Stack>
+          <Stack spacing={1.5}>
+            <Box>
+              <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
+                AI 질문
+              </Typography>
+              <Typography variant="body2" sx={{ color: '#F5F6FF', fontSize: '0.8125rem' }}>
+                {item.ai}
+              </Typography>
+            </Box>
+            <Box>
+              <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
+                내 답변
+              </Typography>
+              <Typography variant="body2" sx={{ color: '#F5F6FF', fontSize: '0.8125rem' }}>
+                {item.you}
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                p: 1.5,
+                borderRadius: 1.5,
+                bgcolor: 'rgba(124,108,255,0.1)',
+                border: '1px dashed rgba(124,108,255,0.3)'
               }}
             >
-              <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
-                <Typography variant="subtitle2" fontWeight={700}>{item.scenario}</Typography>
-                <Chip
-                  label={`저장 ${idx + 1}`}
-                  size="small"
-                  sx={{
-                    borderRadius: 999,
-                    backgroundColor: 'rgba(255,255,255,0.08)',
-                    color: '#F5F6FF'
-                  }}
-                />
-              </Stack>
-              <Typography variant="caption" color="text.primary">AI 질문</Typography>
-              <Typography variant="body2" sx={{ mb: 1 }}>{item.ai}</Typography>
-              <Typography variant="caption" color="text.primary">내 답변</Typography>
-              <Typography variant="body2" sx={{ mb: 1 }}>{item.you}</Typography>
-              <Typography variant="caption" color="text.primary">제안 문장</Typography>
-              <Typography variant="body2">{item.suggestion}</Typography>
+              <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
+                제안 문장
+              </Typography>
+              <Typography variant="body2" sx={{ color: '#F5F6FF', fontSize: '0.8125rem' }}>
+                {item.suggestion}
+              </Typography>
             </Box>
-          ))}
-        </Stack>
-      </CardContent>
-    </Card>
+          </Stack>
+        </Box>
+      ))}
+    </Stack>
   )
 }
-

@@ -20,7 +20,8 @@ export default function SessionView({
   textInput = '',
   onTextInputChange,
   onSendMessage,
-  isTTSPlaying = false
+  isTTSPlaying = false,
+  onAvatarLoad = () => {}
 }) {
   return (
     <Box
@@ -35,7 +36,7 @@ export default function SessionView({
       }}
     >
       <SessionHeader title={selectedTitle} onEndSession={onEndSession} />
-      <AvatarWindow isTTSPlaying={isTTSPlaying} />
+      <AvatarWindow isTTSPlaying={isTTSPlaying} onAvatarLoad={onAvatarLoad} />
       <MessageList messages={messages} bottomRef={bottomRef} />
       
       {isKeyboardMode ? (
@@ -60,5 +61,4 @@ export default function SessionView({
     </Box>
   )
 }
-
 

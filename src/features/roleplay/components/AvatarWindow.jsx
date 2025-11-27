@@ -22,10 +22,8 @@ function AvatarModel({ url, onLoad, onError, isTTSPlaying = false }) {
   // 자동 회전 애니메이션 및 입 모양 애니메이션
   useFrame((state, delta) => {
     if (groupRef.current) {
-      // 부드러운 상하 움직임 (호버링 효과)
-      const hoverOffset = Math.sin(state.clock.elapsedTime) * 0.1
       groupRef.current.position.x = AVATAR_X
-      groupRef.current.position.y = AVATAR_Y + hoverOffset
+      groupRef.current.position.y = AVATAR_Y
       groupRef.current.position.z = AVATAR_Z
       
       // 매우 느린 자동 회전 (선택사항)
@@ -176,7 +174,7 @@ function AvatarCanvas({ avatarUrl, onLoad, onError, isTTSPlaying }) {
   )
 }
 
-export default function AvatarWindow({ avatarUrl, aiRoleName = 'AI', isTTSPlaying = false }) {
+export default function AvatarWindow({ avatarUrl, aiRoleName = 'AI', isTTSPlaying = false, onAvatarLoad }) {
   const containerRef = useRef(null)
   const [isLoading, setIsLoading] = useState(true)
   const [loadError, setLoadError] = useState(null)
@@ -185,11 +183,19 @@ export default function AvatarWindow({ avatarUrl, aiRoleName = 'AI', isTTSPlayin
   const handleAvatarLoad = () => {
     setIsLoading(false)
     setLoadError(null)
+    // 부모 컴포넌트에 아바타 로드 완료 알림
+    if (onAvatarLoad) {
+      onAvatarLoad()
+    }
   }
 
   const handleAvatarError = (error) => {
     setLoadError(error)
     setIsLoading(false)
+    // 에러 발생 시에도 아바타 로드 완료로 처리 (첫 질문 표시를 위해)
+    if (onAvatarLoad) {
+      onAvatarLoad()
+    }
   }
 
   // 타임아웃 설정 (15초 후에도 로드되지 않으면 에러 처리)
@@ -198,11 +204,15 @@ export default function AvatarWindow({ avatarUrl, aiRoleName = 'AI', isTTSPlayin
       if (isLoading) {
         setIsLoading(false)
         setLoadError(new Error('로드 타임아웃'))
+        // 타임아웃 시에도 아바타 로드 완료로 처리 (첫 질문 표시를 위해)
+        if (onAvatarLoad) {
+          onAvatarLoad()
+        }
       }
     }, 15000)
 
     return () => clearTimeout(timer)
-  }, [isLoading, avatarUrl])
+  }, [isLoading, avatarUrl, onAvatarLoad])
 
   const toggleFullscreen = () => {
     if (!containerRef.current) return

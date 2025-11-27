@@ -19,8 +19,81 @@ export default function LoginForm({ onLogin, onGoogleLogin, onNavigateSignup }) 
       <Typography variant="h5" fontWeight={700} align="center">로그인</Typography>
 
       <Stack spacing={1}>
-        <TextField label="이메일" type="email" value={email} onChange={handleEmailChange} fullWidth />
-        <TextField label="비밀번호" type="password" value={password} onChange={handlePasswordChange} fullWidth />
+        <TextField 
+          label="이메일" 
+          type="email" 
+          value={email} 
+          onChange={handleEmailChange} 
+          fullWidth
+          sx={{
+            '& .MuiInputBase-input': {
+              color: '#F5F6FF'
+            },
+            '& .MuiInputLabel-root': {
+              color: 'rgba(255,255,255,0.7)'
+            },
+            '& .MuiInputLabel-root.Mui-focused': {
+              color: 'rgba(124,108,255,0.8)'
+            },
+            '& .MuiOutlinedInput-root': {
+              '& fieldset': {
+                borderColor: 'rgba(255,255,255,0.2)'
+              },
+              '&:hover fieldset': {
+                borderColor: 'rgba(255,255,255,0.3)'
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: 'rgba(124,108,255,0.8)'
+              }
+            },
+            '& input::placeholder': {
+              color: 'rgba(255,255,255,0.5)',
+              opacity: 1
+            },
+            '& input:-webkit-autofill': {
+              WebkitBoxShadow: '0 0 0px 1000px transparent inset',
+              WebkitTextFillColor: '#F5F6FF',
+              transition: 'background-color 5000s ease-in-out 0s'
+            },
+            '& input:-webkit-autofill:focus': {
+              WebkitBoxShadow: '0 0 0px 1000px transparent inset',
+              WebkitTextFillColor: '#F5F6FF'
+            }
+          }}
+        />
+        <TextField 
+          label="비밀번호" 
+          type="password" 
+          value={password} 
+          onChange={handlePasswordChange} 
+          fullWidth
+          sx={{
+            '& .MuiInputBase-input': {
+              color: '#F5F6FF'
+            },
+            '& .MuiInputLabel-root': {
+              color: 'rgba(255,255,255,0.7)'
+            },
+            '& .MuiInputLabel-root.Mui-focused': {
+              color: 'rgba(124,108,255,0.8)'
+            },
+            '& .MuiOutlinedInput-root': {
+              '& fieldset': {
+                borderColor: 'rgba(255,255,255,0.2)'
+              },
+              '&:hover fieldset': {
+                borderColor: 'rgba(255,255,255,0.3)'
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: 'rgba(124,108,255,0.8)'
+              }
+            },
+            '& input::placeholder': {
+              color: 'rgba(255,255,255,0.5)',
+              opacity: 1
+            }
+          }}
+        />
         <Button variant="contained" fullWidth sx={{ py: 1.5 }} onClick={handleSubmit}>이메일로 로그인</Button>
         <Button variant="outlined" fullWidth sx={{ py: 1.5 }} onClick={onNavigateSignup}>
           회원가입하기
