@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
-import { getJwtToken, startSession, createWebSocketConnection } from '../api/roleplayApi'
+import { getJwtToken, startSession, createWebSocketConnection } from '../../../api/roleplay'
 
 /**
  * 롤플레이 세션 관리를 위한 커스텀 훅

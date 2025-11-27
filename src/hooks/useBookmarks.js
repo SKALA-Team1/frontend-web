@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { getBookmarks, updateBookmarks, subscribeBookmarks } from '../../../utils/bookmarkStore.js'
+import { getBookmarks, updateBookmarks, subscribeBookmarks } from '../utils/bookmarkStore.js'
 
 /**
  * 북마크 관리를 위한 커스텀 훅
@@ -72,5 +72,4 @@ export default function useBookmarks() {
     bookmarkedSentences
   }
 }
-
 

@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
-import useRoleplaySession from '../../roleplay/hooks/useRoleplaySession'
-import useRoleplayFilters from '../../roleplay/hooks/useRoleplayFilters'
-import useBookmarks from '../../roleplay/hooks/useBookmarks'
+import useRoleplaySession from './useRoleplaySession'
+import useRoleplayFilters from './useRoleplayFilters'
+import useBookmarks from '../../../hooks/useBookmarks'
 
 /**
  * 홈 페이지에서 롤플레이 기능을 관리하는 커스텀 훅

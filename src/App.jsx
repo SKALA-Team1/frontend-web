@@ -6,7 +6,7 @@ import HomeIcon from '@mui/icons-material/Home'
 import SchoolIcon from '@mui/icons-material/School'
 import FeedbackIcon from '@mui/icons-material/Feedback'
 import PersonIcon from '@mui/icons-material/Person'
-import HomePage from './features/home/pages/HomePage.jsx'
+import RoleplayPage from './features/roleplay/pages/RoleplayPage.jsx'
 import LearnPage from './features/learn/pages/LearnPage.jsx'
 import FeedbackPage from './features/feedback/pages/FeedbackPage.jsx'
 import UserPage from './features/user/pages/UserPage.jsx'
@@ -166,7 +166,7 @@ export default function App() {
               <Route path="/" element={<LoginPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignUpPage />} />
-              <Route path="/home" element={<HomePage />} />
+              <Route path="/home" element={<RoleplayPage />} />
               <Route path="/learn" element={<LearnPage />} />
               <Route path="/feedback" element={<FeedbackPage />} />
               <Route path="/mypage" element={<UserPage />} />

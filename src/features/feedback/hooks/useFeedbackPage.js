@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import useRoleplaySession from '../../roleplay/hooks/useRoleplaySession'
 import useRoleplayFilters from '../../roleplay/hooks/useRoleplayFilters'
-import useBookmarks from '../../roleplay/hooks/useBookmarks'
+import useBookmarks from '../../../hooks/useBookmarks'
 
 /**
  * 피드백 페이지 관리를 위한 커스텀 훅

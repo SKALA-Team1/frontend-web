@@ -186,7 +186,7 @@ export default function UserPage() {
                 bgcolor: 'rgba(255,255,255,0.03)'
               }
             }}
-            onClick={() => setIsBookmarksOpen(!isBookmarksOpen)}
+            onClick={() => setIsBookmarksOpen(!isBookmarksOpen)}    //북마크 리스트 on off 처리
           >
             <Typography variant="subtitle1" fontWeight={700}>
               북마크한 문장
