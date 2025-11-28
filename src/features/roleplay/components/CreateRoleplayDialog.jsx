@@ -1,5 +1,5 @@
 import React from 'react'
-import { Dialog, DialogTitle, DialogContent, DialogActions, Stack, Box, Typography, TextField, Button } from '@mui/material'
+import { Dialog, DialogTitle, DialogContent, DialogActions, Stack, Box, Typography, TextField, Button, Alert, CircularProgress } from '@mui/material'
 
 export default function CreateRoleplayDialog({
   open,
@@ -10,7 +10,9 @@ export default function CreateRoleplayDialog({
   onAiRoleChange,
   onMyRoleChange,
   onGoalChange,
-  onStart
+  onStart,
+  loading = false,
+  errorMessage = null
 }) {
   return (
     <Dialog
@@ -154,6 +156,11 @@ export default function CreateRoleplayDialog({
               }}
             />
           </Box>
+          {errorMessage && (
+            <Alert severity="error" sx={{ mt: 1 }}>
+              {errorMessage}
+            </Alert>
+          )}
         </Stack>
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 3, pt: 2, gap: 1.5 }}>
@@ -175,6 +182,7 @@ export default function CreateRoleplayDialog({
         <Button
           variant="contained"
           onClick={onStart}
+          disabled={loading}
           sx={{
             flex: 1,
             background: 'linear-gradient(135deg, #7C6CFF 0%, #5546D7 100%)',
@@ -184,7 +192,14 @@ export default function CreateRoleplayDialog({
             }
           }}
         >
-          롤플레이 시작
+          {loading ? (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
+              <CircularProgress size={16} color="inherit" />
+              생성 중...
+            </Box>
+          ) : (
+            '시나리오 생성'
+          )}
         </Button>
       </DialogActions>
     </Dialog>
