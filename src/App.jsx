@@ -12,8 +12,6 @@ import FeedbackPage from './features/feedback/pages/FeedbackPage.jsx'
 import UserPage from './features/user/pages/UserPage.jsx'
 import LoginPage from './features/auth/pages/LoginPage.jsx'
 import SignUpPage from './features/auth/pages/SignUpPage.jsx'
-import WatchNotificationPage from './apple_watch/WatchNotificationPage.jsx'
-import WatchPage from './apple_watch/WatchPage.jsx'
 
 const links = [
   { label: '홈', path: '/home', icon: <HomeIcon /> },
@@ -29,7 +27,6 @@ export default function App() {
   const isDesktop = useMediaQuery('(min-width: 900px)') // md breakpoint
   const drawerWidth = 280
   const isLogin = location.pathname === '/' || location.pathname === '/login' || location.pathname === '/signup'
-  const isWatchPage = location.pathname === '/notification' || location.pathname === '/watch'
 
   const handleToggle = () => setOpen((v) => !v)
   const handleNavigate = (path) => {
@@ -39,7 +36,7 @@ export default function App() {
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100dvh', bgcolor: 'background.default' }}>
-      {!isLogin && !isWatchPage && (
+      {!isLogin && (
         <>
           <AppBar
             position="fixed"
@@ -135,23 +132,11 @@ export default function App() {
         sx={{
           flex: 1,
           width: '100%',
-          pt: isLogin || isWatchPage ? 0 : { xs: 7, sm: 8 },
-          ...(isDesktop && !isLogin && !isWatchPage && { ml: `${drawerWidth}px` }),
-          ...(isWatchPage && {
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: '#05060A'
-          })
+          pt: isLogin ? 0 : { xs: 7, sm: 8 },
+          ...(isDesktop && !isLogin && { ml: `${drawerWidth}px` })
         }}
       >
-        {isWatchPage ? (
-          <Routes>
-            <Route path="/notification" element={<WatchNotificationPage />} />
-            <Route path="/watch" element={<WatchPage />} />
-          </Routes>
-        ) : (
-          <Container
+        <Container
             maxWidth="sm"
             disableGutters
             sx={{ 
@@ -172,7 +157,6 @@ export default function App() {
               <Route path="/mypage" element={<UserPage />} />
             </Routes>
           </Container>
-        )}
       </Box>
     </Box>
   )
