@@ -1,6 +1,5 @@
 import React from 'react'
-import { dateForIndex } from '../../../utils/dateUtils.js'
-import homeScenarios from '../../../data/homeScenarios.json'
+import { getJwtToken, requestPromptScenario, generateScenarioFromFastApi, saveScenarioToSpring2 } from '../../../api/roleplay.js'
 
 /**
  * 홈 페이지 관리를 위한 커스텀 훅
@@ -12,15 +11,19 @@ import homeScenarios from '../../../data/homeScenarios.json'
  *   - aiRole: string - AI 역할 입력값
  *   - myRole: string - 내 역할 입력값
  *   - goal: string - 목표 입력값
- *   - contents: Array - 홈 화면에 표시할 시나리오 목록 (최신 6개, 날짜 정보 포함)
+ *   - createLoading: boolean - 시나리오 생성 중 상태
+ *   - createError: string | null - 시나리오 생성 에러 메시지
+ *   - creationToast: string | null - 시나리오 생성 성공 토스트 메시지
+ *   - clearCreationToast: Function - 토스트 메시지 제거 핸들러
  *   - handleOpenCreate: Function - 생성 다이얼로그 열기 핸들러
  *   - handleCloseCreate: Function - 생성 다이얼로그 닫기 핸들러
  *   - handleAiRoleChange: Function - AI 역할 변경 핸들러
  *   - handleMyRoleChange: Function - 내 역할 변경 핸들러
  *   - handleGoalChange: Function - 목표 변경 핸들러
- *   - handleStartRoleplay: Function - 롤플레이 시작 핸들러
+ *   - handleStartRoleplay: Function - 시나리오 생성 핸들러
  */
-export default function useHomePage() {
+export default function useHomePage(scenarios = [], options = {}) {
+  const { onScenarioCreated } = options
   // 롤플레이 생성 다이얼로그 열림 상태
   const [openCreate, setOpenCreate] = React.useState(false)
   
@@ -33,29 +36,17 @@ export default function useHomePage() {
   // 목표 입력 상태
   const [goal, setGoal] = React.useState('')
 
-  /**
-   * 홈 화면에 표시할 시나리오 목록
-   * JSON 데이터를 가공하여 날짜 정보를 추가하고, 최신순으로 정렬하여 최대 6개만 반환
-   * useMemo로 메모이제이션하여 불필요한 재계산 방지
-   */
-  const contents = React.useMemo(() => {
-    return homeScenarios
-      // 각 시나리오에 날짜 정보 추가
-      .map((item, idx) => ({
-        ...item,
-        dateNum: 15 - (idx % 5), // 날짜 번호 (15, 14, 13, 12, 11 순환)
-        dateLabel: dateForIndex(idx) // 날짜 레이블 (예: "2025.11.15")
-      }))
-      // 날짜 번호 기준 내림차순 정렬 (최신순)
-      .sort((a, b) => b.dateNum - a.dateNum)
-      // 최대 6개만 반환
-      .slice(0, 6)
-  }, [])
+  const [createLoading, setCreateLoading] = React.useState(false)
+  const [createError, setCreateError] = React.useState(null)
+  const [creationToast, setCreationToast] = React.useState(null)
 
   /**
    * 롤플레이 생성 다이얼로그 열기 핸들러
    */
-  const handleOpenCreate = () => setOpenCreate(true)
+  const handleOpenCreate = () => {
+    setCreateError(null)
+    setOpenCreate(true)
+  }
   
   /**
    * 롤플레이 생성 다이얼로그 닫기 핸들러
@@ -82,19 +73,99 @@ export default function useHomePage() {
   
   /**
    * 롤플레이 시작 핸들러
-   * 현재는 다이얼로그만 닫으며, 실제 롤플레이 시작 로직은 추후 백엔드 연동 예정
+   * 사용자 입력으로 프롬프트 기반 시나리오를 생성하고 DB 저장
    */
-  const handleStartRoleplay = () => {
-    // 실제 롤플레이 시작 로직은 추후 연동
-    setOpenCreate(false)
-  }
+  const handleStartRoleplay = React.useCallback(async () => {
+    const trimmedAiRole = aiRole.trim()
+    const trimmedMyRole = myRole.trim()
+    const trimmedGoal = goal.trim()
+
+    if (!trimmedAiRole || !trimmedMyRole || !trimmedGoal) {
+      setCreateError('AI 역할, 나의 역할, 목적 상황을 모두 입력해주세요.')
+      return
+    }
+
+    try {
+      setCreateLoading(true)
+      setCreateError(null)
+
+      const jwtToken = await getJwtToken(1)
+      const promptResponse = await requestPromptScenario(jwtToken, {
+        aiRole: trimmedAiRole,
+        myRole: trimmedMyRole,
+        situation: trimmedGoal
+      })
+
+      if (!promptResponse?.fastapi_url || !promptResponse?.userId) {
+        throw new Error('시나리오 생성 정보를 가져오지 못했습니다.')
+      }
+
+      // FastAPI에서 시나리오 1개 생성 (기본 시나리오)
+      const scenarioResponse = await generateScenarioFromFastApi(
+        promptResponse.fastapi_url,
+        jwtToken,
+        {
+          userId: promptResponse.userId,
+          aiRole: trimmedAiRole,
+          myRole: trimmedMyRole,
+          situation: trimmedGoal
+        }
+      )
+
+      if (!scenarioResponse?.scenario) {
+        throw new Error('시나리오 생성에 실패했습니다.')
+      }
+
+      const baseScenario = scenarioResponse.scenario
+
+      // Spring2에 시나리오 저장
+      const savePayload = {
+        userId: promptResponse.userId,
+        myRole: trimmedMyRole,
+        situation: trimmedGoal,
+        scenario: {
+          aiRole: baseScenario.aiRole || trimmedAiRole,
+          topicType: baseScenario.topicType || 'direct',
+          title: baseScenario.title || `${trimmedMyRole} - ${trimmedAiRole}`,
+          fixedQuestions: baseScenario.fixedQuestions || []
+        }
+      }
+
+      await saveScenarioToSpring2(jwtToken, savePayload)
+      setCreationToast(`"${baseScenario.title || '시나리오'}" 시나리오를 생성하고 저장했어요.`)
+
+      setAiRole('')
+      setMyRole('')
+      setGoal('')
+      setOpenCreate(false)
+
+      if (typeof onScenarioCreated === 'function') {
+        onScenarioCreated()
+      }
+    } catch (error) {
+      setCreateError(error.message || '시나리오 생성에 실패했습니다.')
+    } finally {
+      setCreateLoading(false)
+    }
+  }, [aiRole, myRole, goal, onScenarioCreated])
+
+  React.useEffect(() => {
+    if (!creationToast) return
+    const timer = setTimeout(() => setCreationToast(null), 5000)
+    return () => clearTimeout(timer)
+  }, [creationToast])
+
+  const clearCreationToast = React.useCallback(() => setCreationToast(null), [])
 
   return {
     openCreate,
     aiRole,
     myRole,
     goal,
-    contents,
+    createLoading,
+    createError,
+    creationToast,
+    clearCreationToast,
     handleOpenCreate,
     handleCloseCreate,
     handleAiRoleChange,

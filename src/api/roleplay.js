@@ -38,6 +38,40 @@ export async function getJwtToken(userId = 1) {
 }
 
 /**
+ * 사용자 시나리오 목록 조회
+ * @param {string} jwtToken - JWT 토큰
+ * @returns {Promise<Array>} 시나리오 목록
+ */
+export async function fetchUserScenarios(jwtToken) {
+  const url = `${GATEWAY_URL}/scenarios/my-scenarios`
+
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${jwtToken}`
+      }
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('[API] 시나리오 목록 조회 실패:', response.status, errorText)
+      throw new Error(`시나리오 목록 조회 실패 (${response.status}): ${errorText}`)
+    }
+
+    const data = await response.json()
+    return data
+  } catch (error) {
+    console.error('[API] 네트워크 에러:', error)
+    if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+      throw new Error(`백엔드 서버에 연결할 수 없습니다. URL: ${url}`)
+    }
+    throw error
+  }
+}
+
+/**
  * 롤플레잉 세션 시작
  * @param {string} jwtToken - JWT 토큰
  * @param {number} scenarioId - 시나리오 ID
@@ -68,6 +102,135 @@ export async function startSession(jwtToken, scenarioId) {
     console.error('[API] 네트워크 에러:', error)
     if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
       throw new Error(`백엔드 서버에 연결할 수 없습니다. URL: ${url}`)
+    }
+    throw error
+  }
+}
+
+/**
+ * 프롬프트 기반 시나리오 생성 요청 (Gateway)
+ * @param {string} jwtToken - JWT 토큰
+ * @param {{myRole:string, aiRole:string, situation:string}} payload
+ * @returns {Promise<{userId:number, fastapi_url:string}>}
+ */
+export async function requestPromptScenario(jwtToken, payload) {
+  const url = `${GATEWAY_URL}/scenarios/roleplaying/generate-from-prompt`
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${jwtToken}`
+      },
+      body: JSON.stringify(payload)
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('[API] 프롬프트 기반 시나리오 요청 실패:', response.status, errorText)
+      throw new Error(`시나리오 생성 요청 실패 (${response.status}): ${errorText}`)
+    }
+
+    return response.json()
+  } catch (error) {
+    console.error('[API] 프롬프트 시나리오 요청 네트워크 에러:', error)
+    if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+      throw new Error(`Gateway에 연결할 수 없습니다. URL: ${url}`)
+    }
+    throw error
+  }
+}
+
+/**
+ * FastAPI에 직접 프롬프트 기반 시나리오 생성을 요청
+ * @param {string} fastapiUrl - Gateway에서 전달받은 FastAPI URL
+ * @param {string} jwtToken - JWT 토큰
+ * @param {{userId:number, myRole:string, aiRole:string, situation:string}} payload
+ * @returns {Promise<Object>} FastAPI에서 반환한 시나리오 정보
+ */
+export async function generateScenarioFromFastApi(fastapiUrl, jwtToken, payload) {
+  // CORS 문제 해결: Vite 프록시를 통해 요청
+  // FastAPI URL에서 경로만 추출하여 프록시 경로로 변환
+  let url = fastapiUrl
+  if (url.includes('localhost:8082') || url.includes('127.0.0.1:8082')) {
+    // FastAPI 직접 URL을 프록시 경로로 변환
+    const pathMatch = url.match(/https?:\/\/[^\/]+(\/.*)/)
+    if (pathMatch) {
+      url = `/api/fastapi${pathMatch[1]}`
+    }
+  }
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${jwtToken}`
+      },
+      body: JSON.stringify(payload)
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('[API] FastAPI 시나리오 생성 실패:', response.status, errorText)
+      throw new Error(`FastAPI 시나리오 생성 실패 (${response.status}): ${errorText}`)
+    }
+
+    return response.json()
+  } catch (error) {
+    console.error('[API] FastAPI 연결 에러:', error)
+    if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+      throw new Error(`FastAPI 서버에 연결할 수 없습니다. URL: ${url}`)
+    }
+    throw error
+  }
+}
+
+/**
+ * Spring2에 시나리오 저장 요청
+ * @param {string} jwtToken - JWT 토큰
+ * @param {{userId:number, myRole:string, situation:string, scenario:{aiRole:string, topicType:string, title:string, fixedQuestions:Array}}} payload
+ * @returns {Promise<Object>} 저장 결과
+ */
+export async function saveScenarioToSpring2(jwtToken, payload) {
+  // CORS 문제 해결: Vite 프록시를 통해 요청
+  const url = '/api/spring2/internal/scenarios/roleplaying/save-from-prompt'
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${jwtToken}`
+      },
+      body: JSON.stringify(payload)
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('[API] Spring2 시나리오 저장 실패:', response.status, errorText)
+      let errorMessage = `시나리오 저장 실패 (${response.status})`
+      try {
+        const errorJson = JSON.parse(errorText)
+        if (errorJson.message) {
+          errorMessage = errorJson.message
+        } else if (errorJson.detail) {
+          errorMessage = errorJson.detail
+        }
+      } catch {
+        if (errorText) {
+          errorMessage = `${errorMessage}: ${errorText}`
+        }
+      }
+      throw new Error(errorMessage)
+    }
+
+    return response.json()
+  } catch (error) {
+    console.error('[API] Spring2 연결 에러:', error)
+    if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+      throw new Error(`Spring2 서버에 연결할 수 없습니다.`)
     }
     throw error
   }

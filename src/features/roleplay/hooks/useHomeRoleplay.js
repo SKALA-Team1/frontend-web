@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react'
 import useRoleplaySession from './useRoleplaySession'
-import useRoleplayFilters from './useRoleplayFilters'
 import useBookmarks from '../../../hooks/useBookmarks'
 
 /**
@@ -23,12 +22,11 @@ import useBookmarks from '../../../hooks/useBookmarks'
  *   - setOpenEnd: Function - 세션 종료 다이얼로그 열림 상태 변경 핸들러
  *   - currentQuestion: string - 현재 AI 질문 텍스트
  *   - session: Object - 롤플레이 세션 훅 반환값
- *   - filters: Object - 롤플레이 필터 훅 반환값
  *   - bookmarked: Set - 북마크된 항목 ID Set
  *   - toggleBookmark: Function - 북마크 토글 핸들러
  *   - handleEndSession: Function - 세션 종료 핸들러
  */
-export default function useHomeRoleplay() {
+export default function useHomeRoleplay(scenarios = []) {
   // 현재 탭 상태 ('linked': 연결된 시나리오, 'created': 생성한 시나리오)
   const [tab, setTab] = useState('linked')
   
@@ -51,8 +49,6 @@ export default function useHomeRoleplay() {
   const session = useRoleplaySession()
   
   // 롤플레이 필터 관리 훅 (현재 탭에 따라 필터링)
-  const filters = useRoleplayFilters(tab)
-  
   // 북마크 관리 훅
   const { bookmarked, toggleBookmark } = useBookmarks()
 
@@ -95,7 +91,6 @@ export default function useHomeRoleplay() {
     
     // Hooks
     session,
-    filters,
     bookmarked,
     toggleBookmark,
     
