@@ -10,7 +10,9 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions
+  DialogActions,
+  CircularProgress,
+  Alert
 } from '@mui/material'
 
 export default function SignUpForm(props) {
@@ -19,62 +21,33 @@ export default function SignUpForm(props) {
     signupEmail,
     signupPassword,
     confirmPassword,
+    emailVerificationCode,
     agreeTerms,
     agreePrivacy,
     openTermsModal,
     openPrivacyModal,
-    showOnboarding,
     selectedRole,
     errors,
-    roles,
+    sendingCode,
+    signupLoading,
+    successMessage,
     handleNameChange,
     handleEmailChange,
     handlePasswordChange,
     handleConfirmPasswordChange,
+    handleEmailVerificationCodeChange,
+    handleSendVerificationCode,
+    handleVerifyCode,
+    verifyingCode,
+    emailVerified,
     setAgreeTerms,
     setAgreePrivacy,
     setOpenTermsModal,
     setOpenPrivacyModal,
     handleSignup,
-    handleRoleSelect,
+    handleRoleChange,
     onNavigateLogin
   } = props
-
-  if (showOnboarding) {
-    return (
-      <Box sx={{ minHeight: '100dvh', display: 'flex', alignItems: 'center', py: 4 }}>
-        <Stack spacing={3} sx={{ width: '100%', maxWidth: 500, mx: 'auto', px: 2 }}>
-          <Typography variant="h6" fontWeight={700} align="center">직무를 선택해주세요.</Typography>
-          <Typography variant="body2" color="text.primary" align="center">
-            팀원들과 함께 학습을 진행해보세요.
-          </Typography>
-          {Object.entries(roles).map(([category, roleList]) => (
-            <Box key={category}>
-              <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>{category}</Typography>
-              <Stack spacing={1}>
-                {roleList.map((role) => (
-                  <Button
-                    key={role}
-                    variant={selectedRole === role ? 'contained' : 'outlined'}
-                    onClick={() => handleRoleSelect(role)}
-                    sx={{
-                      justifyContent: 'flex-start',
-                      textTransform: 'none',
-                      bgcolor: selectedRole === role ? 'rgba(124,108,255,0.3)' : 'rgba(255,255,255,0.04)',
-                      borderColor: selectedRole === role ? 'rgba(124,108,255,0.8)' : 'rgba(255,255,255,0.2)',
-                      color: '#F5F6FF'
-                    }}
-                  >
-                    {role}
-                  </Button>
-                ))}
-              </Stack>
-            </Box>
-          ))}
-        </Stack>
-      </Box>
-    )
-  }
 
   return (
     <Box sx={{ minHeight: '100dvh', display: 'flex', alignItems: 'center', py: 4 }}>
@@ -146,8 +119,13 @@ export default function SignUpForm(props) {
                   }
                 }}
               />
-              <Button variant="outlined" sx={{ minWidth: 127 }} disabled>
-                인증 코드 발송
+              <Button 
+                variant="outlined" 
+                sx={{ minWidth: 127 }} 
+                onClick={handleSendVerificationCode}
+                disabled={sendingCode || !signupEmail || !!errors.email}
+              >
+                {sendingCode ? <CircularProgress size={20} /> : '인증 코드 발송'}
               </Button>
             </Stack>
             {errors.email && (
@@ -160,34 +138,59 @@ export default function SignUpForm(props) {
           
           <Box>
             <Typography variant="body2" sx={{ mb: 0.5 }}>이메일 인증 코드</Typography>
-            <TextField
-              type="text"
-              placeholder="이메일 인증 코드를 입력하세요"
-              fullWidth
-              error={!!errors.emailVerificationCode}
-              sx={{
-                '& .MuiInputBase-input': {
-                  color: '#F5F6FF'
-                },
-                '& .MuiInputLabel-root': {
-                  color: 'rgba(255,255,255,0.7)'
-                },
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': {
-                    borderColor: 'rgba(255,255,255,0.2)'
+            <Stack direction="row" spacing={1}>
+              <TextField
+                type="text"
+                placeholder="이메일 인증 코드를 입력하세요 (6자리)"
+                value={emailVerificationCode}
+                onChange={handleEmailVerificationCodeChange}
+                error={!!errors.emailVerificationCode}
+                inputProps={{ maxLength: 6 }}
+                disabled={emailVerified}
+                sx={{
+                  flex: 1,
+                  '& .MuiInputBase-input': {
+                    color: '#F5F6FF'
                   },
-                  '&:hover fieldset': {
-                    borderColor: 'rgba(255,255,255,0.3)'
+                  '& .MuiInputLabel-root': {
+                    color: 'rgba(255,255,255,0.7)'
                   },
-                  '&.Mui-focused fieldset': {
-                    borderColor: 'rgba(124,108,255,0.8)'
+                  '& .MuiOutlinedInput-root': {
+                    '& fieldset': {
+                      borderColor: emailVerified ? 'rgba(76,175,80,0.5)' : 'rgba(255,255,255,0.2)'
+                    },
+                    '&:hover fieldset': {
+                      borderColor: emailVerified ? 'rgba(76,175,80,0.7)' : 'rgba(255,255,255,0.3)'
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: emailVerified ? 'rgba(76,175,80,0.8)' : 'rgba(124,108,255,0.8)'
+                    }
                   }
-                }
-              }}
-            />
+                }}
+              />
+              <Button 
+                variant="outlined" 
+                sx={{ minWidth: 100 }} 
+                onClick={handleVerifyCode}
+                disabled={verifyingCode || !emailVerificationCode || emailVerificationCode.length !== 6 || emailVerified}
+              >
+                {verifyingCode ? (
+                  <CircularProgress size={20} />
+                ) : emailVerified ? (
+                  '인증완료'
+                ) : (
+                  '인증확인'
+                )}
+              </Button>
+            </Stack>
             {errors.emailVerificationCode && (
               <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
                 {errors.emailVerificationCode}
+              </Typography>
+            )}
+            {emailVerified && (
+              <Typography variant="caption" color="success.main" sx={{ mt: 0.5, display: 'block' }}>
+                이메일 인증이 완료되었습니다.
               </Typography>
             )}
           </Box>
@@ -268,6 +271,38 @@ export default function SignUpForm(props) {
             )}
           </Box>
 
+          <Box>
+            <Typography variant="body2" sx={{ mb: 0.5 }}>직무</Typography>
+            <TextField
+              placeholder="직무를 입력해주세요."
+              value={selectedRole}
+              onChange={handleRoleChange}
+              fullWidth
+              error={!!errors.role}
+              sx={{
+                '& .MuiInputBase-input': {
+                  color: '#F5F6FF'
+                },
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    borderColor: 'rgba(255,255,255,0.2)'
+                  },
+                  '&:hover fieldset': {
+                    borderColor: 'rgba(255,255,255,0.3)'
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: 'rgba(124,108,255,0.8)'
+                  }
+                }
+              }}
+            />
+            {errors.role && (
+              <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
+                {errors.role}
+              </Typography>
+            )}
+          </Box>
+
           <Stack spacing={1} sx={{ mt: 1 }}>
             <FormControlLabel
               control={
@@ -289,10 +324,27 @@ export default function SignUpForm(props) {
             />
           </Stack>
 
-          <Button variant="contained" fullWidth onClick={handleSignup}>
-            회원가입하기
+          {successMessage && (
+            <Alert severity="success" sx={{ mb: 1 }}>
+              {successMessage}
+            </Alert>
+          )}
+          <Button 
+            variant="contained" 
+            fullWidth 
+            onClick={handleSignup}
+            disabled={signupLoading}
+          >
+            {signupLoading ? (
+              <>
+                <CircularProgress size={20} sx={{ mr: 1 }} />
+                회원가입 중...
+              </>
+            ) : (
+              '회원가입하기'
+            )}
           </Button>
-          <Button variant="text" fullWidth onClick={onNavigateLogin}>
+          <Button variant="contained" fullWidth onClick={onNavigateLogin}>
             로그인으로 돌아가기
           </Button>
         </Stack>

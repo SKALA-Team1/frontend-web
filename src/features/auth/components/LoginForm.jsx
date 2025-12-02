@@ -9,8 +9,6 @@ export default function LoginForm({ onLogin, onGoogleLogin, onNavigateSignup }) 
   const handleGoogle = () => {
     if (onGoogleLogin) {
       onGoogleLogin()
-    } else if (onLogin) {
-      onLogin({ email: '', password: '' })
     }
   }
 
@@ -94,8 +92,8 @@ export default function LoginForm({ onLogin, onGoogleLogin, onNavigateSignup }) 
             }
           }}
         />
-        <Button variant="contained" fullWidth sx={{ py: 1.5 }} onClick={handleSubmit}>이메일로 로그인</Button>
-        <Button variant="outlined" fullWidth sx={{ py: 1.5 }} onClick={onNavigateSignup}>
+        <Button variant="contained" fullWidth sx={{ py: 1.5 }} onClick={handleSubmit}>로그인</Button>
+        <Button variant="contained" fullWidth sx={{ py: 1.5 }} onClick={onNavigateSignup}>
           회원가입하기
         </Button>
       </Stack>
