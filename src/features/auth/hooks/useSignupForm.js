@@ -1,20 +1,5 @@
 import React from 'react'
-
-/**
- * 회원가입 시 선택 가능한 역할 목록
- * Tech, Business, Operation 카테고리별로 세부 역할이 정의되어 있음
- */
-const roles = {
-  Tech: ['SW Engineering', 'Cloud/Infra Engineering', 'AI/Data Engineering'],
-  Business: ['서비스 기획', '전략 기획', '영업 / 마케팅', '컨설팅'],
-  Operation: ['재무 • 회계 • 구매', 'HRD']
-}
-
-/**
- * 이메일 형식 검증을 위한 정규표현식
- * 기본적인 이메일 형식 (user@domain.com)을 검증
- */
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+import { sendEmailVerificationCode, verifyEmailVerificationCode, signup } from '../../../api/auth'
 
 /**
  * 회원가입 폼 관리를 위한 커스텀 훅
@@ -49,61 +34,55 @@ export default function useSignupForm(onComplete) {
   // 개인정보 처리방침 모달 열림 상태
   const [openPrivacyModal, setOpenPrivacyModal] = React.useState(false)
   
-  // 온보딩(역할 선택) 화면 표시 여부
-  const [showOnboarding, setShowOnboarding] = React.useState(false)
-  
   // 선택된 역할
   const [selectedRole, setSelectedRole] = React.useState('')
+  
+  // 이메일 인증 코드 입력 상태
+  const [emailVerificationCode, setEmailVerificationCode] = React.useState('')
+  
+  // 이메일 인증 코드 발송 로딩 상태
+  const [sendingCode, setSendingCode] = React.useState(false)
+  
+  // 이메일 인증 코드 검증 로딩 상태
+  const [verifyingCode, setVerifyingCode] = React.useState(false)
+  
+  // 이메일 인증 코드 검증 완료 상태
+  const [emailVerified, setEmailVerified] = React.useState(false)
+  
+  // 회원가입 로딩 상태
+  const [signupLoading, setSignupLoading] = React.useState(false)
+  
+  // 성공 메시지 상태
+  const [successMessage, setSuccessMessage] = React.useState('')
   
   // 각 필드별 에러 메시지 상태
   const [errors, setErrors] = React.useState({
     name: '',
     email: '',
+    emailVerificationCode: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    role: ''
   })
 
   /**
-   * 이름 유효성 검증 함수
-   * @param {string} value - 검증할 이름 값
-   * @returns {string} 에러 메시지 (유효하면 빈 문자열)
-   */
-  const validateName = (value) => {
-    if (!value) return ''
-    if (value.length > 10) return '이름은 10자 내외로 입력해주세요.'
-    return ''
-  }
-
-  /**
-   * 이메일 유효성 검증 함수
-   * @param {string} value - 검증할 이메일 값
-   * @returns {string} 에러 메시지 (유효하면 빈 문자열)
-   */
-  const validateEmail = (value) => {
-    if (!value) return ''
-    if (!emailRegex.test(value)) return '이메일 형태가 올바르지 않아요.'
-    return ''
-  }
-
-  /**
-   * 비밀번호 유효성 검증 함수
-   * @param {string} value - 검증할 비밀번호 값
+   * 비밀번호 검증 (백엔드에서 검증하므로 최소한의 UX 검증만)
+   * @param {string} value - 비밀번호 값
    * @returns {string} 에러 메시지 (유효하면 빈 문자열)
    */
   const validatePassword = (value) => {
-    if (!value) return ''
-    if (value.length < 8 || value.length > 20) return '비밀번호는 8~20자로 입력해주세요.'
-    return ''
-  }
-
-  /**
-   * 비밀번호 확인 유효성 검증 함수
-   * @param {string} value - 검증할 비밀번호 확인 값
-   * @returns {string} 에러 메시지 (유효하면 빈 문자열)
-   */
-  const validateConfirmPassword = (value) => {
-    if (!value) return ''
-    if (value !== signupPassword) return '비밀번호가 일치하지 않아요.'
+    if (!value) {
+      return '비밀번호를 입력해주세요.'
+    }
+    if (value.length < 6) {
+      return '비밀번호는 최소 6자 이상이어야 합니다.'
+    }
+    // 영문자와 숫자 모두 포함하는지 확인
+    const hasLetter = /[A-Za-z]/.test(value)
+    const hasNumber = /\d/.test(value)
+    if (!hasLetter || !hasNumber) {
+      return '비밀번호는 영문자와 숫자를 모두 포함해야 합니다.'
+    }
     return ''
   }
 
@@ -115,7 +94,7 @@ export default function useSignupForm(onComplete) {
   const handleNameChange = (event) => {
     const value = event.target.value
     setName(value)
-    setErrors((prev) => ({ ...prev, name: validateName(value) }))
+    setErrors((prev) => ({ ...prev, name: '' }))
   }
 
   /**
@@ -126,7 +105,7 @@ export default function useSignupForm(onComplete) {
   const handleEmailChange = (event) => {
     const value = event.target.value
     setSignupEmail(value)
-    setErrors((prev) => ({ ...prev, email: validateEmail(value) }))
+    setErrors((prev) => ({ ...prev, email: '' }))
   }
 
   /**
@@ -138,10 +117,11 @@ export default function useSignupForm(onComplete) {
   const handlePasswordChange = (event) => {
     const value = event.target.value
     setSignupPassword(value)
-    setErrors((prev) => ({ ...prev, password: validatePassword(value) }))
+    const passwordError = validatePassword(value)
+    setErrors((prev) => ({ ...prev, password: passwordError }))
     // 비밀번호가 변경되면 비밀번호 확인도 재검증
     if (confirmPassword) {
-      setErrors((prev) => ({ ...prev, confirmPassword: validateConfirmPassword(confirmPassword) }))
+      setErrors((prev) => ({ ...prev, confirmPassword: '' }))
     }
   }
 
@@ -153,42 +133,199 @@ export default function useSignupForm(onComplete) {
   const handleConfirmPasswordChange = (event) => {
     const value = event.target.value
     setConfirmPassword(value)
-    setErrors((prev) => ({ ...prev, confirmPassword: validateConfirmPassword(value) }))
+    setErrors((prev) => ({ ...prev, confirmPassword: '' }))
   }
 
   /**
-   * 회원가입 제출 핸들러
-   * 온보딩(역할 선택) 화면을 표시
+   * 직무 입력 변경 핸들러
+   * @param {Event} event - 입력 이벤트 객체
    */
-  const handleSignup = () => {
-    setShowOnboarding(true)
+  const handleRoleChange = (event) => {
+    const value = event.target.value
+    setSelectedRole(value)
+    setErrors((prev) => ({ ...prev, role: '' }))
   }
 
   /**
-   * 역할 선택 핸들러
-   * 선택된 역할을 저장하고 onComplete 콜백 호출
-   * @param {string} role - 선택된 역할
+   * 이메일 인증 코드 입력 변경 핸들러
+   * @param {Event} event - 입력 이벤트 객체
    */
-  const handleRoleSelect = (role) => {
-    setSelectedRole(role)
-    if (onComplete) {
-      onComplete(role)
+  const handleEmailVerificationCodeChange = (event) => {
+    const value = event.target.value.replace(/\D/g, '') // 숫자만 허용
+    if (value.length <= 6) {
+      setEmailVerificationCode(value)
+      setErrors((prev) => ({ ...prev, emailVerificationCode: '' }))
     }
   }
 
   /**
-   * 폼 초기화 함수
-   * 모든 입력값과 상태를 초기 상태로 리셋
+   * 이메일 인증 코드 발송 핸들러
    */
-  const reset = () => {
-    setName('')
-    setSignupEmail('')
-    setSignupPassword('')
-    setConfirmPassword('')
-    setAgreeTerms(false)
-    setAgreePrivacy(false)
-    setShowOnboarding(false)
-    setSelectedRole('')
+  const handleSendVerificationCode = async () => {
+    // 백엔드에서 검증하므로 프론트엔드에서는 빈 값만 체크
+    if (!signupEmail) {
+      setErrors((prev) => ({ ...prev, email: '이메일을 입력해주세요.' }))
+      return
+    }
+
+    setSendingCode(true)
+    setErrors((prev) => ({ ...prev, email: '' }))
+
+    try {
+      await sendEmailVerificationCode(signupEmail)
+      alert('인증 코드가 발송되었습니다. 이메일을 확인해주세요.')
+      // 인증 코드 발송 후 검증 상태 초기화
+      setEmailVerified(false)
+      setEmailVerificationCode('')
+      setErrors((prev) => ({ ...prev, emailVerificationCode: '' }))
+    } catch (error) {
+      // 백엔드 에러 메시지를 그대로 표시
+      const errorMessage = error.message || '인증 코드 발송에 실패했습니다.'
+      setErrors((prev) => ({ ...prev, email: errorMessage }))
+    } finally {
+      setSendingCode(false)
+    }
+  }
+
+  /**
+   * 이메일 인증 코드 검증 핸들러
+   */
+  const handleVerifyCode = async () => {
+    // 백엔드에서 검증하므로 프론트엔드에서는 빈 값만 체크
+    if (!signupEmail) {
+      setErrors((prev) => ({ ...prev, email: '이메일을 입력해주세요.' }))
+      return
+    }
+
+    if (!emailVerificationCode || emailVerificationCode.length !== 6) {
+      setErrors((prev) => ({ ...prev, emailVerificationCode: '인증 코드 6자리를 입력해주세요.' }))
+      return
+    }
+
+    setVerifyingCode(true)
+    setErrors((prev) => ({ ...prev, emailVerificationCode: '' }))
+
+    try {
+      await verifyEmailVerificationCode(signupEmail, emailVerificationCode)
+      setEmailVerified(true)
+      alert('인증 코드가 확인되었습니다.')
+    } catch (error) {
+      // 백엔드 에러 메시지를 그대로 표시
+      const errorMessage = error.message || '인증 코드 확인에 실패했습니다.'
+      setErrors((prev) => ({ ...prev, emailVerificationCode: errorMessage }))
+      setEmailVerified(false)
+    } finally {
+      setVerifyingCode(false)
+    }
+  }
+
+  /**
+   * 전체 폼 검증 (백엔드에서 검증하므로 최소한의 필수값만 체크)
+   * @returns {boolean} 검증 통과 여부
+   */
+  const validateForm = () => {
+    // 필수 필드 검증
+    if (!name) {
+      setErrors((prev) => ({ ...prev, name: '이름을 입력해주세요.' }))
+      return false
+    }
+    if (!signupEmail) {
+      setErrors((prev) => ({ ...prev, email: '이메일을 입력해주세요.' }))
+      return false
+    }
+    if (!emailVerificationCode || emailVerificationCode.length !== 6) {
+      setErrors((prev) => ({ ...prev, emailVerificationCode: '인증 코드 6자리를 입력해주세요.' }))
+      return false
+    }
+    if (!emailVerified) {
+      setErrors((prev) => ({ ...prev, emailVerificationCode: '이메일 인증을 완료해주세요.' }))
+      return false
+    }
+    
+    // 비밀번호 검증
+    const passwordError = validatePassword(signupPassword)
+    if (passwordError) {
+      setErrors((prev) => ({ ...prev, password: passwordError }))
+      return false
+    }
+    
+    if (!confirmPassword) {
+      setErrors((prev) => ({ ...prev, confirmPassword: '비밀번호 확인을 입력해주세요.' }))
+      return false
+    }
+    
+    if (signupPassword !== confirmPassword) {
+      setErrors((prev) => ({ ...prev, confirmPassword: '비밀번호가 일치하지 않습니다.' }))
+      return false
+    }
+    
+    if (!selectedRole) {
+      setErrors((prev) => ({ ...prev, role: '직무를 입력해주세요.' }))
+      return false
+    }
+
+    // 약관 동의 검증 (백엔드에서도 검증하지만 UX를 위해 프론트에서도 체크)
+    if (!agreeTerms) {
+      alert('서비스 이용 약관에 동의해주세요.')
+      return false
+    }
+    if (!agreePrivacy) {
+      alert('개인정보 수집 및 이용에 동의해주세요.')
+      return false
+    }
+
+    return true
+  }
+
+  /**
+   * 회원가입 핸들러
+   */
+  const handleSignup = async () => {
+    // 폼 검증
+    if (!validateForm()) {
+      return
+    }
+
+    setSignupLoading(true)
+    setSuccessMessage('')
+
+    try {
+      const response = await signup({
+        name,
+        email: signupEmail,
+        emailVerificationCode,
+        password: signupPassword,
+        passwordConfirm: confirmPassword,
+        agreeToTerms: agreeTerms,
+        agreeToPrivacy: agreePrivacy,
+        jobRole: selectedRole
+      })
+
+      // 성공 메시지 표시
+      setSuccessMessage('회원가입에 성공했습니다.')
+      
+      // 토큰 저장 (선택사항)
+      if (response.access_token) {
+        localStorage.setItem('accessToken', response.access_token)
+        localStorage.setItem('refreshToken', response.refresh_token)
+      }
+
+      // 성공 후 콜백 호출 (로그인 페이지로 이동)
+      if (onComplete) {
+        setTimeout(() => {
+          onComplete(selectedRole)
+        }, 1500) // 1.5초 후 이동
+      }
+    } catch (error) {
+      // 백엔드 에러 메시지를 그대로 표시
+      const errorMessage = error.message || '회원가입에 실패했습니다.'
+      alert(errorMessage)
+      
+      // 백엔드 검증 에러를 필드별로 표시 (백엔드 응답 구조에 따라 조정 필요)
+      // 현재는 alert로만 표시하고, 필요시 백엔드 응답 구조를 확인하여 필드별 에러 매핑
+    } finally {
+      setSignupLoading(false)
+    }
   }
 
   return {
@@ -196,25 +333,31 @@ export default function useSignupForm(onComplete) {
     signupEmail,
     signupPassword,
     confirmPassword,
+    emailVerificationCode,
     agreeTerms,
     agreePrivacy,
     openTermsModal,
     openPrivacyModal,
-    showOnboarding,
     selectedRole,
     errors,
-    roles,
+    sendingCode,
+    verifyingCode,
+    emailVerified,
+    signupLoading,
+    successMessage,
     handleNameChange,
     handleEmailChange,
     handlePasswordChange,
     handleConfirmPasswordChange,
+    handleEmailVerificationCodeChange,
+    handleSendVerificationCode,
+    handleVerifyCode,
     setAgreeTerms,
     setAgreePrivacy,
     setOpenTermsModal,
     setOpenPrivacyModal,
     handleSignup,
-    handleRoleSelect,
-    reset
+    handleRoleChange
   }
 }
 

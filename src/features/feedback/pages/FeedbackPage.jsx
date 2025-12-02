@@ -18,8 +18,6 @@ import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder'
 import BookmarkIcon from '@mui/icons-material/Bookmark'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import useFeedbackPage from '../hooks/useFeedbackPage'
-import SummaryView from '../../roleplay/components/SummaryView'
-import { generateSuggestion } from '../../../utils/suggestionGenerator.js'
 
 // Mock 데이터 구조 (나중에 백엔드 연동 시 교체)
 const MOCK_PRONUNCIATION_SCORES = {
