@@ -1,5 +1,6 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
-import { getJwtToken, startSession, createWebSocketConnection } from '../../../api/roleplay'
+import { startSession, createWebSocketConnection } from '../../../services/roleplayService'
+import { getUserIdFromToken } from '../../../utils/jwt'
 
 /**
  * 롤플레이 세션 관리를 위한 커스텀 훅
@@ -299,6 +300,7 @@ export default function useRoleplaySession() {
    * @param {Object} message - WebSocket 메시지 객체
    */
   const handleWebSocketMessage = (message) => {
+    console.log('📨 [WebSocket] Message received:', message.type, message)
 
     switch (message.type) {
       case 'ACK':
@@ -308,26 +310,22 @@ export default function useRoleplaySession() {
         break
 
       case 'AI_TEXT':
-        // 기존 방식: 한 번에 전체 메시지 받기 (고정 질문 등)
-        // ✅ 첫 질문이고 아바타가 아직 로드되지 않았으면 대기
-        if (!isAvatarLoaded && messages.length === 0) {
-          pendingFirstMessageRef.current = {
-            who: 'AI',
-            text: message.text,
-            isFixedQuestion: message.is_fixed_question || false,
-            isStreaming: false
-          }
-          // 아바타 로드 완료를 기다림 (handleAvatarLoad에서 처리)
-          break
-        }
+        console.log('📩 [AI_TEXT] Received:', { 
+          text: message.text, 
+          isAvatarLoaded, 
+          messagesLength: messages.length,
+          isFixedQuestion: message.is_fixed_question 
+        })
         
-        // 아바타가 로드되었거나 첫 질문이 아니면 즉시 표시
+        // ✅ 첫 질문은 항상 즉시 표시 (아바타 로드 상태와 무관)
+        console.log('✅ [AI_TEXT] Showing message immediately')
         setMessages(prev => [...prev, {
           who: 'AI',
           text: message.text,
           isFixedQuestion: message.is_fixed_question || false,
           isStreaming: false
         }])
+        
         // ✅ 타이핑 효과 완료 후 TTS 재생 (약간의 지연을 두어 타이핑 효과가 보이도록)
         // 타이핑 속도 30ms * 텍스트 길이 + 여유 시간
         const typingDuration = message.text.length * 30 + 500
@@ -636,10 +634,12 @@ export default function useRoleplaySession() {
    * 아바타 로드 전에 온 첫 질문이 있으면 이 시점에 표시
    */
   const handleAvatarLoad = () => {
+    console.log('🎭 [Avatar] Load complete')
     setIsAvatarLoaded(true)
     
     // 대기 중인 첫 질문이 있으면 표시
     if (pendingFirstMessageRef.current) {
+      console.log('📤 [Avatar] Showing pending message:', pendingFirstMessageRef.current.text)
       const pendingMessage = pendingFirstMessageRef.current
       pendingFirstMessageRef.current = null
       
@@ -650,6 +650,8 @@ export default function useRoleplaySession() {
       setTimeout(() => {
         speakText(pendingMessage.text)
       }, typingDuration)
+    } else {
+      console.log('⚠️ [Avatar] No pending message')
     }
   }
 
@@ -681,11 +683,8 @@ export default function useRoleplaySession() {
       setIsAvatarLoaded(false) // 아바타 로드 상태 리셋
       pendingFirstMessageRef.current = null // 첫 질문 대기 상태 리셋
 
-      // 1. JWT 토큰 생성
-      const jwtToken = await getJwtToken(1)
-
-      // 2. 세션 생성
-      const sessionData = await startSession(jwtToken, scenarioId)
+      // 세션 생성 (기존 accessToken 자동 사용)
+      const sessionData = await startSession(scenarioId)
       setSessionInfo(sessionData)
 
       // 3. WebSocket 연결 및 INIT 메시지 전송
@@ -696,9 +695,15 @@ export default function useRoleplaySession() {
         handleWebSocketClose,
         // 웹소켓 연결 완료 시 INIT 메시지 전송
         (ws) => {
+          const userId = getUserIdFromToken()
+          if (!userId) {
+            console.error('[useRoleplaySession] userId를 추출할 수 없습니다.')
+            return
+          }
+          
           const initMessage = {
             type: 'INIT',
-            userId: 1,
+            userId: userId,
             subjectId: sessionData.scenario.subject_id,
             myRole: sessionData.scenario.my_role,
             aiRole: sessionData.scenario.ai_role,

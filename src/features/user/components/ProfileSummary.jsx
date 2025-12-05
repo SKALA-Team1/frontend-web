@@ -8,8 +8,8 @@ export default function ProfileSummary() {
     <Card
       variant="outlined"
       sx={{
-        border: '1px solid rgba(255,255,255,0.08)',
-        backgroundColor: 'rgba(255,255,255,0.02)',
+        border: '1px solid rgba(0,0,0,0.08)',
+        backgroundColor: 'rgba(0,0,0,0.02)',
         backdropFilter: 'blur(16px)'
       }}
     >

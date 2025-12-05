@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, lazy, Suspense, useMemo } from 'react'
 import { Stack, Box, Typography, CircularProgress, useMediaQuery, useTheme, Alert, IconButton } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import useHomePage from '../hooks/useHomePage'
@@ -7,13 +7,15 @@ import useScenarioData from '../hooks/useScenarioData'
 import useRoleplayFilters from '../hooks/useRoleplayFilters'
 import ProfileSummary from '../../user/components/ProfileSummary'
 import RoleplayCTACard from '../components/RoleplayCTACard'
-import CreateRoleplayDialog from '../components/CreateRoleplayDialog'
 import ScenarioList from '../components/ScenarioList'
-import SessionView from '../components/SessionView'
-import SummaryView from '../components/SummaryView'
-import EndSessionDialog from '../components/EndSessionDialog'
-import CalendarDialog from '../components/CalendarDialog'
-import SuggestionPanel from '../components/SuggestionPanel'
+import LoadingSpinner from '../../../components/Common/LoadingSpinner'
+
+// 무거운 컴포넌트들을 lazy load
+const CreateRoleplayDialog = lazy(() => import('../components/CreateRoleplayDialog'))
+const SessionView = lazy(() => import('../components/SessionView'))
+const SummaryView = lazy(() => import('../components/SummaryView'))
+const EndSessionDialog = lazy(() => import('../components/EndSessionDialog'))
+const CalendarDialog = lazy(() => import('../components/CalendarDialog'))
 
 /**
  * 롤플레이 전체 페이지 (홈 통합)
@@ -21,7 +23,7 @@ import SuggestionPanel from '../components/SuggestionPanel'
  * - 프로필 요약, 롤플레이 생성 다이얼로그 포함
  */
 export default function RoleplayPage() {
-  const { scenarios, loading: scenariosLoading, error: scenariosError, refresh } = useScenarioData()
+  const { scenarios, loading: scenariosLoading, error: scenariosError, isSlackIntegrated, userJobRole, refresh } = useScenarioData()
   const theme = useTheme()
   const isDesktop = useMediaQuery(theme.breakpoints.up('md')) // 900px 이상
   const drawerWidth = 280
@@ -75,8 +77,6 @@ export default function RoleplayPage() {
     setStartDate,
     endDate,
     setEndDate,
-    openPanel,
-    setOpenPanel,
     openEnd,
     setOpenEnd,
     currentQuestion,
@@ -86,8 +86,11 @@ export default function RoleplayPage() {
     handleEndSession
   } = useHomeRoleplay(scenarios)
 
-  // 시나리오 필터링
+  // 시나리오 필터링 (메모이제이션)
   const { filteredItems } = useRoleplayFilters(tab, scenarios)
+  
+  // 핸들러 메모이제이션
+  const handleOpenCalendarMemo = useMemo(() => () => setOpenCal(true), [setOpenCal])
 
   // 피드백 모달 관련
   const [feedbackModalOpen, setFeedbackModalOpen] = useState(false)
@@ -111,14 +114,13 @@ export default function RoleplayPage() {
 
   // 롤플레잉 세션 화면
   if (session.view === 'session' && session.isSession) {
-  return (
-      <>
+    return (
+      <Suspense fallback={<LoadingSpinner message="세션 로딩 중..." />}>
         <SessionView
           selectedTitle={session.selectedTitle}
           messages={session.messages}
           bottomRef={session.bottomRef}
           onEndSession={() => setOpenEnd(true)}
-          onOpenPanel={() => setOpenPanel(true)}
           onMicClick={session.handleMicToggle}
           isRecording={session.isRecording}
           isKeyboardMode={session.isKeyboardMode}
@@ -129,17 +131,16 @@ export default function RoleplayPage() {
           isTTSPlaying={session.isTTSPlaying}
           onAvatarLoad={session.handleAvatarLoad}
         />
-      <SuggestionPanel
-        open={openPanel}
-        onClose={() => setOpenPanel(false)}
-        currentQuestion={currentQuestion}
-      />
-      <EndSessionDialog
-        open={openEnd}
-        onClose={() => setOpenEnd(false)}
-          onConfirm={handleEndSession}
-      />
-      </>
+        {openEnd && (
+          <Suspense fallback={null}>
+            <EndSessionDialog
+              open={openEnd}
+              onClose={() => setOpenEnd(false)}
+              onConfirm={handleEndSession}
+            />
+          </Suspense>
+        )}
+      </Suspense>
     )
   }
 
@@ -167,6 +168,7 @@ export default function RoleplayPage() {
   // 피드백 요약 화면
   if (session.view === 'summary') {
     return (
+      <Suspense fallback={<LoadingSpinner message="요약 로딩 중..." />}>
         <SummaryView
           summaryTab={session.summaryTab}
           setSummaryTab={session.setSummaryTab}
@@ -176,6 +178,7 @@ export default function RoleplayPage() {
           scenarioTitle={session.selectedTitle}
           onClose={() => session.setView('list')}
         />
+      </Suspense>
     )
   }
 
@@ -207,36 +210,46 @@ export default function RoleplayPage() {
           tab={tab}
           setTab={setTab}
           filteredItems={filteredItems}
+          isSlackIntegrated={isSlackIntegrated}
+          userJobRole={userJobRole}
           loading={scenariosLoading}
           error={scenariosError}
           onRetry={refresh}
-          onOpenCalendar={() => setOpenCal(true)}
+          onOpenCalendar={handleOpenCalendarMemo}
           onStartRoleplay={session.startWithMic}
           onViewFeedback={handleViewFeedback}
         />
 
-      <CalendarDialog
-        open={openCal}
-        onClose={() => setOpenCal(false)}
-        startDate={startDate}
-        endDate={endDate}
-        onStartDateChange={setStartDate}
-        onEndDateChange={setEndDate}
-      />
+        {openCal && (
+          <Suspense fallback={null}>
+            <CalendarDialog
+              open={openCal}
+              onClose={() => setOpenCal(false)}
+              startDate={startDate}
+              endDate={endDate}
+              onStartDateChange={setStartDate}
+              onEndDateChange={setEndDate}
+            />
+          </Suspense>
+        )}
 
-        <CreateRoleplayDialog
-          open={openCreate}
-          onClose={handleCloseCreate}
-          aiRole={aiRole}
-          myRole={myRole}
-          goal={goal}
-          onAiRoleChange={handleAiRoleChange}
-          onMyRoleChange={handleMyRoleChange}
-          onGoalChange={handleGoalChange}
-          onStart={handleCreateScenario}
-          loading={createLoading}
-          errorMessage={createError}
-        />
+        {openCreate && (
+          <Suspense fallback={null}>
+            <CreateRoleplayDialog
+              open={openCreate}
+              onClose={handleCloseCreate}
+              aiRole={aiRole}
+              myRole={myRole}
+              goal={goal}
+              onAiRoleChange={handleAiRoleChange}
+              onMyRoleChange={handleMyRoleChange}
+              onGoalChange={handleGoalChange}
+              onStart={handleCreateScenario}
+              loading={createLoading}
+              errorMessage={createError}
+            />
+          </Suspense>
+        )}
 
         {/* 과거 피드백 선택 모달 - TODO: FeedbackModal 컴포넌트 구현 필요 */}
         {/* <FeedbackModal

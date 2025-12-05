@@ -29,8 +29,8 @@ export default function TextInputArea({
         flexDirection: 'column',
         gap: 1,
         p: 1.5,
-        backgroundColor: 'rgba(255,255,255,0.02)',
-        borderTop: '1px solid rgba(255,255,255,0.1)',
+        backgroundColor: 'rgba(0,0,0,0.02)',
+        borderTop: '1px solid rgba(0,0,0,0.1)',
         borderRadius: '0 0 12px 12px'
       }}
     >
@@ -53,21 +53,21 @@ export default function TextInputArea({
           size="small"
           sx={{
             '& .MuiOutlinedInput-root': {
-              backgroundColor: 'rgba(255,255,255,0.04)',
+              backgroundColor: 'rgba(0,0,0,0.04)',
               borderRadius: 2,
-              color: '#F5F6FF',
+              color: '#212121',
               '& fieldset': {
-                borderColor: 'rgba(255,255,255,0.18)'
+                borderColor: 'rgba(0,0,0,0.23)'
               },
               '&:hover fieldset': {
-                borderColor: 'rgba(255,255,255,0.3)'
+                borderColor: 'rgba(0,0,0,0.4)'
               },
               '&.Mui-focused fieldset': {
                 borderColor: '#6C63FF'
               }
             },
             '& .MuiInputBase-input': {
-              color: '#F5F6FF',
+              color: '#212121',
               '&::placeholder': {
                 color: 'rgba(245,246,255,0.5)',
                 opacity: 1
@@ -81,15 +81,15 @@ export default function TextInputArea({
           sx={{
             width: 40,
             height: 40,
-            backgroundColor: value.trim() ? 'rgba(124,108,255,0.3)' : 'rgba(255,255,255,0.04)',
-            color: value.trim() ? '#F5F6FF' : 'rgba(245,246,255,0.4)',
-            border: '1px solid rgba(255,255,255,0.2)',
+            backgroundColor: value.trim() ? 'rgba(124,108,255,0.3)' : 'rgba(0,0,0,0.04)',
+            color: value.trim() ? '#212121' : 'rgba(245,246,255,0.4)',
+            border: '1px solid rgba(0,0,0,0.23)',
             '&:hover': {
-              backgroundColor: value.trim() ? 'rgba(124,108,255,0.4)' : 'rgba(255,255,255,0.08)'
+              backgroundColor: value.trim() ? 'rgba(124,108,255,0.4)' : 'rgba(0,0,0,0.08)'
             },
             '&.Mui-disabled': {
-              backgroundColor: 'rgba(255,255,255,0.02)',
-              borderColor: 'rgba(255,255,255,0.1)'
+              backgroundColor: 'rgba(0,0,0,0.02)',
+              borderColor: 'rgba(0,0,0,0.1)'
             }
           }}
           aria-label="전송"
@@ -103,11 +103,11 @@ export default function TextInputArea({
           sx={{
             width: 40,
             height: 40,
-            border: '1px solid rgba(255,255,255,0.2)',
-            backgroundColor: 'rgba(255,255,255,0.04)',
-            color: '#F5F6FF',
+            border: '1px solid rgba(0,0,0,0.23)',
+            backgroundColor: 'rgba(0,0,0,0.04)',
+            color: '#212121',
             '&:hover': {
-              backgroundColor: 'rgba(255,255,255,0.08)'
+              backgroundColor: 'rgba(0,0,0,0.08)'
             }
           }}
           aria-label="마이크"

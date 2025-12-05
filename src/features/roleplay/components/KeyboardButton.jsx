@@ -9,11 +9,11 @@ export default function KeyboardButton({ onClick, isActive = false }) {
       sx={{
         width: 40,
         height: 40,
-        border: '1px solid rgba(255,255,255,0.2)',
-        backgroundColor: isActive ? 'rgba(124,108,255,0.2)' : 'rgba(255,255,255,0.04)',
-        color: '#F5F6FF',
+        border: '1px solid rgba(0,0,0,0.23)',
+        backgroundColor: isActive ? 'rgba(124,108,255,0.2)' : 'rgba(0,0,0,0.04)',
+        color: '#212121',
         '&:hover': {
-          backgroundColor: isActive ? 'rgba(124,108,255,0.3)' : 'rgba(255,255,255,0.08)'
+          backgroundColor: isActive ? 'rgba(124,108,255,0.3)' : 'rgba(0,0,0,0.08)'
         }
       }}
       aria-label="키보드 입력"

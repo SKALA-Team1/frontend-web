@@ -16,8 +16,6 @@ import useBookmarks from '../../../hooks/useBookmarks'
  *   - setStartDate: Function - 시작 날짜 변경 핸들러
  *   - endDate: string - 필터 종료 날짜
  *   - setEndDate: Function - 종료 날짜 변경 핸들러
- *   - openPanel: boolean - 제안 패널 열림 상태
- *   - setOpenPanel: Function - 제안 패널 열림 상태 변경 핸들러
  *   - openEnd: boolean - 세션 종료 다이얼로그 열림 상태
  *   - setOpenEnd: Function - 세션 종료 다이얼로그 열림 상태 변경 핸들러
  *   - currentQuestion: string - 현재 AI 질문 텍스트
@@ -38,9 +36,6 @@ export default function useHomeRoleplay(scenarios = []) {
   
   // 날짜 필터 종료 날짜
   const [endDate, setEndDate] = useState('')
-  
-  // 제안 패널 열림 상태
-  const [openPanel, setOpenPanel] = useState(false)
   
   // 세션 종료 다이얼로그 열림 상태
   const [openEnd, setOpenEnd] = useState(false)
@@ -83,8 +78,6 @@ export default function useHomeRoleplay(scenarios = []) {
     setStartDate,
     endDate,
     setEndDate,
-    openPanel,
-    setOpenPanel,
     openEnd,
     setOpenEnd,
     currentQuestion,

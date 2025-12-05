@@ -23,5 +23,20 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api\/gateway/, '')
       }
     }
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-mui': ['@mui/material', '@mui/icons-material', '@emotion/react', '@emotion/styled'],
+          'vendor-three': ['three', '@react-three/fiber', '@react-three/drei'],
+        }
+      }
+    },
+    chunkSizeWarningLimit: 1000,
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-router-dom'],
   }
 })

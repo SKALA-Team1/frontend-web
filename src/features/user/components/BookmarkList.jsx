@@ -10,18 +10,18 @@ export default function BookmarkList({ bookmarkedSentences }) {
           sx={{
             p: 2,
             borderRadius: 2,
-            border: '1px solid rgba(255,255,255,0.1)',
-            backgroundColor: 'rgba(255,255,255,0.03)',
+            border: '1px solid rgba(0,0,0,0.1)',
+            backgroundColor: 'rgba(0,0,0,0.03)',
             backdropFilter: 'blur(6px)',
             transition: 'all 0.2s ease',
             '&:hover': {
-              bgcolor: 'rgba(255,255,255,0.05)',
+              bgcolor: 'rgba(0,0,0,0.05)',
               borderColor: 'rgba(124,108,255,0.3)'
             }
           }}
         >
           <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1.5 }}>
-            <Typography variant="subtitle2" fontWeight={700} sx={{ color: '#F5F6FF' }}>
+            <Typography variant="subtitle2" fontWeight={700} sx={{ color: '#212121' }}>
               {item.scenario}
             </Typography>
             <Chip
@@ -42,7 +42,7 @@ export default function BookmarkList({ bookmarkedSentences }) {
               <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
                 AI 질문
               </Typography>
-              <Typography variant="body2" sx={{ color: '#F5F6FF', fontSize: '0.8125rem' }}>
+              <Typography variant="body2" sx={{ color: '#212121', fontSize: '0.8125rem' }}>
                 {item.ai}
               </Typography>
             </Box>
@@ -50,7 +50,7 @@ export default function BookmarkList({ bookmarkedSentences }) {
               <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
                 내 답변
               </Typography>
-              <Typography variant="body2" sx={{ color: '#F5F6FF', fontSize: '0.8125rem' }}>
+              <Typography variant="body2" sx={{ color: '#212121', fontSize: '0.8125rem' }}>
                 {item.you}
               </Typography>
             </Box>
@@ -65,7 +65,7 @@ export default function BookmarkList({ bookmarkedSentences }) {
               <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
                 제안 문장
               </Typography>
-              <Typography variant="body2" sx={{ color: '#F5F6FF', fontSize: '0.8125rem' }}>
+              <Typography variant="body2" sx={{ color: '#212121', fontSize: '0.8125rem' }}>
                 {item.suggestion}
               </Typography>
             </Box>

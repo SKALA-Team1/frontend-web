@@ -5,14 +5,12 @@ import AvatarWindow from './AvatarWindow'
 import MessageList from './MessageList'
 import MicButton from './MicButton'
 import TextInputArea from './TextInputArea'
-import PanelToggleButton from './PanelToggleButton'
 
 export default function SessionView({
   selectedTitle,
   messages,
   bottomRef,
   onEndSession,
-  onOpenPanel,
   onMicClick = () => {},
   isRecording = false,
   isKeyboardMode = false,
@@ -56,8 +54,6 @@ export default function SessionView({
           isKeyboardMode={isKeyboardMode}
         />
       )}
-      
-      <PanelToggleButton onClick={onOpenPanel} />
     </Box>
   )
 }

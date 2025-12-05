@@ -131,11 +131,11 @@ export default function SummaryView({
               sx={{ 
                 minWidth: { xs: '30%', sm: 'auto' },
                 flex: { xs: '0 0 auto', sm: 1 },
-                bgcolor: 'rgba(255,255,255,0.03)',
-                border: '1px solid rgba(255,255,255,0.1)',
+                bgcolor: 'rgba(0,0,0,0.03)',
+                border: '1px solid rgba(0,0,0,0.1)',
                 transition: 'all 0.2s ease',
                 '&:hover': {
-                  bgcolor: 'rgba(255,255,255,0.05)',
+                  bgcolor: 'rgba(0,0,0,0.05)',
                   transform: 'translateY(-2px)',
                   boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
                 }
@@ -170,11 +170,11 @@ export default function SummaryView({
               sx={{ 
                 minWidth: { xs: '30%', sm: 'auto' },
                 flex: { xs: '0 0 auto', sm: 1 },
-                bgcolor: 'rgba(255,255,255,0.03)',
-                border: '1px solid rgba(255,255,255,0.1)',
+                bgcolor: 'rgba(0,0,0,0.03)',
+                border: '1px solid rgba(0,0,0,0.1)',
                 transition: 'all 0.2s ease',
                 '&:hover': {
-                  bgcolor: 'rgba(255,255,255,0.05)',
+                  bgcolor: 'rgba(0,0,0,0.05)',
                   transform: 'translateY(-2px)',
                   boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
                 }
@@ -209,11 +209,11 @@ export default function SummaryView({
               sx={{ 
                 minWidth: { xs: '30%', sm: 'auto' },
                 flex: { xs: '0 0 auto', sm: 1 },
-                bgcolor: 'rgba(255,255,255,0.03)',
-                border: '1px solid rgba(255,255,255,0.1)',
+                bgcolor: 'rgba(0,0,0,0.03)',
+                border: '1px solid rgba(0,0,0,0.1)',
                 transition: 'all 0.2s ease',
                 '&:hover': {
-                  bgcolor: 'rgba(255,255,255,0.05)',
+                  bgcolor: 'rgba(0,0,0,0.05)',
                   transform: 'translateY(-2px)',
                   boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
                 }
@@ -244,7 +244,7 @@ export default function SummaryView({
           </Stack>
         </Box>
 
-        <Divider sx={{ my: 1, borderColor: 'rgba(255,255,255,0.1)' }} />
+        <Divider sx={{ my: 1, borderColor: 'rgba(0,0,0,0.1)' }} />
 
         {/* 🗨️ 대화 로그 */}
         <Box>
@@ -259,7 +259,7 @@ export default function SummaryView({
               borderRadius: 1,
               transition: 'background-color 0.2s ease',
               '&:hover': {
-                bgcolor: 'rgba(255,255,255,0.03)'
+                bgcolor: 'rgba(0,0,0,0.03)'
               }
             }}
             onClick={() => setIsConversationOpen(!isConversationOpen)}
@@ -324,15 +324,15 @@ export default function SummaryView({
                           px: 1.5,
                           py: 1,
                           borderRadius: 2,
-                          bgcolor: 'rgba(255,255,255,0.08)',
-                          border: '1px solid rgba(255,255,255,0.15)',
+                          bgcolor: 'rgba(0,0,0,0.08)',
+                          border: '1px solid rgba(0,0,0,0.15)',
                           backdropFilter: 'blur(6px)'
                         }}
                       >
                         <Typography variant="caption" sx={{ opacity: 0.7, display: 'block', mb: 0.5 }}>
                           AI
                         </Typography>
-                        <Typography variant="body2" sx={{ color: '#F5F6FF' }}>{message.text}</Typography>
+                        <Typography variant="body2" sx={{ color: '#212121' }}>{message.text}</Typography>
                       </Box>
                     </Box>
                   )}
@@ -364,10 +364,10 @@ export default function SummaryView({
                             <Typography variant="caption" sx={{ opacity: 0.7, display: 'block', mb: 0.5 }}>
                               You
                             </Typography>
-                            <Typography variant="body2" sx={{ color: '#F5F6FF' }}>{message.text}</Typography>
+                            <Typography variant="body2" sx={{ color: '#212121' }}>{message.text}</Typography>
                           </Box>
                           {/* 오디오 재생 버튼 (Optional) */}
-                          <IconButton size="small" sx={{ ml: 1, color: 'rgba(255,255,255,0.7)' }}>
+                          <IconButton size="small" sx={{ ml: 1, color: 'rgba(0,0,0,0.6)' }}>
                             <PlayArrowIcon fontSize="small" />
                           </IconButton>
                         </Box>
@@ -379,8 +379,8 @@ export default function SummaryView({
                           variant="outlined" 
                           sx={{ 
                             maxWidth: '88%',
-                            bgcolor: 'rgba(255,255,255,0.03)',
-                            border: '1px dashed rgba(255,255,255,0.2)',
+                            bgcolor: 'rgba(0,0,0,0.03)',
+                            border: '1px dashed rgba(0,0,0,0.23)',
                             backdropFilter: 'blur(6px)'
                           }}
                         >
@@ -393,8 +393,8 @@ export default function SummaryView({
                                 sx={{ 
                                   fontSize: '0.7rem', 
                                   height: 20,
-                                  borderColor: 'rgba(255,255,255,0.3)',
-                                  color: '#F5F6FF'
+                                  borderColor: 'rgba(0,0,0,0.4)',
+                                  color: '#212121'
                                 }}
                               />
                               <Chip 
@@ -404,8 +404,8 @@ export default function SummaryView({
                                 sx={{ 
                                   fontSize: '0.7rem', 
                                   height: 20,
-                                  borderColor: 'rgba(255,255,255,0.3)',
-                                  color: '#F5F6FF'
+                                  borderColor: 'rgba(0,0,0,0.4)',
+                                  color: '#212121'
                                 }}
                               />
                               <Chip 
@@ -415,12 +415,12 @@ export default function SummaryView({
                                 sx={{ 
                                   fontSize: '0.7rem', 
                                   height: 20,
-                                  borderColor: 'rgba(255,255,255,0.3)',
-                                  color: '#F5F6FF'
+                                  borderColor: 'rgba(0,0,0,0.4)',
+                                  color: '#212121'
                                 }}
                               />
                             </Stack>
-                            <Typography variant="body2" sx={{ fontSize: '0.8125rem', color: '#F5F6FF' }}>
+                            <Typography variant="body2" sx={{ fontSize: '0.8125rem', color: '#212121' }}>
                               {utteranceFeedback.feedback}
                             </Typography>
                           </CardContent>
@@ -435,8 +435,8 @@ export default function SummaryView({
                             px: 1.5,
                             py: 1,
                             borderRadius: 2,
-                            bgcolor: 'rgba(255,255,255,0.05)',
-                            border: '1px dashed rgba(255,255,255,0.32)',
+                            bgcolor: 'rgba(0,0,0,0.05)',
+                            border: '1px dashed rgba(0,0,0,0.32)',
                             backdropFilter: 'blur(6px)'
                           }}
                         >
@@ -445,7 +445,7 @@ export default function SummaryView({
                               <Typography variant="caption" sx={{ opacity: 0.7, display: 'block', mb: 0.5 }}>
                                 제안
                               </Typography>
-                              <Typography variant="body2" sx={{ color: '#F5F6FF', fontSize: '0.8125rem' }}>
+                              <Typography variant="body2" sx={{ color: '#212121', fontSize: '0.8125rem' }}>
                                 {suggestion}
                               </Typography>
                             </Box>
@@ -454,7 +454,7 @@ export default function SummaryView({
                               aria-label="북마크"
                               onClick={() => toggleBookmark(suggestionId, bookmarkPayload)}
                               sx={{ 
-                                color: bookmarked.has(suggestionId) ? 'primary.main' : 'rgba(255,255,255,0.5)',
+                                color: bookmarked.has(suggestionId) ? 'primary.main' : 'rgba(0,0,0,0.5)',
                                 mt: 0.5
                               }}
                             >
@@ -476,7 +476,7 @@ export default function SummaryView({
           </Collapse>
         </Box>
 
-        <Divider sx={{ my: 1, borderColor: 'rgba(255,255,255,0.1)' }} />
+        <Divider sx={{ my: 1, borderColor: 'rgba(0,0,0,0.1)' }} />
 
         {/* 🧠 전체 피드백 (LLM) */}
         <Box>
@@ -486,8 +486,8 @@ export default function SummaryView({
           <Card 
             variant="outlined"
             sx={{
-              bgcolor: 'rgba(255,255,255,0.03)',
-              border: '1px solid rgba(255,255,255,0.1)',
+              bgcolor: 'rgba(0,0,0,0.03)',
+              border: '1px solid rgba(0,0,0,0.1)',
               backdropFilter: 'blur(6px)'
             }}
           >
@@ -503,7 +503,7 @@ export default function SummaryView({
                   </Typography>
                 </Box>
 
-                <Divider sx={{ my: 2, borderColor: 'rgba(255,255,255,0.1)' }} />
+                <Divider sx={{ my: 2, borderColor: 'rgba(0,0,0,0.1)' }} />
 
                 {/* 부족한 부분 */}
                 <Box>
@@ -531,7 +531,7 @@ export default function SummaryView({
                   </Stack>
                 </Box>
 
-                <Divider sx={{ my: 2, borderColor: 'rgba(255,255,255,0.1)' }} />
+                <Divider sx={{ my: 2, borderColor: 'rgba(0,0,0,0.1)' }} />
 
                 {/* 개선 팁 */}
                 <Box>
@@ -559,7 +559,7 @@ export default function SummaryView({
                   </Stack>
                 </Box>
 
-                <Divider sx={{ my: 2, borderColor: 'rgba(255,255,255,0.1)' }} />
+                <Divider sx={{ my: 2, borderColor: 'rgba(0,0,0,0.1)' }} />
                 
               </Stack>
             </CardContent>

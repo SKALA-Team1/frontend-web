@@ -40,8 +40,8 @@ export default function UserPage() {
       <Card
         variant="outlined"
         sx={{
-          border: '1px solid rgba(255,255,255,0.1)',
-          backgroundColor: 'rgba(255,255,255,0.03)',
+          border: '1px solid rgba(0,0,0,0.1)',
+          backgroundColor: 'rgba(0,0,0,0.03)',
           backdropFilter: 'blur(12px)'
         }}
       >
@@ -79,7 +79,7 @@ export default function UserPage() {
               </Box>
             </Stack>
 
-            <Divider sx={{ borderColor: 'rgba(255,255,255,0.1)' }} />
+            <Divider sx={{ borderColor: 'rgba(0,0,0,0.1)' }} />
 
             {/* 완료한 롤플레잉 게이지 */}
             <Box>
@@ -97,7 +97,7 @@ export default function UserPage() {
                 sx={{
                   height: 8,
                   borderRadius: 4,
-                  backgroundColor: 'rgba(255,255,255,0.1)',
+                  backgroundColor: 'rgba(0,0,0,0.1)',
                   '& .MuiLinearProgress-bar': {
                     borderRadius: 4,
                     background: 'linear-gradient(90deg, #7C6CFF 0%, #4B3CF8 100%)'
@@ -122,7 +122,7 @@ export default function UserPage() {
                 sx={{
                   height: 8,
                   borderRadius: 4,
-                  backgroundColor: 'rgba(255,255,255,0.1)',
+                  backgroundColor: 'rgba(0,0,0,0.1)',
                   '& .MuiLinearProgress-bar': {
                     borderRadius: 4,
                     background: 'linear-gradient(90deg, #7C6CFF 0%, #4B3CF8 100%)'
@@ -131,14 +131,14 @@ export default function UserPage() {
               />
             </Box>
 
-            <Divider sx={{ borderColor: 'rgba(255,255,255,0.1)' }} />
+            <Divider sx={{ borderColor: 'rgba(0,0,0,0.1)' }} />
 
             {/* 이메일 */}
             <Box>
               <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
                 이메일
               </Typography>
-              <Typography variant="body2" sx={{ color: '#F5F6FF' }}>
+              <Typography variant="body2" sx={{ color: '#212121' }}>
                 {email}
               </Typography>
             </Box>
@@ -149,8 +149,8 @@ export default function UserPage() {
               startIcon={<EditIcon />}
               fullWidth
               sx={{
-                borderColor: 'rgba(255,255,255,0.2)',
-                color: '#F5F6FF',
+                borderColor: 'rgba(0,0,0,0.23)',
+                color: '#212121',
                 '&:hover': {
                   borderColor: 'rgba(124,108,255,0.8)',
                   bgcolor: 'rgba(124,108,255,0.1)'
@@ -167,8 +167,8 @@ export default function UserPage() {
       <Card
         variant="outlined"
         sx={{
-          border: '1px solid rgba(255,255,255,0.1)',
-          backgroundColor: 'rgba(255,255,255,0.03)',
+          border: '1px solid rgba(0,0,0,0.1)',
+          backgroundColor: 'rgba(0,0,0,0.03)',
           backdropFilter: 'blur(12px)'
         }}
       >
@@ -183,7 +183,7 @@ export default function UserPage() {
               borderRadius: 1,
               transition: 'background-color 0.2s ease',
               '&:hover': {
-                bgcolor: 'rgba(255,255,255,0.03)'
+                bgcolor: 'rgba(0,0,0,0.03)'
               }
             }}
             onClick={() => setIsBookmarksOpen(!isBookmarksOpen)}    //북마크 리스트 on off 처리

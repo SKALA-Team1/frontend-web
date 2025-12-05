@@ -11,10 +11,10 @@ export default function LearnChapterList({ chapters }) {
           disableGutters
           elevation={0}
           sx={{
-            border: '1px solid rgba(255,255,255,0.8)',
+            border: '1px solid rgba(0,0,0,0.8)',
             borderRadius: 3,
             overflow: 'hidden',
-            backgroundColor: 'rgba(255,255,255,0.02)',
+            backgroundColor: 'rgba(0,0,0,0.02)',
             '&:before': { display: 'none' },
             '&.Mui-expanded': { 
               margin: 0,
@@ -28,22 +28,22 @@ export default function LearnChapterList({ chapters }) {
             expandIcon={
               <ExpandMoreIcon 
                 sx={{ 
-                  color: '#F5F6FF',
+                  color: '#212121',
                   fontSize: 21
                 }} 
               />
             }
             sx={{
-              bgcolor: 'rgba(255,255,255,0.02)',
-              borderBottom: '1px solid rgba(255,255,255,0.1)',
+              bgcolor: 'rgba(0,0,0,0.02)',
+              borderBottom: '1px solid rgba(0,0,0,0.1)',
               px: 2,
               py: 1.5,
               '&.Mui-expanded': {
                 minHeight: 56,
-                borderBottom: '1px solid rgba(255,255,255,0.1)'
+                borderBottom: '1px solid rgba(0,0,0,0.1)'
               },
               '&:hover': {
-                bgcolor: 'rgba(255,255,255,0.04)'
+                bgcolor: 'rgba(0,0,0,0.04)'
               }
             }}
           >
@@ -64,14 +64,14 @@ export default function LearnChapterList({ chapters }) {
                 sx={{ 
                   fontWeight: 700,
                   fontSize: '0.84375rem',
-                  color: '#F5F6FF'
+                  color: '#212121'
                 }}
               >
                 {title}
               </Typography>
             </Box>
           </AccordionSummary>
-          <AccordionDetails sx={{ py: 2.5, px: 2, backgroundColor: 'rgba(255,255,255,0.02)' }}>
+          <AccordionDetails sx={{ py: 2.5, px: 2, backgroundColor: 'rgba(0,0,0,0.02)' }}>
             <List disablePadding>
               {[
                 '1. Warm-up Talk in Vietnam',
@@ -85,10 +85,10 @@ export default function LearnChapterList({ chapters }) {
                       mb: 1.5,
                       px: 2,
                       py: 1.5,
-                      backgroundColor: 'rgba(255,255,255,0.04)',
-                      border: '1px solid rgba(255,255,255,0.2)',
+                      backgroundColor: 'rgba(0,0,0,0.04)',
+                      border: '1px solid rgba(0,0,0,0.23)',
                       '&:hover': { 
-                        backgroundColor: 'rgba(255,255,255,0.08)',
+                        backgroundColor: 'rgba(0,0,0,0.08)',
                         borderColor: 'rgba(124,108,255,0.4)'
                       }
                     }}
@@ -99,7 +99,7 @@ export default function LearnChapterList({ chapters }) {
                         variant="subtitle2" 
                         sx={{ 
                           fontWeight: 600,
-                          color: '#F5F6FF',
+                          color: '#212121',
                           mb: 0.5
                         }}
                       >

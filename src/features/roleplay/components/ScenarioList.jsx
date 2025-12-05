@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo, useCallback } from 'react'
 import {
   Tabs,
   Tab,
@@ -6,19 +6,21 @@ import {
   Typography,
   Card,
   CardContent,
-  Button,
-  Chip,
   Stack,
   Alert,
   CircularProgress,
   IconButton
 } from '@mui/material'
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth'
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
+import SlackIntegrationPrompt from './SlackIntegrationPrompt'
 
-export default function ScenarioList({
+function ScenarioList({
   tab,
   setTab,
   filteredItems = [],
+  isSlackIntegrated = false,
+  userJobRole = null,
   onStartRoleplay,
   onViewFeedback,
   loading = false,
@@ -26,12 +28,25 @@ export default function ScenarioList({
   onRetry,
   onOpenCalendar
 }) {
-  const handleStart = (item) => {
+  const handleStart = useCallback((item) => {
     const body = item.description || item.summary || `AI 역할 ${item.aiRole}과의 대화`
     onStartRoleplay(item.title, body, item.scenarioId || 1)
-  }
+  }, [onStartRoleplay])
 
   const scenarioCount = filteredItems.length
+
+  // Slack 미연동 시 연동 유도 화면 표시
+  if (!isSlackIntegrated && tab === 'linked' && !loading && filteredItems.length === 0) {
+    return (
+      <>
+        <Tabs value={tab} onChange={(_, v) => setTab(v)} variant="fullWidth">
+          <Tab value="linked" label="Slack" />
+          <Tab value="created" label="나의 롤플레잉" />
+        </Tabs>
+        <SlackIntegrationPrompt />
+      </>
+    )
+  }
 
   return (
     <>
@@ -74,35 +89,83 @@ export default function ScenarioList({
       ) : (
         <Stack spacing={2}>
           {filteredItems.map((item, idx) => (
-            <Card key={`${tab}-${item.idx ?? item.scenarioId}`} variant="outlined">
+            <Card 
+              key={`${tab}-${item.idx ?? item.scenarioId}`} 
+              variant="outlined"
+              onClick={() => handleStart(item)}
+              sx={{
+                borderRadius: 2,
+                border: '1px solid rgba(0,0,0,0.1)',
+                backgroundColor: 'background.paper',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease-in-out',
+                '&:hover': {
+                  boxShadow: 2,
+                  borderColor: 'primary.main',
+                  transform: 'translateY(-2px)'
+                }
+              }}
+            >
               <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'space-between', mb: 2, flexWrap: 'wrap' }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-                    <Typography variant="subtitle1" fontWeight={700} sx={{ fontSize: '0.9375rem' }}>
-                      {item.title}
+                {/* 제목 (전체 너비) */}
+                <Box sx={{ mb: 1 }}>
+                  <Typography 
+                    variant="subtitle1" 
+                    fontWeight={700} 
+                    sx={{ 
+                      fontSize: '0.9375rem',
+                      width: '100%',
+                      mb: 0.5
+                    }}
+                  >
+                    {item.title}
+                  </Typography>
+                  {/* 날짜 (제목 아래 오른쪽) */}
+                  <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <Typography variant="caption" color="text.secondary">
+                      {item.createdAtLabel || item.date || '날짜 정보 없음'}
                     </Typography>
-                    <Chip
-                      label={item.aiRole || 'AI 역할 미정'}
-                      size="small"
-                      color="secondary"
-                      variant="outlined"
-                      sx={{ fontWeight: 600 }}
-                    />
-                    {item.done && <Chip label="완료" size="small" />}
                   </Box>
-                  <Typography variant="caption" color="text.primary">
-                    {item.createdAtLabel || item.date || '날짜 정보 없음'}
-                  </Typography>
                 </Box>
-                {item.fixedQuestions && item.fixedQuestions.length > 0 && (
-                  <Typography variant="caption" color="text.secondary">
-                    고정 질문 {item.fixedQuestions.length}개
-                  </Typography>
-                )}
-                <Box sx={{ display: 'flex', gap: 1, mt: 2, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-                  <Button variant="contained" size="small" onClick={() => handleStart(item)}>
-                    롤플레잉
-                  </Button>
+
+                {/* 왼쪽 아래: 나의 역할과 AI 역할 */}
+                <Box sx={{ mt: 2 }}>
+                  {/* 나의 역할 */}
+                  {userJobRole && (
+                    <Box sx={{ mb: 1.5 }}>
+                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                        나의 역할
+                      </Typography>
+                      <Typography 
+                        variant="body2" 
+                        sx={{ 
+                          color: 'primary.main',
+                          fontWeight: 500
+                        }}
+                      >
+                        {userJobRole}
+                      </Typography>
+                    </Box>
+                  )}
+
+                  {/* AI 역할 */}
+                  <Box>
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                      AI 역할
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <Typography 
+                        variant="body2" 
+                        sx={{ 
+                          color: 'primary.main',
+                          fontWeight: 500
+                        }}
+                      >
+                        {item.aiRole || 'AI 역할 미정'}
+                      </Typography>
+                      <KeyboardArrowDownIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+                    </Box>
+                  </Box>
                 </Box>
               </CardContent>
             </Card>
@@ -122,4 +185,5 @@ export default function ScenarioList({
   )
 }
 
+export default memo(ScenarioList)
 

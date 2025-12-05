@@ -254,11 +254,10 @@ export default function AvatarWindow({ avatarUrl, aiRoleName = 'AI', isTTSPlayin
           position: 'relative',
           width: '100%',
           aspectRatio: '16 / 9',
-          borderRadius: 3,
+          borderRadius: 1,
           overflow: 'hidden',
-          border: '1px solid rgba(255,255,255,0.2)',
-          backgroundColor: 'rgba(255,255,255,0.02)',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+          border: '1px solid rgba(0,0,0,0.23)',
+          backgroundColor: 'rgba(0,0,0,0.02)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center'
@@ -301,7 +300,7 @@ export default function AvatarWindow({ avatarUrl, aiRoleName = 'AI', isTTSPlayin
                 justifyContent: 'center',
                 flexDirection: 'column',
                 gap: 1,
-                color: 'rgba(255,255,255,0.5)'
+                color: 'rgba(0,0,0,0.5)'
               }}
             >
               <Box sx={{ fontSize: '0.875rem' }}>아바타를 불러올 수 없습니다</Box>
@@ -332,7 +331,7 @@ export default function AvatarWindow({ avatarUrl, aiRoleName = 'AI', isTTSPlayin
               onClick={toggleFullscreen}
               sx={{
                 bgcolor: 'rgba(0,0,0,0.5)',
-                color: '#F5F6FF',
+                color: '#212121',
                 '&:hover': { bgcolor: 'rgba(0,0,0,0.7)' },
                 backdropFilter: 'blur(8px)'
               }}

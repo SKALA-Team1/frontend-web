@@ -8,8 +8,8 @@ const MESSAGE_STYLES = {
     justifyContent: 'flex-end'
   },
   AI: {
-    bgcolor: 'rgba(255,255,255,0.08)',
-    borderColor: 'rgba(255,255,255,0.2)',
+    bgcolor: 'rgba(0,0,0,0.08)',
+    borderColor: 'rgba(0,0,0,0.23)',
     justifyContent: 'flex-start'
   }
 }
@@ -264,7 +264,7 @@ function MessageBubble({ message, index }) {
         sx={{
           maxWidth: '80%',
           bgcolor: style.bgcolor,
-          color: '#F5F6FF',
+          color: '#212121',
           px: 2,
           py: 1.5,
           borderRadius: 3,
@@ -300,7 +300,7 @@ function MessageBubble({ message, index }) {
                 display: 'inline-block',
                 width: '2px',
                 height: '1em',
-                bgcolor: '#F5F6FF',
+                bgcolor: '#212121',
                 ml: 0.5,
                 animation: 'blink 1s infinite',
                 '@keyframes blink': {

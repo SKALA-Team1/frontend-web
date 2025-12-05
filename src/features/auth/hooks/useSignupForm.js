@@ -1,15 +1,16 @@
 import React from 'react'
-import { sendEmailVerificationCode, verifyEmailVerificationCode, signup } from '../../../api/auth'
+import { sendEmailVerificationCode, verifyEmailVerificationCode, signup } from '../../../services/authService'
 
 /**
  * 회원가입 폼 관리를 위한 커스텀 훅
  * 
  * @param {Function} onComplete - 역할 선택 완료 시 호출되는 콜백 함수
  *                                파라미터: selectedRole (string)
+ * @param {Object} notification - Notification 훅 인스턴스 (선택사항)
  * 
  * @returns {Object} 회원가입 폼 상태, 에러, 핸들러, 역할 목록
  */
-export default function useSignupForm(onComplete) {
+export default function useSignupForm(onComplete, notification = null) {
   // 사용자 이름 입력 상태
   const [name, setName] = React.useState('')
   
@@ -52,8 +53,6 @@ export default function useSignupForm(onComplete) {
   // 회원가입 로딩 상태
   const [signupLoading, setSignupLoading] = React.useState(false)
   
-  // 성공 메시지 상태
-  const [successMessage, setSuccessMessage] = React.useState('')
   
   // 각 필드별 에러 메시지 상태
   const [errors, setErrors] = React.useState({
@@ -287,7 +286,6 @@ export default function useSignupForm(onComplete) {
     }
 
     setSignupLoading(true)
-    setSuccessMessage('')
 
     try {
       const response = await signup({
@@ -302,13 +300,11 @@ export default function useSignupForm(onComplete) {
       })
 
       // 성공 메시지 표시
-      setSuccessMessage('회원가입에 성공했습니다.')
-      
-      // 토큰 저장 (선택사항)
-      if (response.access_token) {
-        localStorage.setItem('accessToken', response.access_token)
-        localStorage.setItem('refreshToken', response.refresh_token)
+      if (notification) {
+        notification.showSuccess('회원가입에 성공했습니다.')
       }
+      
+      // 토큰은 authService.signup()에서 이미 저장됨 (중복 저장 제거)
 
       // 성공 후 콜백 호출 (로그인 페이지로 이동)
       if (onComplete) {
@@ -319,7 +315,11 @@ export default function useSignupForm(onComplete) {
     } catch (error) {
       // 백엔드 에러 메시지를 그대로 표시
       const errorMessage = error.message || '회원가입에 실패했습니다.'
+      if (notification) {
+        notification.showError(errorMessage)
+      } else {
       alert(errorMessage)
+      }
       
       // 백엔드 검증 에러를 필드별로 표시 (백엔드 응답 구조에 따라 조정 필요)
       // 현재는 alert로만 표시하고, 필요시 백엔드 응답 구조를 확인하여 필드별 에러 매핑
@@ -344,7 +344,6 @@ export default function useSignupForm(onComplete) {
     verifyingCode,
     emailVerified,
     signupLoading,
-    successMessage,
     handleNameChange,
     handleEmailChange,
     handlePasswordChange,
