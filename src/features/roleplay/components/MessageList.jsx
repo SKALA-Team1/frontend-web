@@ -9,6 +9,7 @@ export default function MessageList({ messages, bottomRef }) {
       sx={{
         flex: 1,
         overflowY: 'auto',
+        overflowX: 'hidden',
         px: 1,
         py: 1,
         '&::-webkit-scrollbar': {

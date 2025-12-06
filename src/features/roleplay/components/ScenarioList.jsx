@@ -108,28 +108,22 @@ function ScenarioList({
             >
               <CardContent>
                 {/* 제목 (전체 너비) */}
-                <Box sx={{ mb: 1 }}>
+                <Box sx={{ mb: 2 }}>
                   <Typography 
                     variant="subtitle1" 
                     fontWeight={700} 
                     sx={{ 
                       fontSize: '0.9375rem',
                       width: '100%',
-                      mb: 0.5
+                      mb: 1.5
                     }}
                   >
                     {item.title}
                   </Typography>
-                  {/* 날짜 (제목 아래 오른쪽) */}
-                  <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <Typography variant="caption" color="text.secondary">
-                      {item.createdAtLabel || item.date || '날짜 정보 없음'}
-                    </Typography>
-                  </Box>
                 </Box>
 
-                {/* 왼쪽 아래: 나의 역할과 AI 역할 */}
-                <Box sx={{ mt: 2 }}>
+                {/* 나의 역할, AI 역할, 생성날짜 */}
+                <Box>
                   {/* 나의 역할 */}
                   {userJobRole && (
                     <Box sx={{ mb: 1.5 }}>
@@ -149,7 +143,7 @@ function ScenarioList({
                   )}
 
                   {/* AI 역할 */}
-                  <Box>
+                  <Box sx={{ mb: 1.5 }}>
                     <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
                       AI 역할
                     </Typography>
@@ -165,6 +159,22 @@ function ScenarioList({
                       </Typography>
                       <KeyboardArrowDownIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
                     </Box>
+                  </Box>
+
+                  {/* 생성날짜 */}
+                  <Box>
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                      생성날짜
+                    </Typography>
+                    <Typography 
+                      variant="body2" 
+                      sx={{ 
+                        color: 'primary.main',
+                        fontWeight: 500
+                      }}
+                    >
+                      {item.createdAtLabel || item.date || '날짜 정보 없음'}
+                    </Typography>
                   </Box>
                 </Box>
               </CardContent>

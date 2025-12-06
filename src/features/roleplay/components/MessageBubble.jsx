@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Box, Typography } from '@mui/material'
+import { Box, Typography, IconButton } from '@mui/material'
+import TranslateIcon from '@mui/icons-material/Translate'
 
 const MESSAGE_STYLES = {
   You: {
@@ -18,11 +19,12 @@ const MESSAGE_STYLES = {
 const TYPING_SPEED = 30
 const STREAMING_TYPING_SPEED = 15 // 스트리밍 중에는 더 빠른 타이핑
 
-function MessageBubble({ message, index }) {
-  const { who, text, isStreaming } = message || {}
+function MessageBubble({ message, index, showTranslation, onToggleTranslation }) {
+  const { who, text, isStreaming, translation } = message || {}
   const style = MESSAGE_STYLES[who] || MESSAGE_STYLES.AI
   const [displayedText, setDisplayedText] = useState('')
   const [isTyping, setIsTyping] = useState(false)
+  const [isTranslationVisible, setIsTranslationVisible] = useState(false)
   const prevTextLengthRef = useRef(0) // 이전에 표시된 텍스트 길이 추적
   const typingIntervalRef = useRef(null)
   const hasTypedRef = useRef(false) // 타이핑 효과가 이미 적용되었는지 추적
@@ -257,61 +259,108 @@ function MessageBubble({ message, index }) {
   }, [text, who, isStreaming, message?.isSTT])
 
   const shouldShowCursor = isTyping && (who !== 'AI' || isStreaming)
+  const hasTranslation = who === 'AI' && translation
 
   return (
-    <Box sx={{ display: 'flex', justifyContent: style.justifyContent, px: 1 }}>
-      <Box
-        sx={{
-          maxWidth: '80%',
-          bgcolor: style.bgcolor,
-          color: '#212121',
-          px: 2,
-          py: 1.5,
-          borderRadius: 3,
-          border: `1px solid ${style.borderColor}`,
-          backdropFilter: 'blur(8px)',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
-        }}
-      >
-        <Typography 
-          variant="caption" 
-          sx={{ 
-            opacity: 0.8,
-            fontWeight: 600,
-            display: 'block',
-            mb: 0.5
-          }}
-        >
-          {who}
-        </Typography>
-        <Typography 
-          variant="body2"
+    <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: style.justifyContent, width: '100%', alignItems: style.justifyContent === 'flex-start' ? 'flex-start' : 'flex-end' }}>
+      <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5, maxWidth: '80%' }}>
+        <Box
           sx={{
-            lineHeight: 1.6,
-            wordBreak: 'break-word',
-            minHeight: '1.5em' // 타이핑 중 깜빡임 방지
+            bgcolor: style.bgcolor,
+            color: '#212121',
+            px: 2,
+            py: 1.5,
+            borderRadius: 1,
+            border: `1px solid ${style.borderColor}`,
+            backdropFilter: 'blur(8px)',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
           }}
         >
-          {displayedText || text}
-          {shouldShowCursor && (
-            <Box
-              component="span"
-              sx={{
-                display: 'inline-block',
-                width: '2px',
-                height: '1em',
-                bgcolor: '#212121',
-                ml: 0.5,
-                animation: 'blink 1s infinite',
-                '@keyframes blink': {
-                  '0%, 50%': { opacity: 1 },
-                  '51%, 100%': { opacity: 0 }
-                }
-              }}
-            />
-          )}
-        </Typography>
+          <Typography 
+            variant="caption" 
+            sx={{ 
+              opacity: 0.8,
+              fontWeight: 600,
+              display: 'block',
+              mb: 0.5
+            }}
+          >
+            {who}
+          </Typography>
+          <Typography 
+            variant="body2"
+            sx={{
+              lineHeight: 1.6,
+              wordBreak: 'break-word',
+              minHeight: '1.5em' // 타이핑 중 깜빡임 방지
+            }}
+          >
+            {displayedText || text}
+            {shouldShowCursor && (
+              <Box
+                component="span"
+                sx={{
+                  display: 'inline-block',
+                  width: '2px',
+                  height: '1em',
+                  bgcolor: '#212121',
+                  ml: 0.5,
+                  animation: 'blink 1s infinite',
+                  '@keyframes blink': {
+                    '0%, 50%': { opacity: 1 },
+                    '51%, 100%': { opacity: 0 }
+                  }
+                }}
+              />
+            )}
+          </Typography>
+        </Box>
+
+        {hasTranslation && (
+          <IconButton
+            size="small"
+            onClick={() => setIsTranslationVisible(v => !v)}
+            sx={{
+              bgcolor: 'white',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+              border: '1px solid rgba(0,0,0,0.1)',
+              borderRadius: 1,
+              width: 28,
+              height: 28,
+              mt: 0.5,
+              flexShrink: 0,
+              '&:hover': { bgcolor: '#f5f5f5' }
+            }}
+          >
+            <TranslateIcon fontSize="small" />
+          </IconButton>
+        )}
       </Box>
+
+      {hasTranslation && isTranslationVisible && (
+        <Box
+          sx={{
+            maxWidth: '80%',
+            bgcolor: 'rgba(0,0,0,0.05)',
+            color: '#424242',
+            px: 2,
+            py: 1.5,
+            borderRadius: 1,
+            border: '1px solid rgba(0,0,0,0.1)',
+            mt: 0.5
+          }}
+        >
+          <Typography
+            variant="body2"
+            sx={{
+              lineHeight: 1.6,
+              wordBreak: 'break-word'
+            }}
+          >
+            {translation}
+          </Typography>
+        </Box>
+      )}
     </Box>
   )
 }
@@ -323,6 +372,7 @@ export default React.memo(MessageBubble, (prevProps, nextProps) => {
     prevProps.message?.text === nextProps.message?.text &&
     prevProps.message?.who === nextProps.message?.who &&
     prevProps.message?.isStreaming === nextProps.message?.isStreaming &&
+    prevProps.message?.translation === nextProps.message?.translation &&
     prevProps.index === nextProps.index
   )
 })

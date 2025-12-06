@@ -27,7 +27,7 @@ export default function Notification({
         top: '17% !important', // 화면 상단과 중간의 중간 위치
       }}
     >
-      <Alert onClose={onClose} severity={severity} sx={{ width: '70%' }}>
+      <Alert onClose={onClose} severity={severity} sx={{ width: '100%' }}>
         {message}
       </Alert>
     </Snackbar>

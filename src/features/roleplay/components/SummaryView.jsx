@@ -292,19 +292,6 @@ export default function SummaryView({
                 prosody: 78 + (userIndex % 11),
                 feedback: `이 발화는 전반적으로 명확했습니다. "${message.text.split(' ').slice(0, 4).join(' ')}" 부분의 강세와 리듬을 더 자연스럽게 하면 좋겠습니다.`
               } : null
-              
-              // 제안 문장 (사용자 발화에만)
-                const suggestion = isUser ? generateSuggestion(message.text) : null
-                const relatedAiMessage = isUser && index > 0 ? displayMessages[index - 1] : null
-                const suggestionId = `${scenarioLabel}-${index}`
-                const bookmarkPayload = isUser
-                  ? {
-                      ai: relatedAiMessage?.text || 'AI 질문',
-                      you: message.text,
-                      suggestion,
-                      scenario: scenarioLabel
-                    }
-                  : null
 
               return (
                 <Box key={index}>
@@ -427,46 +414,6 @@ export default function SummaryView({
                         </Card>
                       )}
 
-                      {/* 제안 문장 카드 */}
-                      {suggestion && (
-                        <Box
-                          sx={{
-                            maxWidth: '88%',
-                            px: 1.5,
-                            py: 1,
-                            borderRadius: 2,
-                            bgcolor: 'rgba(0,0,0,0.05)',
-                            border: '1px dashed rgba(0,0,0,0.32)',
-                            backdropFilter: 'blur(6px)'
-                          }}
-                        >
-                          <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 1 }}>
-                            <Box sx={{ flex: 1 }}>
-                              <Typography variant="caption" sx={{ opacity: 0.7, display: 'block', mb: 0.5 }}>
-                                제안
-                              </Typography>
-                              <Typography variant="body2" sx={{ color: '#212121', fontSize: '0.8125rem' }}>
-                                {suggestion}
-                              </Typography>
-                            </Box>
-                            <IconButton
-                              size="small"
-                              aria-label="북마크"
-                              onClick={() => toggleBookmark(suggestionId, bookmarkPayload)}
-                              sx={{ 
-                                color: bookmarked.has(suggestionId) ? 'primary.main' : 'rgba(0,0,0,0.5)',
-                                mt: 0.5
-                              }}
-                            >
-                              {bookmarked.has(suggestionId) ? (
-                                <BookmarkIcon fontSize="small" />
-                              ) : (
-                                <BookmarkBorderIcon fontSize="small" />
-                              )}
-                            </IconButton>
-                          </Box>
-                        </Box>
-                      )}
                     </Box>
                   )}
                 </Box>
