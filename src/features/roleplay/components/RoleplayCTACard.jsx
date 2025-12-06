@@ -7,7 +7,7 @@ export default function RoleplayCTACard({ onClick }) {
       variant="outlined"
       sx={{
         background: 'linear-gradient(135deg, #7C6CFF 0%, #4B3CF8 100%)',
-        border: '1px solid rgba(255,255,255,0.15)',
+        border: '1px solid rgba(0,0,0,0.15)',
         color: 'white',
         cursor: 'pointer',
         justifyItems: 'center',
@@ -43,7 +43,7 @@ export default function RoleplayCTACard({ onClick }) {
         >
           내 상황에 딱 맞는 롤플레잉
         </Typography>
-        <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.82)' }}>
+        <Typography variant="body2" sx={{ color: 'rgba(0,0,0,0.82)' }}>
           롤플레이 상황을 만들어보세요.
         </Typography>
       </CardContent>

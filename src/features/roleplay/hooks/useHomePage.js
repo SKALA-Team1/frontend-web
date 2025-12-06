@@ -1,5 +1,5 @@
 import React from 'react'
-import { getJwtToken, requestPromptScenario, generateScenarioFromFastApi, saveScenarioToSpring2 } from '../../../api/roleplay.js'
+import { requestPromptScenario, generateScenarioFromFastApi, saveScenarioToSpring2 } from '../../../services/roleplayService'
 
 /**
  * 홈 페이지 관리를 위한 커스텀 훅
@@ -89,8 +89,7 @@ export default function useHomePage(scenarios = [], options = {}) {
       setCreateLoading(true)
       setCreateError(null)
 
-      const jwtToken = await getJwtToken(1)
-      const promptResponse = await requestPromptScenario(jwtToken, {
+      const promptResponse = await requestPromptScenario({
         aiRole: trimmedAiRole,
         myRole: trimmedMyRole,
         situation: trimmedGoal
@@ -101,16 +100,13 @@ export default function useHomePage(scenarios = [], options = {}) {
       }
 
       // FastAPI에서 시나리오 1개 생성 (기본 시나리오)
-      const scenarioResponse = await generateScenarioFromFastApi(
-        promptResponse.fastapi_url,
-        jwtToken,
-        {
-          userId: promptResponse.userId,
-          aiRole: trimmedAiRole,
-          myRole: trimmedMyRole,
-          situation: trimmedGoal
-        }
-      )
+      const scenarioResponse = await generateScenarioFromFastApi({
+        fastapi_url: promptResponse.fastapi_url,
+        userId: promptResponse.userId,
+        aiRole: trimmedAiRole,
+        myRole: trimmedMyRole,
+        situation: trimmedGoal
+      })
 
       if (!scenarioResponse?.scenario) {
         throw new Error('시나리오 생성에 실패했습니다.')
@@ -131,7 +127,7 @@ export default function useHomePage(scenarios = [], options = {}) {
         }
       }
 
-      await saveScenarioToSpring2(jwtToken, savePayload)
+      await saveScenarioToSpring2(savePayload)
       setCreationToast(`"${baseScenario.title || '시나리오'}" 시나리오를 생성하고 저장했어요.`)
 
       setAiRole('')

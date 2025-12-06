@@ -13,9 +13,6 @@ import {
   Divider,
   Collapse
 } from '@mui/material'
-import PlayArrowIcon from '@mui/icons-material/PlayArrow'
-import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder'
-import BookmarkIcon from '@mui/icons-material/Bookmark'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import useFeedbackPage from '../hooks/useFeedbackPage'
 
@@ -38,13 +35,20 @@ const MOCK_FEEDBACK_DATA = {
       "다음 대화에서는 원인 가설 제시 → 근거 제시 → 실행 제안의 구조를 유지하세요.",
       "숫자/시간 단위를 명시해 설득력을 강화하세요.",
       "다양한 연결사 패턴을 사용해보세요."
-    ],
-    examples: [
-      "Instead of: 'We should fix this.'",
-      "Try: 'Given the current situation, I recommend we address this issue by next week.'"
     ]
-  },
-  utterances: [] // 각 발화별 피드백은 messages와 매핑됨
+  }
+}
+
+// 종합 피드백 Mock 데이터 (짧은 버전과 긴 버전)
+const MOCK_OVERALL_FEEDBACK = {
+  short: "전반적으로 명확한 발음과 안정적인 리듬을 보여주셨습니다. 다만 모음 길이에서 일관성이 부족하고, 복합문에서 연결사 사용이 반복되는 경향이 있습니다.",
+  long: `전반적으로 명확한 발음과 안정적인 리듬을 보여주셨습니다. 특히 기술적인 내용을 설명할 때 전문 용어를 정확하게 발음하시는 모습이 인상적이었습니다.
+
+다만 몇 가지 개선할 점이 있습니다. 첫째, 모음 길이에서 일관성이 부족합니다. 예를 들어 "fix"와 같은 단어에서 짧은 모음을 일관되게 유지하는 연습이 필요합니다. 둘째, 복합문에서 연결사 사용이 반복되는 경향이 있습니다. "and", "but" 같은 기본 연결사에 의존하기보다는 "however", "therefore", "furthermore" 같은 다양한 연결사를 활용하면 더 풍부한 표현이 가능합니다.
+
+또한 완곡한 제안과 확정적 제안을 구분하는 것이 중요합니다. "We should fix this"보다는 "Given the current situation, I recommend we address this issue by next week"처럼 구체적인 근거와 시간을 제시하면 더 설득력 있는 의사소통이 됩니다.
+
+전체적으로 기술적인 내용을 체계적으로 전달하는 능력이 뛰어나시며, 앞으로 위의 개선점들을 보완하시면 더욱 효과적인 비즈니스 커뮤니케이션이 가능할 것입니다.`
 }
 
 // 더미 대화 데이터 (홀수: AI, 짝수: 사용자)
@@ -70,8 +74,6 @@ const MOCK_CONVERSATION = [
   { who: 'AI', text: 'What are the next steps to resolve the issue, and when can we expect a fix or further updates from your team?' },
   { who: 'You', text: 'We\'re wrapping up the fix now and will run final tests soon. You can expect an update shortly, and we plan to deliver the final patch within the next few days.' }
 ]
-
-// 제안 문장 생성은 utils/suggestionGenerator에서 담당
 
 const normalizeConversationMessages = (rawMessages = []) => {
   if (!Array.isArray(rawMessages)) return []
@@ -102,6 +104,93 @@ export default function FeedbackPage() {
   } = useFeedbackPage()
   
   const [isConversationOpen, setIsConversationOpen] = React.useState(false)
+  const [feedbackVersion, setFeedbackVersion] = React.useState('short') // 'short' | 'long'
+
+  // 종합 피드백 화면 (롤플레잉 종료 후)
+  if (session.view === 'overall-feedback') {
+    // 실제 데이터가 있으면 그것을 사용, 없으면 Mock 데이터 사용
+    const overallFeedback = session.overallFeedback || MOCK_OVERALL_FEEDBACK
+    
+    return (
+      <Box sx={{ py: { xs: 2, sm: 3 }, px: { xs: 0, sm: 0 } }}>
+        <Stack spacing={3}>
+          {/* 헤더 */}
+          <Stack spacing={0.5} alignItems="center" textAlign="center">
+            <Typography variant="h4" sx={{ fontWeight: 700 }}>
+              종합 피드백
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ opacity: 0.75 }}>
+              롤플레잉 세션에 대한 종합적인 평가를 확인하세요
+            </Typography>
+          </Stack>
+
+          {/* 버전 선택 버튼 */}
+          <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
+            <Button
+              variant={feedbackVersion === 'short' ? 'contained' : 'outlined'}
+              onClick={() => setFeedbackVersion('short')}
+              sx={{
+                minWidth: 120,
+                textTransform: 'none',
+                borderRadius: 2
+              }}
+            >
+              짧은 버전
+            </Button>
+            <Button
+              variant={feedbackVersion === 'long' ? 'contained' : 'outlined'}
+              onClick={() => setFeedbackVersion('long')}
+              sx={{
+                minWidth: 120,
+                textTransform: 'none',
+                borderRadius: 2
+              }}
+            >
+              긴 버전
+            </Button>
+          </Box>
+
+          {/* 피드백 내용 */}
+          <Card 
+            variant="outlined"
+            sx={{
+              bgcolor: 'rgba(0,0,0,0.03)',
+              border: '1px solid rgba(0,0,0,0.1)',
+              backdropFilter: 'blur(6px)'
+            }}
+          >
+            <CardContent sx={{ py: 3, px: 2.5 }}>
+              <Typography 
+                variant="body1" 
+                color="text.primary" 
+                sx={{ 
+                  lineHeight: 1.8,
+                  whiteSpace: 'pre-line'
+                }}
+              >
+                {feedbackVersion === 'short' ? overallFeedback.short : overallFeedback.long}
+              </Typography>
+            </CardContent>
+          </Card>
+
+          {/* 닫기 버튼 */}
+          <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+            <Button
+              variant="contained"
+              onClick={() => session.setView('list')}
+              sx={{
+                minWidth: 120,
+                textTransform: 'none',
+                borderRadius: 2
+              }}
+            >
+              확인
+            </Button>
+          </Box>
+        </Stack>
+      </Box>
+    )
+  }
 
   // 피드백 상세 화면
   if (session.view === 'summary') {
@@ -143,11 +232,11 @@ export default function FeedbackPage() {
                 sx={{ 
                   minWidth: { xs: '30%', sm: 'auto' },
                   flex: { xs: '0 0 auto', sm: 1 },
-                  bgcolor: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.1)',
+                  bgcolor: 'rgba(0,0,0,0.03)',
+                  border: '1px solid rgba(0,0,0,0.1)',
                   transition: 'all 0.2s ease',
                   '&:hover': {
-                    bgcolor: 'rgba(255,255,255,0.05)',
+                    bgcolor: 'rgba(0,0,0,0.05)',
                     transform: 'translateY(-2px)',
                     boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
                   }
@@ -182,11 +271,11 @@ export default function FeedbackPage() {
                 sx={{ 
                   minWidth: { xs: '30%', sm: 'auto' },
                   flex: { xs: '0 0 auto', sm: 1 },
-                  bgcolor: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.1)',
+                  bgcolor: 'rgba(0,0,0,0.03)',
+                  border: '1px solid rgba(0,0,0,0.1)',
                   transition: 'all 0.2s ease',
                   '&:hover': {
-                    bgcolor: 'rgba(255,255,255,0.05)',
+                    bgcolor: 'rgba(0,0,0,0.05)',
                     transform: 'translateY(-2px)',
                     boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
                   }
@@ -221,11 +310,11 @@ export default function FeedbackPage() {
                 sx={{ 
                   minWidth: { xs: '30%', sm: 'auto' },
                   flex: { xs: '0 0 auto', sm: 1 },
-                  bgcolor: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.1)',
+                  bgcolor: 'rgba(0,0,0,0.03)',
+                  border: '1px solid rgba(0,0,0,0.1)',
                   transition: 'all 0.2s ease',
                   '&:hover': {
-                    bgcolor: 'rgba(255,255,255,0.05)',
+                    bgcolor: 'rgba(0,0,0,0.05)',
                     transform: 'translateY(-2px)',
                     boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
                   }
@@ -256,7 +345,7 @@ export default function FeedbackPage() {
             </Stack>
           </Box>
 
-          <Divider sx={{ my: 1, borderColor: 'rgba(255,255,255,0.1)' }} />
+          <Divider sx={{ my: 1, borderColor: 'rgba(0,0,0,0.1)' }} />
 
           {/* 🗨️ 대화 로그 */}
           <Box>
@@ -271,7 +360,7 @@ export default function FeedbackPage() {
                 borderRadius: 1,
                 transition: 'background-color 0.2s ease',
                 '&:hover': {
-                  bgcolor: 'rgba(255,255,255,0.03)'
+                  bgcolor: 'rgba(0,0,0,0.03)'
                 }
               }}
               onClick={() => setIsConversationOpen(!isConversationOpen)}
@@ -304,19 +393,6 @@ export default function FeedbackPage() {
                   prosody: 78 + (userIndex % 11),
                   feedback: `이 발화는 전반적으로 명확했습니다. "${message.text.split(' ').slice(0, 4).join(' ')}" 부분의 강세와 리듬을 더 자연스럽게 하면 좋겠습니다.`
                 } : null
-                
-                // 제안 문장 (사용자 발화에만) - 사용자 답변에 맞게 생성
-                const suggestion = isUser ? generateSuggestion(message.text) : null
-                const relatedAiMessage = isUser && index > 0 ? messages[index - 1] : null
-                const suggestionId = `${scenarioTitle}-${index}`
-                const bookmarkPayload = isUser
-                  ? {
-                      ai: relatedAiMessage?.text || 'AI 질문',
-                      you: message.text,
-                      suggestion,
-                      scenario: scenarioTitle
-                    }
-                  : null
 
                 return (
                   <Box key={index}>
@@ -336,15 +412,15 @@ export default function FeedbackPage() {
                             px: 1.5,
                             py: 1,
                             borderRadius: 2,
-                            bgcolor: 'rgba(255,255,255,0.08)',
-                            border: '1px solid rgba(255,255,255,0.15)',
+                            bgcolor: 'rgba(0,0,0,0.08)',
+                            border: '1px solid rgba(0,0,0,0.15)',
                             backdropFilter: 'blur(6px)'
                           }}
                         >
                           <Typography variant="caption" sx={{ opacity: 0.7, display: 'block', mb: 0.5 }}>
                             AI
                           </Typography>
-                          <Typography variant="body2" sx={{ color: '#F5F6FF' }}>{message.text}</Typography>
+                          <Typography variant="body2" sx={{ color: '#212121' }}>{message.text}</Typography>
                         </Box>
                       </Box>
                     )}
@@ -371,17 +447,11 @@ export default function FeedbackPage() {
                             backdropFilter: 'blur(6px)'
                           }}
                         >
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
-                            <Box sx={{ flex: 1 }}>
-                              <Typography variant="caption" sx={{ opacity: 0.7, display: 'block', mb: 0.5 }}>
-                                You
-                              </Typography>
-                              <Typography variant="body2" sx={{ color: '#F5F6FF' }}>{message.text}</Typography>
-                            </Box>
-                            {/* 오디오 재생 버튼 (Optional) */}
-                            <IconButton size="small" sx={{ ml: 1, color: 'rgba(255,255,255,0.7)' }}>
-                              <PlayArrowIcon fontSize="small" />
-                            </IconButton>
+                          <Box>
+                            <Typography variant="caption" sx={{ opacity: 0.7, display: 'block', mb: 0.5 }}>
+                              You
+                            </Typography>
+                            <Typography variant="body2" sx={{ color: '#212121' }}>{message.text}</Typography>
                           </Box>
                         </Box>
 
@@ -391,8 +461,8 @@ export default function FeedbackPage() {
                             variant="outlined" 
                             sx={{ 
                               maxWidth: '88%',
-                              bgcolor: 'rgba(255,255,255,0.03)',
-                              border: '1px dashed rgba(255,255,255,0.2)',
+                              bgcolor: 'rgba(0,0,0,0.03)',
+                              border: '1px dashed rgba(0,0,0,0.23)',
                               backdropFilter: 'blur(6px)'
                             }}
                           >
@@ -405,8 +475,8 @@ export default function FeedbackPage() {
                                   sx={{ 
                                     fontSize: '0.7rem', 
                                     height: 20,
-                                    borderColor: 'rgba(255,255,255,0.3)',
-                                    color: '#F5F6FF'
+                                    borderColor: 'rgba(0,0,0,0.4)',
+                                    color: '#212121'
                                   }}
                                 />
                                 <Chip 
@@ -416,8 +486,8 @@ export default function FeedbackPage() {
                                   sx={{ 
                                     fontSize: '0.7rem', 
                                     height: 20,
-                                    borderColor: 'rgba(255,255,255,0.3)',
-                                    color: '#F5F6FF'
+                                    borderColor: 'rgba(0,0,0,0.4)',
+                                    color: '#212121'
                                   }}
                                 />
                                 <Chip 
@@ -427,58 +497,18 @@ export default function FeedbackPage() {
                                   sx={{ 
                                     fontSize: '0.7rem', 
                                     height: 20,
-                                    borderColor: 'rgba(255,255,255,0.3)',
-                                    color: '#F5F6FF'
+                                    borderColor: 'rgba(0,0,0,0.4)',
+                                    color: '#212121'
                                   }}
                                 />
                               </Stack>
-                              <Typography variant="body2" sx={{ fontSize: '0.8125rem', color: '#F5F6FF' }}>
+                              <Typography variant="body2" sx={{ fontSize: '0.8125rem', color: '#212121' }}>
                                 {utteranceFeedback.feedback}
                               </Typography>
                             </CardContent>
                           </Card>
                         )}
 
-                        {/* 제안 문장 카드 */}
-                        {suggestion && (
-                          <Box
-                            sx={{
-                              maxWidth: '88%',
-                              px: 1.5,
-                              py: 1,
-                              borderRadius: 2,
-                              bgcolor: 'rgba(255,255,255,0.05)',
-                              border: '1px dashed rgba(255,255,255,0.32)',
-                              backdropFilter: 'blur(6px)'
-                            }}
-                          >
-                            <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 1 }}>
-                              <Box sx={{ flex: 1 }}>
-                                <Typography variant="caption" sx={{ opacity: 0.7, display: 'block', mb: 0.5 }}>
-                                  제안
-                                </Typography>
-                                <Typography variant="body2" sx={{ color: '#F5F6FF', fontSize: '0.8125rem' }}>
-                                  {suggestion}
-                                </Typography>
-                              </Box>
-                              <IconButton
-                                size="small"
-                                aria-label="북마크"
-                              onClick={() => toggleBookmark(suggestionId, bookmarkPayload)}
-                                sx={{ 
-                                  color: bookmarked.has(suggestionId) ? 'primary.main' : 'rgba(255,255,255,0.5)',
-                                  mt: 0.5
-                                }}
-                              >
-                                {bookmarked.has(suggestionId) ? (
-                                  <BookmarkIcon fontSize="small" />
-                                ) : (
-                                  <BookmarkBorderIcon fontSize="small" />
-                                )}
-                              </IconButton>
-                            </Box>
-                          </Box>
-                        )}
                       </Box>
                     )}
                   </Box>
@@ -488,7 +518,7 @@ export default function FeedbackPage() {
             </Collapse>
           </Box>
 
-          <Divider sx={{ my: 1, borderColor: 'rgba(255,255,255,0.1)' }} />
+          <Divider sx={{ my: 1, borderColor: 'rgba(0,0,0,0.1)' }} />
 
           {/* 🧠 전체 피드백 (LLM) */}
           <Box>
@@ -498,8 +528,8 @@ export default function FeedbackPage() {
             <Card 
               variant="outlined"
               sx={{
-                bgcolor: 'rgba(255,255,255,0.03)',
-                border: '1px solid rgba(255,255,255,0.1)',
+                bgcolor: 'rgba(0,0,0,0.03)',
+                border: '1px solid rgba(0,0,0,0.1)',
                 backdropFilter: 'blur(6px)'
               }}
             >
@@ -515,7 +545,7 @@ export default function FeedbackPage() {
                     </Typography>
                   </Box>
 
-                  <Divider sx={{ my: 2, borderColor: 'rgba(255,255,255,0.1)' }} />
+                  <Divider sx={{ my: 2, borderColor: 'rgba(0,0,0,0.1)' }} />
 
                   {/* 부족한 부분 */}
                   <Box>
@@ -543,7 +573,7 @@ export default function FeedbackPage() {
                     </Stack>
                   </Box>
 
-                  <Divider sx={{ my: 2, borderColor: 'rgba(255,255,255,0.1)' }} />
+                  <Divider sx={{ my: 2, borderColor: 'rgba(0,0,0,0.1)' }} />
 
                   {/* 개선 팁 */}
                   <Box>
@@ -570,8 +600,6 @@ export default function FeedbackPage() {
                       ))}
                     </Stack>
                   </Box>
-
-                  <Divider sx={{ my: 2, borderColor: 'rgba(255,255,255,0.1)' }} />
 
                 </Stack>
               </CardContent>

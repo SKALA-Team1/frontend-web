@@ -25,7 +25,7 @@ export default function MicButton({
               sx={{ 
                 fontWeight: 600,
                 fontSize: '0.75rem',
-                color: 'rgba(255,255,255,0.85)',
+                color: 'rgba(0,0,0,0.85)',
                 mb: 0.5
               }}
             >
@@ -38,15 +38,15 @@ export default function MicButton({
           sx={{
             width: 56,
             height: 56,
-            border: '1px solid rgba(255,255,255,0.2)',
+            border: '1px solid rgba(0,0,0,0.23)',
             backgroundColor: isRecording 
               ? 'rgba(124,108,255,0.3)' 
-              : 'rgba(255,255,255,0.04)',
-            color: '#F5F6FF',
+              : 'rgba(0,0,0,0.04)',
+            color: '#212121',
             '&:hover': {
               backgroundColor: isRecording 
                 ? 'rgba(124,108,255,0.4)' 
-                : 'rgba(255,255,255,0.08)'
+                : 'rgba(0,0,0,0.08)'
             }
           }}
           aria-label={isRecording ? '녹음 중지' : '녹음 시작'}

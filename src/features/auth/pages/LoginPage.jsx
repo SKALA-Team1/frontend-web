@@ -1,71 +1,52 @@
-import React, { useState } from 'react'
-import { Box, Snackbar, Alert } from '@mui/material'
+import React from 'react'
+import { Box } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import LoginForm from '../components/LoginForm.jsx'
-import { login } from '../../../api/auth'
+import Notification from '../../../components/Common/Notification.jsx'
+import useNotification from '../../../hooks/useNotification.js'
+import { login } from '../../../services/authService'
+import { ROUTES } from '../../../config/constants'
 
 export default function LoginPage() {
   const navigate = useNavigate()
-  const [openSnackbar, setOpenSnackbar] = useState(false)
-  const [snackbarMessage, setSnackbarMessage] = useState('')
-  const [snackbarSeverity, setSnackbarSeverity] = useState('success')
+  const notification = useNotification()
 
   const handleLogin = async ({ email, password }) => {
     try {
-      const response = await login(email, password)
+      await login(email, password)
       
-      // 토큰 저장
-      if (response.accessToken) {
-        localStorage.setItem('accessToken', response.accessToken)
-      }
-      if (response.refreshToken) {
-        localStorage.setItem('refreshToken', response.refreshToken)
-      }
+      notification.showSuccess('로그인에 성공했습니다.')
       
-      setSnackbarMessage('로그인에 성공했습니다.')
-      setSnackbarSeverity('success')
-      setOpenSnackbar(true)
-      
-      // 알림창이 표시된 후 홈으로 이동
-      setTimeout(() => {
-        navigate('/home')
-      }, 1500) // 1.5초 후 이동
+    // 알림창이 표시된 후 홈으로 이동
+    setTimeout(() => {
+        navigate(ROUTES.HOME)
+    }, 1500) // 1.5초 후 이동
     } catch (error) {
-      setSnackbarMessage(error.message || '로그인에 실패했습니다.')
-      setSnackbarSeverity('error')
-      setOpenSnackbar(true)
+      notification.showError(error.message || '로그인에 실패했습니다.')
     }
   }
 
   const handleGoogleLogin = () => {
     // Google 로그인은 추후 구현
-    setSnackbarMessage('Google 로그인은 아직 지원되지 않습니다.')
-    setSnackbarSeverity('info')
-    setOpenSnackbar(true)
-  }
-
-  const handleCloseSnackbar = () => {
-    setOpenSnackbar(false)
+    notification.showInfo('Google 로그인은 아직 지원되지 않습니다.')
   }
 
   return (
-    <Box sx={{ minHeight: '100dvh', display: 'flex', alignItems: 'center' }}>
-      <LoginForm
-        onLogin={handleLogin}
-        onGoogleLogin={handleGoogleLogin}
-        onNavigateSignup={() => navigate('/signup')}
-      />
+    <Box sx={{ minHeight: '100dvh', display: 'flex', alignItems: 'center', py: 4 }}>
+      <Box sx={{ width: '100%', maxWidth: 400, mx: 'auto' }}>
+        <LoginForm
+          onLogin={handleLogin}
+          onGoogleLogin={handleGoogleLogin}
+          onNavigateSignup={() => navigate(ROUTES.SIGNUP)}
+        />
+      </Box>
 
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={2000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '70%' }}>
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
+      <Notification
+        open={notification.open}
+        message={notification.message}
+        severity={notification.severity}
+        onClose={notification.closeNotification}
+      />
     </Box>
   )
 }

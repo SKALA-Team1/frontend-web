@@ -23,7 +23,7 @@ export default function CreateRoleplayDialog({
       PaperProps={{
         sx: {
           backgroundColor: 'rgba(17, 19, 26, 0.95)',
-          border: '1px solid rgba(255,255,255,0.8)',
+          border: '1px solid rgba(0,0,0,0.8)',
           borderRadius: 3,
           backdropFilter: 'blur(16px)',
           boxShadow: '0 25px 60px rgba(0,0,0,0.5)'
@@ -34,9 +34,9 @@ export default function CreateRoleplayDialog({
         sx={{
           fontWeight: 700,
           fontSize: '1.125rem',
-          color: '#F5F6FF',
+          color: '#212121',
           pb: 2,
-          borderBottom: '1px solid rgba(255,255,255,0.1)'
+          borderBottom: '1px solid rgba(0,0,0,0.1)'
         }}
       >
         롤플레이 만들기
@@ -49,7 +49,7 @@ export default function CreateRoleplayDialog({
               sx={{
                 mb: 1.5,
                 fontWeight: 600,
-                color: '#F5F6FF'
+                color: '#212121'
               }}
             >
               AI 역할
@@ -62,20 +62,20 @@ export default function CreateRoleplayDialog({
               placeholder="예: Project Manager"
               sx={{
                 '& .MuiOutlinedInput-root': {
-                  backgroundColor: 'rgba(255,255,255,0.04)',
+                  backgroundColor: 'rgba(0,0,0,0.04)',
                   borderRadius: 2,
                   '& fieldset': {
-                    borderColor: 'rgba(255,255,255,0.18)'
+                    borderColor: 'rgba(0,0,0,0.23)'
                   },
                   '&:hover fieldset': {
-                    borderColor: 'rgba(255,255,255,0.3)'
+                    borderColor: 'rgba(0,0,0,0.4)'
                   },
                   '&.Mui-focused fieldset': {
                     borderColor: '#6C63FF'
                   }
                 },
                 '& .MuiInputBase-input': {
-                  color: '#F5F6FF'
+                  color: '#212121'
                 }
               }}
             />
@@ -86,7 +86,7 @@ export default function CreateRoleplayDialog({
               sx={{
                 mb: 1.5,
                 fontWeight: 600,
-                color: '#F5F6FF'
+                color: '#212121'
               }}
             >
               나의 역할
@@ -99,20 +99,20 @@ export default function CreateRoleplayDialog({
               placeholder="예: Software Engineer"
               sx={{
                 '& .MuiOutlinedInput-root': {
-                  backgroundColor: 'rgba(255,255,255,0.04)',
+                  backgroundColor: 'rgba(0,0,0,0.04)',
                   borderRadius: 2,
                   '& fieldset': {
-                    borderColor: 'rgba(255,255,255,0.18)'
+                    borderColor: 'rgba(0,0,0,0.23)'
                   },
                   '&:hover fieldset': {
-                    borderColor: 'rgba(255,255,255,0.3)'
+                    borderColor: 'rgba(0,0,0,0.4)'
                   },
                   '&.Mui-focused fieldset': {
                     borderColor: '#6C63FF'
                   }
                 },
                 '& .MuiInputBase-input': {
-                  color: '#F5F6FF'
+                  color: '#212121'
                 }
               }}
             />
@@ -123,7 +123,7 @@ export default function CreateRoleplayDialog({
               sx={{
                 mb: 1.5,
                 fontWeight: 600,
-                color: '#F5F6FF'
+                color: '#212121'
               }}
             >
               목적 상황
@@ -138,20 +138,20 @@ export default function CreateRoleplayDialog({
               rows={3}
               sx={{
                 '& .MuiOutlinedInput-root': {
-                  backgroundColor: 'rgba(255,255,255,0.04)',
+                  backgroundColor: 'rgba(0,0,0,0.04)',
                   borderRadius: 2,
                   '& fieldset': {
-                    borderColor: 'rgba(255,255,255,0.18)'
+                    borderColor: 'rgba(0,0,0,0.23)'
                   },
                   '&:hover fieldset': {
-                    borderColor: 'rgba(255,255,255,0.3)'
+                    borderColor: 'rgba(0,0,0,0.4)'
                   },
                   '&.Mui-focused fieldset': {
                     borderColor: '#6C63FF'
                   }
                 },
                 '& .MuiInputBase-input': {
-                  color: '#F5F6FF'
+                  color: '#212121'
                 }
               }}
             />
@@ -169,11 +169,11 @@ export default function CreateRoleplayDialog({
           variant="outlined"
           sx={{
             flex: 1,
-            borderColor: 'rgba(255,255,255,0.4)',
-            color: '#F5F6FF',
+            borderColor: 'rgba(0,0,0,0.4)',
+            color: '#212121',
             '&:hover': {
-              borderColor: '#F5F6FF',
-              backgroundColor: 'rgba(255,255,255,0.08)'
+              borderColor: '#212121',
+              backgroundColor: 'rgba(0,0,0,0.08)'
             }
           }}
         >

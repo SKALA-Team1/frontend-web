@@ -24,27 +24,45 @@
 - **빌드 도구**: Vite 6
 - **오디오 처리**: Web Audio API, MediaRecorder API
 - **WebSocket**: 실시간 양방향 통신
+- **아키텍처**: SOLID 원칙 기반, Service Layer Pattern
 
-## 프로젝트 구조
+## 프로젝트 구조 (리팩토링 완료)
 
 ```
 src/
-├── App.jsx                    # 메인 앱 컴포넌트 (라우팅, 레이아웃)
+├── App.jsx                    # 메인 앱 컴포넌트 (라우팅, Lazy Loading, Error Boundary)
 ├── main.jsx                   # 진입점 (ThemeProvider, Router 설정)
 ├── index.css                  # 전역 스타일
+├── config/                    # 설정 및 상수
+│   └── constants.js           # API 엔드포인트, 라우트, UI 상수 등
+├── services/                  # 비즈니스 로직 레이어
+│   ├── httpClient.js          # HTTP 요청 공통 처리
+│   ├── authService.js         # 인증 관련 서비스
+│   ├── integrationService.js  # Slack 연동 서비스
+│   └── roleplayService.js     # 롤플레이 서비스
+├── components/                # 공통 컴포넌트
+│   ├── Layout/                # 레이아웃 컴포넌트
+│   │   ├── AppLayout.jsx      # 전체 레이아웃 구조
+│   │   ├── AppHeader.jsx      # 모바일 헤더
+│   │   └── AppDrawer.jsx      # 네비게이션 드로어
+│   ├── Route/                 # 라우팅 컴포넌트
+│   │   └── ProtectedRoute.jsx # 인증 보호 라우트
+│   └── Common/                # 공통 UI 컴포넌트
+│       ├── LoadingSpinner.jsx # 로딩 UI
+│       ├── ErrorBoundary.jsx  # 에러 경계
+│       ├── Notification.jsx   # 알림 (Snackbar)
+│       └── EmptyState.jsx     # 빈 상태 표시
+├── hooks/                     # 공통 커스텀 훅
+│   ├── useNotification.js     # 알림 상태 관리
+│   └── useBookmarks.js        # 북마크 관리
 ├── features/                  # 기능별 모듈
 │   ├── auth/                  # 인증
 │   │   ├── components/        # LoginForm, SignUpForm
 │   │   ├── hooks/             # useLoginForm, useSignupForm
 │   │   └── pages/             # LoginPage, SignUpPage
-│   ├── home/                  # 홈
-│   │   ├── components/        # GreetingSection, SummaryCard, RoleplayCTACard, CreateRoleplayDialog
-│   │   ├── hooks/             # useHomePage, useHomeRoleplay
-│   │   └── pages/             # HomePage
 │   ├── roleplay/              # 롤플레잉 (핵심 기능)
-│   │   ├── api/               # roleplayApi.js (JWT, 세션, WebSocket)
 │   │   ├── components/        # SessionView, AvatarWindow, MessageList, MicButton 등
-│   │   ├── hooks/             # useRoleplaySession (STT/TTS/WebSocket 관리)
+│   │   ├── hooks/             # useRoleplaySession (STT/TTS/WebSocket 관리), useScenarioData
 │   │   └── pages/             # RoleplayPage
 │   ├── learn/                 # 학습
 │   │   ├── components/        # LearnChapterList

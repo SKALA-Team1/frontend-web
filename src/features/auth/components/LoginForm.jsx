@@ -25,37 +25,37 @@ export default function LoginForm({ onLogin, onGoogleLogin, onNavigateSignup }) 
           fullWidth
           sx={{
             '& .MuiInputBase-input': {
-              color: '#F5F6FF'
+              color: '#212121'
             },
             '& .MuiInputLabel-root': {
-              color: 'rgba(255,255,255,0.7)'
+              color: 'rgba(0,0,0,0.6)'
             },
             '& .MuiInputLabel-root.Mui-focused': {
               color: 'rgba(124,108,255,0.8)'
             },
             '& .MuiOutlinedInput-root': {
               '& fieldset': {
-                borderColor: 'rgba(255,255,255,0.2)'
+                borderColor: 'rgba(0,0,0,0.23)'
               },
               '&:hover fieldset': {
-                borderColor: 'rgba(255,255,255,0.3)'
+                borderColor: 'rgba(0,0,0,0.4)'
               },
               '&.Mui-focused fieldset': {
                 borderColor: 'rgba(124,108,255,0.8)'
               }
             },
             '& input::placeholder': {
-              color: 'rgba(255,255,255,0.5)',
+              color: 'rgba(0,0,0,0.5)',
               opacity: 1
             },
             '& input:-webkit-autofill': {
-              WebkitBoxShadow: '0 0 0px 1000px transparent inset',
-              WebkitTextFillColor: '#F5F6FF',
+              WebkitBoxShadow: '0 0 0px 1000px transparent inset !important',
+              WebkitTextFillColor: '#212121 !important',
               transition: 'background-color 5000s ease-in-out 0s'
             },
             '& input:-webkit-autofill:focus': {
-              WebkitBoxShadow: '0 0 0px 1000px transparent inset',
-              WebkitTextFillColor: '#F5F6FF'
+              WebkitBoxShadow: '0 0 0px 1000px transparent inset !important',
+              WebkitTextFillColor: '#212121 !important'
             }
           }}
         />
@@ -65,32 +65,6 @@ export default function LoginForm({ onLogin, onGoogleLogin, onNavigateSignup }) 
           value={password} 
           onChange={handlePasswordChange} 
           fullWidth
-          sx={{
-            '& .MuiInputBase-input': {
-              color: '#F5F6FF'
-            },
-            '& .MuiInputLabel-root': {
-              color: 'rgba(255,255,255,0.7)'
-            },
-            '& .MuiInputLabel-root.Mui-focused': {
-              color: 'rgba(124,108,255,0.8)'
-            },
-            '& .MuiOutlinedInput-root': {
-              '& fieldset': {
-                borderColor: 'rgba(255,255,255,0.2)'
-              },
-              '&:hover fieldset': {
-                borderColor: 'rgba(255,255,255,0.3)'
-              },
-              '&.Mui-focused fieldset': {
-                borderColor: 'rgba(124,108,255,0.8)'
-              }
-            },
-            '& input::placeholder': {
-              color: 'rgba(255,255,255,0.5)',
-              opacity: 1
-            }
-          }}
         />
         <Button variant="contained" fullWidth sx={{ py: 1.5 }} onClick={handleSubmit}>로그인</Button>
         <Button variant="contained" fullWidth sx={{ py: 1.5 }} onClick={onNavigateSignup}>

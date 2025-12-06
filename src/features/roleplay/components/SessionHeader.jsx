@@ -20,7 +20,7 @@ export default function SessionHeader({ title, onEndSession }) {
           fontWeight: 700, 
           flex: 1,
           fontSize: '0.9375rem',
-          color: '#F5F6FF'
+          color: '#212121'
         }}
       >
         {title || 'Roleplay'}
@@ -30,11 +30,11 @@ export default function SessionHeader({ title, onEndSession }) {
         variant="outlined" 
         onClick={onEndSession}
         sx={{
-          borderColor: 'rgba(255,255,255,0.3)',
-          color: '#F5F6FF',
+          borderColor: 'rgba(0,0,0,0.4)',
+          color: '#212121',
           '&:hover': {
-            borderColor: 'rgba(255,255,255,0.5)',
-            backgroundColor: 'rgba(255,255,255,0.08)'
+            borderColor: 'rgba(0,0,0,0.5)',
+            backgroundColor: 'rgba(0,0,0,0.08)'
           }
         }}
       >

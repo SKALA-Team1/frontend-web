@@ -1,5 +1,4 @@
 import React from 'react'
-import { getBookmarks, subscribeBookmarks } from '../../../utils/bookmarkStore.js'
 import recordings from '../../../data/myPageRecordings.json'
 
 /**
@@ -28,20 +27,8 @@ export default function useUserPage() {
   // 비밀번호 확인 입력 상태
   const [confirmPassword, setConfirmPassword] = React.useState('')
   
-  // 북마크한 문장 목록 상태
-  // 초기값은 bookmarkStore에서 가져온 현재 북마크 목록
-  const [bookmarkedSentences, setBookmarkedSentences] = React.useState(() => getBookmarks())
-
-  /**
-   * 북마크 변경 구독
-   * bookmarkStore의 변경사항을 실시간으로 감지하여 북마크 목록 업데이트
-   */
-  React.useEffect(() => {
-    // 북마크 변경 이벤트 구독
-    const unsubscribe = subscribeBookmarks(setBookmarkedSentences)
-    // 컴포넌트 언마운트 시 구독 해제
-    return () => unsubscribe()
-  }, [])
+  // 북마크한 문장 목록 상태 (빈 배열 - UI 호환성 유지)
+  const [bookmarkedSentences] = React.useState([])
 
   /**
    * 이메일 입력 변경 핸들러
