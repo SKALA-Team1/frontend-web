@@ -1,7 +1,7 @@
 import { Button, Box, Typography, Card, CardContent } from '@mui/material'
-import slackLogo from '../../../images/slack_logo.png'
-import { getSlackLoginUrl } from '../../../services/integrationService'
-import { getUserIdFromToken } from '../../../utils/jwt'
+import slackLogo from '../../../../images/slack_logo.png'
+import { getSlackLoginUrl } from '../../../../services/integrationService'
+import { getUserIdFromToken } from '../../../../utils/jwt'
 
 /**
  * Slack 연동 유도 컴포넌트

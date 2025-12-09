@@ -12,61 +12,9 @@ import {
   Collapse
 } from '@mui/material'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
-import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder'
-import BookmarkIcon from '@mui/icons-material/Bookmark'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 
-// Mock 데이터 구조 (나중에 백엔드 연동 시 교체)
-const MOCK_PRONUNCIATION_SCORES = {
-  accuracy: 85,
-  fluency: 78,
-  prosody: 82
-}
 
-const MOCK_FEEDBACK_DATA = {
-  overall: {
-    summary: "전반적으로 명확한 발음과 안정적인 리듬을 보여주셨습니다. 다만 모음 길이에서 일관성이 부족하고, 복합문에서 연결사 사용이 반복되는 경향이 있습니다.",
-    weaknesses: [
-      "모음 길이 일관성 부족",
-      "복합문 연결사 다양성 부족",
-      "완곡한 제안과 확정적 제안 구분 필요"
-    ],
-    tips: [
-      "다음 대화에서는 원인 가설 제시 → 근거 제시 → 실행 제안의 구조를 유지하세요.",
-      "숫자/시간 단위를 명시해 설득력을 강화하세요.",
-      "다양한 연결사 패턴을 사용해보세요."
-    ],
-    examples: [
-      "Instead of: 'We should fix this.'",
-      "Try: 'Given the current situation, I recommend we address this issue by next week.'"
-    ]
-  },
-  utterances: [] // 각 발화별 피드백은 messages와 매핑됨
-}
-
-// 더미 대화 데이터 (홀수: AI, 짝수: 사용자)
-const MOCK_CONVERSATION = [
-  { who: 'AI', text: 'Can you summarize the root cause of the /reports endpoint error after enabling finance advanced filters?' },
-  { who: 'You', text: 'We\'ve identified the root cause. The issue is in the report generation module where we\'re not properly handling the new finance filters. We\'re implementing a temporary workaround by caching the filter results, and this should resolve the immediate issue. We expect to have a permanent fix by next week.' },
-  { who: 'AI', text: 'Can you elaborate on how the caching workaround affects the performance and scalability of our reports endpoint when handling complex finance filters?' },
-  { who: 'You', text: 'The caching workaround improves the report performance with complex finance filters, but it may increase memory usage and risks serving stale data. It helps short-term, but we need a more scalable fix soon.' },
-  { who: 'AI', text: 'Can you elaborate on how you envision the new permanent fix to address both performance and scalability issues with the reports endpoint when handling complex finance filters?' },
-  { who: 'You', text: 'For the permanent fix, we will optimize the filter logic and add proper indexing/query tuning so complex filters run faster. We\'ll also design the cache/DB flow to scale safely without growing memory too much.' },
-  { who: 'AI', text: 'How do you plan to validate and test the effectiveness of the proposed indexing/query tuning for complex finance filters before integrating it into our production environment?' },
-  { who: 'You', text: 'We\'ll test it first on staging with real-like finance filter cases and compare latency/DB load before vs after. If the results look stable, we\'ll roll it out gradually to production.' },
-  { who: 'AI', text: 'How do you plan to implement a temporary workaround for the Redis connection pool issues, and what\'s the expected impact on system performance?' },
-  { who: 'You', text: 'We\'ll temporarily reduce Redis pool usage by limiting concurrent connections and adding simple retries with backoff. This may slightly increase latency under high load, but should prevent timeouts and stabilize the system.' },
-  { who: 'AI', text: 'Can you elaborate on how you envision implementing the Redis connection pool issues fix to ensure that it does not introduce any cascading performance impacts on other system components?' },
-  { who: 'You', text: 'We\'ll fix the pool by setting safe max connections/timeouts and testing under load to check other services aren\'t slowed down. Then we\'ll roll it out step-by-step with monitoring so we can catch any side effects early.' },
-  { who: 'AI', text: 'Can you walk me through how the roll-out of this temporary fix to production will be structured and what key performance indicators (KPIs) you plan to track during that process?' },
-  { who: 'You', text: 'We\'ll deploy the temporary fix gradually (canary → small % → full) while watching the system. We\'ll track Redis error rate, request latency, throughput, and CPU/memory to make sure it stays stable.' },
-  { who: 'AI', text: 'Can you elaborate on how you plan to handle any potential performance regressions or unexpected side effects that might arise from the gradual roll-out of this temporary fix, and what additional monitoring or logging would be required to ensure a smooth transition?' },
-  { who: 'You', text: 'If we see regressions, we\'ll pause or roll back the canary and check logs/metrics to find the cause. We\'ll add extra monitoring for Redis timeouts, pool usage, and endpoint latency, plus detailed error logs during rollout.' },
-  { who: 'AI', text: 'Can you explain how you envision the process of analyzing and addressing potential root causes for performance regressions during the roll-out phase would be structured to ensure timely resolution?' },
-  { who: 'You', text: 'We\'ll check alerts first, then compare metrics before/after the rollout to spot what changed. If needed, we\'ll reproduce it on staging, fix the specific part, and redeploy quickly.' },
-  { who: 'AI', text: 'What are the next steps to resolve the issue, and when can we expect a fix or further updates from your team?' },
-  { who: 'You', text: 'We\'re wrapping up the fix now and will run final tests soon. You can expect an update shortly, and we plan to deliver the final patch within the next few days.' }
-]
 
 const normalizeConversationMessages = (rawMessages = []) => {
   if (!Array.isArray(rawMessages)) return []
@@ -84,11 +32,7 @@ const normalizeConversationMessages = (rawMessages = []) => {
 }
 
 export default function SummaryView({
-  summaryTab,
-  setSummaryTab,
   messages,
-  bookmarked,
-  toggleBookmark,
   onClose,
   scenarioTitle = '롤플레잉 시나리오'
 }) {
@@ -96,7 +40,6 @@ export default function SummaryView({
   
   const normalizedMessages = normalizeConversationMessages(messages)
   const displayMessages = normalizedMessages.length > 0 ? normalizedMessages : MOCK_CONVERSATION
-  const scenarioLabel = scenarioTitle || '롤플레잉 시나리오'
   
   return (
     <Box sx={{ py: { xs: 2, sm: 3 }, px: { xs: 0, sm: 0 } }}>

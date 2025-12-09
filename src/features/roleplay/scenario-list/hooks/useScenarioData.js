@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
-import { fetchUserScenarios } from '../../../services/roleplayService'
-import { getUserIdFromToken } from '../../../utils/jwt'
-import { checkSlackIntegration } from '../../../services/integrationService'
-import { getCurrentUser } from '../../../services/userService'
+import { fetchUserScenarios } from '../../../../services/roleplayService'
+import { getUserIdFromToken } from '../../../../utils/jwt'
+import { checkSlackIntegration } from '../../../../services/integrationService'
+import { getCurrentUser } from '../../../../services/userService'
 
 /**
  * 사용자 시나리오 데이터를 로드하는 훅
@@ -25,6 +25,7 @@ export default function useScenarioData() {
       title: item.title || '제목 미정',
       aiRole,
       status: item.status || 'IN_PROGRESS',
+      creationType: item.creationType || item.creation_type || 'UNKNOWN',
       createdAt: createdDate,
       createdAtLabel: createdDate
         ? createdDate.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' })
@@ -58,7 +59,13 @@ export default function useScenarioData() {
       let scenariosLoaded = []
       try {
         const result = await fetchUserScenarios()
+        console.log('[DEBUG] API 응답 원본:', result)
+        if (Array.isArray(result) && result.length > 0) {
+          console.log('[DEBUG] 첫 번째 시나리오:', result[0])
+          console.log('[DEBUG] creationType:', result[0].creationType)
+        }
         scenariosLoaded = Array.isArray(result) ? result.map(normalizeScenario) : []
+        console.log('[DEBUG] 정규화된 시나리오:', scenariosLoaded)
         setScenarios(scenariosLoaded)
       } catch (scenarioError) {
         console.warn('[useScenarioData] 시나리오 로드 실패:', scenarioError)

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
-import useRoleplaySession from '../../roleplay/hooks/useRoleplaySession'
-import useRoleplayFilters from '../../roleplay/hooks/useRoleplayFilters'
+import useRoleplaySession from '../../roleplay/session/hooks/useRoleplaySession'
+import useRoleplayFilters from '../../roleplay/scenario-list/hooks/useRoleplayFilters'
 import useBookmarks from '../../../hooks/useBookmarks'
 
 /**

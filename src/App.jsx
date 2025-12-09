@@ -27,9 +27,10 @@ const UserPage = lazy(() => import('./features/user/pages/UserPage'))
 const routes = [
   { path: ROUTES.LOGIN, element: <LoginPage />, public: true },
   { path: ROUTES.SIGNUP, element: <SignUpPage />, public: true },
-  { path: ROUTES.HOME, element: <RoleplayPage />, protected: true },
+  { path: ROUTES.ROLEPLAYING, element: <RoleplayPage />, protected: true },
   { path: ROUTES.LEARN, element: <LearnPage />, protected: true },
   { path: ROUTES.FEEDBACK, element: <FeedbackPage />, protected: true },
+  { path: ROUTES.BOOKMARK, element: <UserPage />, protected: true },
   { path: ROUTES.MYPAGE, element: <UserPage />, protected: true },
 ]
 

@@ -1,21 +1,22 @@
 import React, { useState, useEffect, lazy, Suspense, useMemo } from 'react'
 import { Stack, Box, Typography, CircularProgress, useMediaQuery, useTheme, Alert, IconButton } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
-import useHomePage from '../hooks/useHomePage'
-import useHomeRoleplay from '../hooks/useHomeRoleplay'
-import useScenarioData from '../hooks/useScenarioData'
-import useRoleplayFilters from '../hooks/useRoleplayFilters'
+import useCreateScenario from '../scenario-list/hooks/useCreateScenario'
+import useSessionControls from '../session/hooks/useSessionControls'
+import useScenarioData from '../scenario-list/hooks/useScenarioData'
+import useRoleplayFilters from '../scenario-list/hooks/useRoleplayFilters'
 import ProfileSummary from '../../user/components/ProfileSummary'
-import RoleplayCTACard from '../components/RoleplayCTACard'
-import ScenarioList from '../components/ScenarioList'
+import RoleplayCTACard from '../scenario-list/components/RoleplayCTACard'
+import ScenarioList from '../scenario-list/components/ScenarioList'
 import LoadingSpinner from '../../../components/Common/LoadingSpinner'
+import { UI } from '../../../config/constants'
 
 // 무거운 컴포넌트들을 lazy load
-const CreateRoleplayDialog = lazy(() => import('../components/CreateRoleplayDialog'))
-const SessionView = lazy(() => import('../components/SessionView'))
-const SummaryView = lazy(() => import('../components/SummaryView'))
-const EndSessionDialog = lazy(() => import('../components/EndSessionDialog'))
-const CalendarDialog = lazy(() => import('../components/CalendarDialog'))
+const CreateRoleplayDialog = lazy(() => import('../scenario-list/components/CreateRoleplayDialog'))
+const SessionView = lazy(() => import('../session/components/SessionView'))
+const SummaryView = lazy(() => import('../summary/components/SummaryView'))
+const EndSessionDialog = lazy(() => import('../session/components/EndSessionDialog'))
+const CalendarDialog = lazy(() => import('../scenario-list/components/CalendarDialog'))
 
 /**
  * 롤플레이 전체 페이지 (홈 통합)
@@ -26,7 +27,7 @@ export default function RoleplayPage() {
   const { scenarios, loading: scenariosLoading, error: scenariosError, isSlackIntegrated, userJobRole, refresh } = useScenarioData()
   const theme = useTheme()
   const isDesktop = useMediaQuery(theme.breakpoints.up('md')) // 900px 이상
-  const drawerWidth = 280
+  const drawerWidth = isDesktop ? UI.DRAWER_WIDTH_DESKTOP : UI.DRAWER_WIDTH_MOBILE
   
   // 스크롤 위치 감지
   const [isAtTop, setIsAtTop] = useState(true)
@@ -54,7 +55,7 @@ export default function RoleplayPage() {
     openCreate,
     aiRole,
     myRole,
-    goal,
+    situation,
     createLoading,
     createError,
     creationToast,
@@ -63,9 +64,9 @@ export default function RoleplayPage() {
     handleCloseCreate,
     handleAiRoleChange,
     handleMyRoleChange,
-    handleGoalChange,
+    handleSituationChange,
     handleStartRoleplay: handleCreateScenario
-  } = useHomePage(scenarios, { onScenarioCreated: refresh })
+  } = useCreateScenario(scenarios, { onScenarioCreated: refresh })
 
   // 롤플레이 세션 관련
   const {
@@ -84,7 +85,7 @@ export default function RoleplayPage() {
     bookmarked,
     toggleBookmark,
     handleEndSession
-  } = useHomeRoleplay(scenarios)
+  } = useSessionControls(scenarios)
 
   // 시나리오 필터링 (메모이제이션)
   const { filteredItems } = useRoleplayFilters(tab, scenarios)
@@ -170,11 +171,7 @@ export default function RoleplayPage() {
     return (
       <Suspense fallback={<LoadingSpinner message="요약 로딩 중..." />}>
         <SummaryView
-          summaryTab={session.summaryTab}
-          setSummaryTab={session.setSummaryTab}
           messages={session.messages}
-          bookmarked={bookmarked}
-          toggleBookmark={toggleBookmark}
           scenarioTitle={session.selectedTitle}
           onClose={() => session.setView('list')}
         />
@@ -185,7 +182,7 @@ export default function RoleplayPage() {
   // 기본 홈 화면 (시나리오 목록)
   return (
     <>
-      <Stack spacing={2} sx={{ py: 2 }}>
+      <Stack spacing={2} sx={{  px: { xs: 0, sm: 0 } }}>
         {creationToast && (
           <Alert
             severity="success"
@@ -240,10 +237,10 @@ export default function RoleplayPage() {
               onClose={handleCloseCreate}
               aiRole={aiRole}
               myRole={myRole}
-              goal={goal}
+              situation={situation}
               onAiRoleChange={handleAiRoleChange}
               onMyRoleChange={handleMyRoleChange}
-              onGoalChange={handleGoalChange}
+              onSituationChange={handleSituationChange}
               onStart={handleCreateScenario}
               loading={createLoading}
               errorMessage={createError}

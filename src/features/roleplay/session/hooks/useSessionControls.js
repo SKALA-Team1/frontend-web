@@ -1,13 +1,13 @@
 import { useState, useMemo } from 'react'
 import useRoleplaySession from './useRoleplaySession'
-import useBookmarks from '../../../hooks/useBookmarks'
+import useBookmarks from '../../../../hooks/useBookmarks'
 
 /**
- * 홈 페이지에서 롤플레이 기능을 관리하는 커스텀 훅
+ * 롤플레이 세션 제어를 위한 커스텀 훅
  * 
- * 홈 화면에서 롤플레이 세션, 필터, 북마크 등을 통합 관리
+ * 롤플레이 세션, 탭, 캘린더, 북마크 등을 통합 관리
  * 
- * @returns {Object} 롤플레이 관련 상태 및 핸들러
+ * @returns {Object} 롤플레이 세션 제어 관련 상태 및 핸들러
  *   - tab: string - 현재 탭 ('linked' | 'created')
  *   - setTab: Function - 탭 변경 핸들러
  *   - openCal: boolean - 캘린더 다이얼로그 열림 상태
@@ -24,7 +24,7 @@ import useBookmarks from '../../../hooks/useBookmarks'
  *   - toggleBookmark: Function - 북마크 토글 핸들러
  *   - handleEndSession: Function - 세션 종료 핸들러
  */
-export default function useHomeRoleplay(scenarios = []) {
+export default function useSessionControls(scenarios = []) {
   // 현재 탭 상태 ('linked': 연결된 시나리오, 'created': 생성한 시나리오)
   const [tab, setTab] = useState('linked')
   

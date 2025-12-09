@@ -6,10 +6,10 @@ export default function CreateRoleplayDialog({
   onClose,
   aiRole,
   myRole,
-  goal,
+  situation,
   onAiRoleChange,
   onMyRoleChange,
-  onGoalChange,
+  onSituationChange,
   onStart,
   loading = false,
   errorMessage = null
@@ -22,34 +22,32 @@ export default function CreateRoleplayDialog({
       maxWidth="xs"
       PaperProps={{
         sx: {
-          backgroundColor: 'rgba(17, 19, 26, 0.95)',
-          border: '1px solid rgba(0,0,0,0.8)',
+          backgroundColor: '#FFFFFF',
           borderRadius: 3,
-          backdropFilter: 'blur(16px)',
-          boxShadow: '0 25px 60px rgba(0,0,0,0.5)'
+          border: '1px solid rgba(0,0,0,0.08)',
+          boxShadow: '0 16px 40px rgba(0,0,0,0.12)',
         }
       }}
     >
       <DialogTitle
         sx={{
           fontWeight: 700,
-          fontSize: '1.125rem',
-          color: '#212121',
-          pb: 2,
-          borderBottom: '1px solid rgba(0,0,0,0.1)'
+          fontSize: '1.1rem',
+          color: '#111827',
+          pb: 1.5,
         }}
       >
         롤플레이 만들기
       </DialogTitle>
-      <DialogContent sx={{ pt: 3, pb: 2 }}>
-        <Stack spacing={3}>
+      <DialogContent sx={{ pt: 1, pb: 1 }}>
+        <Stack spacing={2.5}>
           <Box>
             <Typography
               variant="subtitle2"
               sx={{
-                mb: 1.5,
+                mb: 0.75,
                 fontWeight: 600,
-                color: '#212121'
+                color: '#111827'
               }}
             >
               AI 역할
@@ -62,20 +60,20 @@ export default function CreateRoleplayDialog({
               placeholder="예: Project Manager"
               sx={{
                 '& .MuiOutlinedInput-root': {
-                  backgroundColor: 'rgba(0,0,0,0.04)',
+                  backgroundColor: '#F9FAFB',
                   borderRadius: 2,
                   '& fieldset': {
-                    borderColor: 'rgba(0,0,0,0.23)'
+                    borderColor: 'rgba(0,0,0,0.12)'
                   },
                   '&:hover fieldset': {
-                    borderColor: 'rgba(0,0,0,0.4)'
+                    borderColor: 'rgba(0,0,0,0.25)'
                   },
                   '&.Mui-focused fieldset': {
                     borderColor: '#6C63FF'
                   }
                 },
                 '& .MuiInputBase-input': {
-                  color: '#212121'
+                  color: '#111827'
                 }
               }}
             />
@@ -84,9 +82,9 @@ export default function CreateRoleplayDialog({
             <Typography
               variant="subtitle2"
               sx={{
-                mb: 1.5,
+                mb: 0.75,
                 fontWeight: 600,
-                color: '#212121'
+                color: '#111827'
               }}
             >
               나의 역할
@@ -99,20 +97,20 @@ export default function CreateRoleplayDialog({
               placeholder="예: Software Engineer"
               sx={{
                 '& .MuiOutlinedInput-root': {
-                  backgroundColor: 'rgba(0,0,0,0.04)',
+                  backgroundColor: '#F9FAFB',
                   borderRadius: 2,
                   '& fieldset': {
-                    borderColor: 'rgba(0,0,0,0.23)'
+                    borderColor: 'rgba(0,0,0,0.12)'
                   },
                   '&:hover fieldset': {
-                    borderColor: 'rgba(0,0,0,0.4)'
+                    borderColor: 'rgba(0,0,0,0.25)'
                   },
                   '&.Mui-focused fieldset': {
                     borderColor: '#6C63FF'
                   }
                 },
                 '& .MuiInputBase-input': {
-                  color: '#212121'
+                  color: '#111827'
                 }
               }}
             />
@@ -121,9 +119,9 @@ export default function CreateRoleplayDialog({
             <Typography
               variant="subtitle2"
               sx={{
-                mb: 1.5,
+                mb: 0.75,
                 fontWeight: 600,
-                color: '#212121'
+                color: '#111827'
               }}
             >
               목적 상황
@@ -131,27 +129,27 @@ export default function CreateRoleplayDialog({
             <TextField
               fullWidth
               variant="outlined"
-              value={goal}
-              onChange={onGoalChange}
+              value={situation}
+              onChange={onSituationChange}
               placeholder="예: 프로젝트 일정 조율 및 리스크 논의"
               multiline
               rows={3}
               sx={{
                 '& .MuiOutlinedInput-root': {
-                  backgroundColor: 'rgba(0,0,0,0.04)',
+                  backgroundColor: '#F9FAFB',
                   borderRadius: 2,
                   '& fieldset': {
-                    borderColor: 'rgba(0,0,0,0.23)'
+                    borderColor: 'rgba(0,0,0,0.12)'
                   },
                   '&:hover fieldset': {
-                    borderColor: 'rgba(0,0,0,0.4)'
+                    borderColor: 'rgba(0,0,0,0.25)'
                   },
                   '&.Mui-focused fieldset': {
                     borderColor: '#6C63FF'
                   }
                 },
                 '& .MuiInputBase-input': {
-                  color: '#212121'
+                  color: '#111827'
                 }
               }}
             />
@@ -163,17 +161,17 @@ export default function CreateRoleplayDialog({
           )}
         </Stack>
       </DialogContent>
-      <DialogActions sx={{ px: 3, pb: 3, pt: 2, gap: 1.5 }}>
+      <DialogActions sx={{ px: 3, pb: 2.5, pt: 2, gap: 1 }}>
         <Button
           onClick={onClose}
           variant="outlined"
           sx={{
             flex: 1,
-            borderColor: 'rgba(0,0,0,0.4)',
-            color: '#212121',
+            borderColor: 'rgba(0,0,0,0.2)',
+            color: '#374151',
             '&:hover': {
-              borderColor: '#212121',
-              backgroundColor: 'rgba(0,0,0,0.08)'
+              borderColor: '#111827',
+              backgroundColor: 'rgba(0,0,0,0.04)'
             }
           }}
         >
@@ -185,10 +183,10 @@ export default function CreateRoleplayDialog({
           disabled={loading}
           sx={{
             flex: 1,
-            background: 'linear-gradient(135deg, #7C6CFF 0%, #5546D7 100%)',
+            background: 'linear-gradient(135deg, #6C63FF 0%, #4F46E5 100%)',
             color: '#fff',
             '&:hover': {
-              background: 'linear-gradient(135deg, #8473ff 0%, #5c4ee2 100%)'
+              background: 'linear-gradient(135deg, #7a72ff 0%, #5b53ec 100%)'
             }
           }}
         >

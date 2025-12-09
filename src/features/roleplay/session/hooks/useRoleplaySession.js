@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
-import { startSession, createWebSocketConnection } from '../../../services/roleplayService'
-import { getUserIdFromToken } from '../../../utils/jwt'
+import { startSession, createWebSocketConnection } from '../../../../services/roleplayService'
+import { getUserIdFromToken } from '../../../../utils/jwt'
 
 // ========================================
 // 상수 정의

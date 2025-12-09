@@ -29,13 +29,16 @@ export default function AppLayout({ children }) {
     handleCloseDrawer()
   }
 
+  // 웹/모바일에 따라 drawer width 설정
+  const drawerWidth = isDesktop ? UI.DRAWER_WIDTH_DESKTOP : UI.DRAWER_WIDTH_MOBILE
+
   return (
     <Box sx={{ display: 'flex', minHeight: '100dvh', bgcolor: 'background.default' }}>
       {!isAuthPage && (
         <>
           <AppHeader
             onToggleDrawer={handleToggleDrawer}
-            drawerWidth={UI.DRAWER_WIDTH}
+            drawerWidth={drawerWidth}
             isDesktop={isDesktop}
           />
           <AppDrawer
@@ -43,7 +46,7 @@ export default function AppLayout({ children }) {
             onClose={handleCloseDrawer}
             onNavigate={handleNavigate}
             currentPath={location.pathname}
-            drawerWidth={UI.DRAWER_WIDTH}
+            drawerWidth={drawerWidth}
             isDesktop={isDesktop}
           />
         </>
@@ -55,7 +58,7 @@ export default function AppLayout({ children }) {
           flex: 1,
           width: '100%',
           pt: isAuthPage ? 0 : { xs: 7, sm: 8 },
-          ...(isDesktop && !isAuthPage && { ml: `${UI.DRAWER_WIDTH}px` }),
+          ...(isDesktop && !isAuthPage && { ml: `${drawerWidth}px` }),
         }}
       >
         <Container
@@ -75,6 +78,7 @@ export default function AppLayout({ children }) {
     </Box>
   )
 }
+
 
 
 

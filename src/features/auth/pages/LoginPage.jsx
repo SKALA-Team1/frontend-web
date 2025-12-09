@@ -19,7 +19,7 @@ export default function LoginPage() {
       
     // 알림창이 표시된 후 홈으로 이동
     setTimeout(() => {
-        navigate(ROUTES.HOME)
+        navigate(ROUTES.ROLEPLAYING)
     }, 1500) // 1.5초 후 이동
     } catch (error) {
       notification.showError(error.message || '로그인에 실패했습니다.')
@@ -32,7 +32,7 @@ export default function LoginPage() {
   }
 
   return (
-    <Box sx={{ minHeight: '100dvh', display: 'flex', alignItems: 'center', py: 4 }}>
+    <Box sx={{ minHeight: '100dvh', display: 'flex', alignItems: 'center', py: 4, backgroundColor: '#FFFFFF' }}>
       <Box sx={{ width: '100%', maxWidth: 400, mx: 'auto' }}>
         <LoginForm
           onLogin={handleLogin}
