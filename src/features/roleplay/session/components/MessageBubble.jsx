@@ -272,8 +272,8 @@ function MessageBubble({ message, index, showTranslation, onToggleTranslation })
             py: 1.5,
             borderRadius: 1,
             border: `1px solid ${style.borderColor}`,
-            backdropFilter: 'blur(8px)',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
+            backdropFilter: 'none',
+            boxShadow: 'none'
           }}
         >
           <Typography 
@@ -376,4 +376,3 @@ export default React.memo(MessageBubble, (prevProps, nextProps) => {
     prevProps.index === nextProps.index
   )
 })
-

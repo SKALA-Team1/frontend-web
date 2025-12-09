@@ -259,13 +259,24 @@ function ScenarioList({
               variant="outlined"
               sx={{
                 borderRadius: 3,
-                border: '1px dashed rgba(0,0,0,0.12)',
-                backgroundColor: 'rgba(0,0,0,0.02)'
+                border: '1px dashed rgba(124,108,255,0.25)',
+                background: 'linear-gradient(135deg, rgba(124,108,255,0.04) 0%, rgba(75,60,248,0.02) 100%)',
+                boxShadow: '0 6px 18px rgba(124,108,255,0.12)'
               }}
             >
-              <CardContent sx={{ py: 6 }}>
-                <Typography variant="body2" color="text.secondary" align="center">
-                  표시할 시나리오가 없습니다.
+              <CardContent sx={{ py: 6, textAlign: 'center' }}>
+                <Typography 
+                  variant="subtitle1" 
+                  sx={{ 
+                    fontWeight: 700,
+                    mb: 1,
+                    background: 'linear-gradient(135deg, #7C6CFF 0%, #4B3CF8 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text'
+                  }}
+                >
+                  표시할 시나리오가 없습니다
                 </Typography>
               </CardContent>
             </Card>
@@ -277,4 +288,3 @@ function ScenarioList({
 }
 
 export default memo(ScenarioList)
-

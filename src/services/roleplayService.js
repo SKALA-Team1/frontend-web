@@ -28,30 +28,36 @@ export async function fetchUserScenarios() {
 
 /**
  * 프롬프트 기반 시나리오 요청
- * @param {Object} promptData - 프롬프트 데이터
- * @returns {Promise<Object>}
+ * Gateway에서 FastAPI URL과 userId를 받아옴
+ * @param {Object} promptData - 프롬프트 데이터 { myRole, aiRole, situation }
+ * @returns {Promise<Object>} { userId, fastapi_url }
  */
 export async function requestPromptScenario(promptData) {
-  const url = `${API_ENDPOINTS.GATEWAY}/scenarios/prompt`
+  const url = `${API_ENDPOINTS.GATEWAY}/scenarios/roleplaying/generate-from-prompt`
   return httpClient.post(url, promptData)
 }
 
 /**
  * FastAPI에서 시나리오 생성
- * @param {Object} scenarioData - 시나리오 데이터
- * @returns {Promise<Object>}
+ * Gateway를 통해 FastAPI로 프록시
+ * @param {Object} scenarioData - 시나리오 데이터 { fastapi_url, userId, myRole, aiRole, situation }
+ * @returns {Promise<Object>} { scenario: { aiRole, topicType, title, fixedQuestions, creationType } }
  */
 export async function generateScenarioFromFastApi(scenarioData) {
+  const { fastapi_url, ...requestBody } = scenarioData
+  // Gateway를 통해 FastAPI로 프록시
   const url = `${API_ENDPOINTS.GATEWAY}/scenarios/generate`
-  return httpClient.post(url, scenarioData)
+  return httpClient.post(url, requestBody)
 }
 
 /**
  * Spring2에 시나리오 저장
- * @param {Object} scenarioData - 시나리오 데이터
- * @returns {Promise<Object>}
+ * Gateway를 통해 Spring2로 프록시
+ * @param {Object} scenarioData - 시나리오 데이터 { userId, myRole, situation, scenario: { aiRole, topicType, title, fixedQuestions } }
+ * @returns {Promise<Object>} { subjectId, scenarioId }
  */
 export async function saveScenarioToSpring2(scenarioData) {
+  // Gateway를 통해 Spring2로 프록시
   const url = `${API_ENDPOINTS.GATEWAY}/scenarios`
   return httpClient.post(url, scenarioData)
 }
@@ -59,11 +65,12 @@ export async function saveScenarioToSpring2(scenarioData) {
 /**
  * 롤플레이 세션 시작
  * @param {number} scenarioId - 시나리오 ID
+ * @param {string} interactionMode - 상호작용 모드 (기본값: "default")
  * @returns {Promise<Object>} 세션 정보
  */
-export async function startSession(scenarioId) {
+export async function startSession(scenarioId, interactionMode = 'default') {
   const url = `${API_ENDPOINTS.GATEWAY}/roleplaying/sessions`
-  return httpClient.post(url, { scenarioId })
+  return httpClient.post(url, { scenarioId, interactionMode })
 }
 
 /**

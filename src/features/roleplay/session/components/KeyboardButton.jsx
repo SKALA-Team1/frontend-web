@@ -7,19 +7,26 @@ export default function KeyboardButton({ onClick, isActive = false }) {
     <IconButton
       onClick={onClick}
       sx={{
-        width: 40,
-        height: 40,
-        border: '1px solid rgba(0,0,0,0.23)',
-        backgroundColor: isActive ? 'rgba(124,108,255,0.2)' : 'rgba(0,0,0,0.04)',
-        color: '#212121',
+        width: 44,
+        height: 44,
+        border: isActive ? '2px solid #7C6CFF' : '1.5px solid rgba(124,108,255,0.2)',
+        backgroundColor: isActive 
+          ? '#FFFFFF' 
+          : '#FFFFFF',
+        color: '#7C6CFF',
+        borderRadius: 2.5,
+        boxShadow: 'none',
+        transition: 'all 0.2s ease',
         '&:hover': {
-          backgroundColor: isActive ? 'rgba(124,108,255,0.3)' : 'rgba(0,0,0,0.08)'
+          backgroundColor: '#f5f5f5',
+          borderColor: '#7C6CFF',
+          transform: 'none',
+          boxShadow: 'none'
         }
       }}
       aria-label="키보드 입력"
     >
-      <KeyboardIcon sx={{ fontSize: 20 }} />
+      <KeyboardIcon sx={{ fontSize: 22 }} />
     </IconButton>
   )
 }
-

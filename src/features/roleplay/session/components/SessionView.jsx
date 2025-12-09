@@ -30,7 +30,7 @@ export default function SessionView({
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
-        backgroundColor: 'background.default'
+        backgroundColor: '#FFFFFF'
       }}
     >
       <SessionHeader title={selectedTitle} onEndSession={onEndSession} />

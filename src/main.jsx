@@ -129,7 +129,7 @@ const theme = createTheme({
           '& input': {
             color: '#212121 !important',
             WebkitTextFillColor: '#212121 !important'
-          },
+        },
           '& input[type=password]': {
             color: '#212121 !important',
             WebkitTextFillColor: '#212121 !important',

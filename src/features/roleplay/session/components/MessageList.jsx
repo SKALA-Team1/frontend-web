@@ -12,18 +12,19 @@ export default function MessageList({ messages, bottomRef }) {
         overflowX: 'hidden',
         px: 1,
         py: 1,
+        backgroundColor: 'transparent',
         '&::-webkit-scrollbar': {
           width: '6px'
         },
         '&::-webkit-scrollbar-track': {
-          backgroundColor: 'rgba(0,0,0,0.02)',
+          backgroundColor: 'transparent',
           borderRadius: '3px'
         },
         '&::-webkit-scrollbar-thumb': {
-          backgroundColor: 'rgba(0,0,0,0.23)',
+          backgroundColor: 'rgba(0,0,0,0.2)',
           borderRadius: '3px',
           '&:hover': {
-            backgroundColor: 'rgba(0,0,0,0.4)'
+            backgroundColor: 'rgba(0,0,0,0.3)'
           }
         }
       }}
@@ -35,4 +36,3 @@ export default function MessageList({ messages, bottomRef }) {
     </Stack>
   )
 }
-

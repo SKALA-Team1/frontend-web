@@ -1,7 +1,12 @@
 import React from 'react'
-import { Box, Typography, Button } from '@mui/material'
+import { Box, Typography, IconButton, useMediaQuery, useTheme } from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
 
 export default function SessionHeader({ title, onEndSession }) {
+  const theme = useTheme()
+  const isDesktop = useMediaQuery(theme.breakpoints.up('md'))
+  const displayTitle = title || 'Roleplay'
+
   return (
     <Box 
       sx={{ 
@@ -12,35 +17,52 @@ export default function SessionHeader({ title, onEndSession }) {
         py: 0
       }}
     >
-      <Box sx={{ width: 72 }} />
-      <Typography 
-        variant="h6" 
-        align="center" 
-        sx={{ 
-          fontWeight: 700, 
-          flex: 1,
-          fontSize: '0.9375rem',
-          color: '#212121'
-        }}
-      >
-        {title || 'Roleplay'}
-      </Typography>
-      <Button 
-        size="small" 
-        variant="outlined" 
+      <IconButton
+        size="small"
         onClick={onEndSession}
+        aria-label="세션 종료"
         sx={{
-          borderColor: 'rgba(0,0,0,0.4)',
-          color: '#212121',
+          border: '1px solid rgba(0,0,0,0.35)',
+          borderRadius: '8px',
+          width: 40,
+          height: 36,
+          mr: 1,
           '&:hover': {
-            borderColor: 'rgba(0,0,0,0.5)',
-            backgroundColor: 'rgba(0,0,0,0.08)'
+            backgroundColor: 'rgba(0,0,0,0.06)'
           }
         }}
       >
-        종료
-      </Button>
+        <CloseIcon fontSize="small" />
+      </IconButton>
+
+      <Box
+        sx={{
+          flex: 1,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minWidth: 0
+        }}
+      >
+        <Typography 
+          variant="h6" 
+          align="center" 
+          noWrap
+          sx={{ 
+            fontWeight: 700, 
+            fontSize: '0.9375rem',
+            color: '#212121',
+            maxWidth: '100%',
+            textOverflow: 'ellipsis',
+            overflow: 'hidden',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          {displayTitle}
+        </Typography>
+      </Box>
+
+      <Box sx={{ width: isDesktop ? 40 : 40 }} />
     </Box>
   )
 }
-

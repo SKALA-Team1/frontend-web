@@ -65,7 +65,7 @@ export default function useSessionControls(scenarios = []) {
    */
   const handleEndSession = () => {
     setOpenEnd(false)
-    session.endSession()
+    session.endSession('user')
   }
 
   return {
@@ -91,4 +91,3 @@ export default function useSessionControls(scenarios = []) {
     handleEndSession
   }
 }
-
