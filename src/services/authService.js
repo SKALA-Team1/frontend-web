@@ -110,10 +110,22 @@ export async function refreshToken(refreshToken) {
 
 /**
  * 로그아웃
+ * 백엔드에 로그아웃 요청을 보내고, 성공/실패 여부와 관계없이 로컬 토큰을 제거합니다.
+ * @returns {Promise<void>}
  */
-export function logout() {
-  localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN)
-  localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN)
+export async function logout() {
+  try {
+    // 백엔드에 로그아웃 요청 (Refresh Token 무효화)
+    const url = `${API_ENDPOINTS.GATEWAY}/auth/logout`
+    await httpClient.post(url, {}, { skipAuth: false }) // 인증 필요 (JWT 토큰 포함)
+  } catch (error) {
+    // 백엔드 요청 실패해도 로컬 토큰은 제거 (사용자는 로그아웃됨)
+    console.warn('로그아웃 API 호출 실패 (로컬 토큰은 제거됨):', error)
+  } finally {
+    // 성공/실패 여부와 관계없이 로컬 토큰 제거
+    localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN)
+    localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN)
+  }
 }
 
 /**

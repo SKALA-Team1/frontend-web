@@ -52,9 +52,15 @@ export default function AppDrawer({
   const [userName, setUserName] = useState('')
   const [userEmail, setUserEmail] = useState('')
 
-  const handleLogout = () => {
-    logout()
-    navigate(ROUTES.LOGIN, { replace: true })
+  const handleLogout = async () => {
+    try {
+      await logout()
+    } catch (error) {
+      console.error('로그아웃 중 오류 발생:', error)
+    } finally {
+      // 로그아웃 API 성공/실패 여부와 관계없이 로그인 페이지로 이동
+      navigate(ROUTES.LOGIN, { replace: true })
+    }
   }
 
   useEffect(() => {
