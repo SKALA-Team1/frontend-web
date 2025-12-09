@@ -6,7 +6,7 @@
  * - 네비게이션 드로어 관리
  */
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Box, Container, useMediaQuery } from '@mui/material'
 import AppDrawer from './AppDrawer'
@@ -21,6 +21,13 @@ export default function AppLayout({ children }) {
 
   // 인증 페이지인지 확인
   const isAuthPage = [ROUTES.LOGIN, ROUTES.SIGNUP].includes(location.pathname)
+
+  // 로그인 페이지로 이동할 때 drawer 닫기
+  useEffect(() => {
+    if (isAuthPage) {
+      setDrawerOpen(false)
+    }
+  }, [isAuthPage])
 
   const handleToggleDrawer = () => setDrawerOpen((v) => !v)
   const handleCloseDrawer = () => setDrawerOpen(false)
