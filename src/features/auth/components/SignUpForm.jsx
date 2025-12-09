@@ -48,7 +48,7 @@ export default function SignUpForm(props) {
   } = props
 
   return (
-    <Box sx={{ minHeight: '100dvh', display: 'flex', alignItems: 'center', py: 4 }}>
+    <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
       <Stack spacing={1} sx={{ width: '100%', maxWidth: 400, mx: 'auto' }}>
         <Typography variant="h5" fontWeight={700} align="center">회원가입</Typography>
 
@@ -70,14 +70,15 @@ export default function SignUpForm(props) {
                   color: 'rgba(0,0,0,0.6)'
                 },
                 '& .MuiOutlinedInput-root': {
+                  height: '56px',
                   '& fieldset': {
                     borderColor: 'rgba(0,0,0,0.23)'
                   },
                   '&:hover fieldset': {
-                    borderColor: 'rgba(0,0,0,0.4)'
+                    borderColor: 'rgba(124,108,255,0.4)'
                   },
                   '&.Mui-focused fieldset': {
-                    borderColor: 'rgba(124,108,255,0.8)'
+                    borderColor: '#7C6CFF'
                   }
                 }
               }}
@@ -106,6 +107,7 @@ export default function SignUpForm(props) {
                     color: 'rgba(0,0,0,0.6)'
                   },
                   '& .MuiOutlinedInput-root': {
+                    height: '56px',
                     '& fieldset': {
                       borderColor: 'rgba(0,0,0,0.23)'
                     },
@@ -120,11 +122,20 @@ export default function SignUpForm(props) {
               />
               <Button 
                 variant="outlined" 
-                sx={{ minWidth: 127 }} 
+                sx={{ 
+                  minWidth: 120, 
+                  py: 1.5,
+                  borderColor: 'rgba(124,108,255,0.5)',
+                  color: '#7C6CFF',
+                  '&:hover': {
+                    borderColor: '#7C6CFF',
+                    backgroundColor: 'rgba(124,108,255,0.04)'
+                  }
+                }} 
                 onClick={handleSendVerificationCode}
                 disabled={sendingCode || !signupEmail || !!errors.email}
               >
-                {sendingCode ? <CircularProgress size={20} /> : '인증 코드 발송'}
+                {sendingCode ? <CircularProgress size={20} /> : '인증코드 발송'}
               </Button>
             </Stack>
             {errors.email && (
@@ -140,7 +151,7 @@ export default function SignUpForm(props) {
             <Stack direction="row" spacing={1}>
             <TextField
               type="text"
-              placeholder="이메일 인증 코드를 입력하세요 (6자리)"
+              placeholder="이메일 인증 코드를 입력하세요"
               value={emailVerificationCode}
               onChange={handleEmailVerificationCodeChange}
               error={!!errors.emailVerificationCode}
@@ -155,21 +166,31 @@ export default function SignUpForm(props) {
                   color: 'rgba(0,0,0,0.6)'
                 },
                 '& .MuiOutlinedInput-root': {
+                  height: '56px',
                   '& fieldset': {
                       borderColor: emailVerified ? 'rgba(76,175,80,0.5)' : 'rgba(0,0,0,0.23)'
                   },
                   '&:hover fieldset': {
-                      borderColor: emailVerified ? 'rgba(76,175,80,0.7)' : 'rgba(0,0,0,0.4)'
+                      borderColor: emailVerified ? 'rgba(76,175,80,0.7)' : 'rgba(124,108,255,0.4)'
                   },
                   '&.Mui-focused fieldset': {
-                      borderColor: emailVerified ? 'rgba(76,175,80,0.8)' : 'rgba(124,108,255,0.8)'
+                      borderColor: emailVerified ? 'rgba(76,175,80,0.8)' : '#7C6CFF'
                   }
                 }
               }}
             />
               <Button 
                 variant="outlined" 
-                sx={{ minWidth: 100 }} 
+                sx={{ 
+                  minWidth: 100, 
+                  py: 1.5,
+                  borderColor: emailVerified ? 'rgba(76,175,80,0.5)' : 'rgba(124,108,255,0.5)',
+                  color: emailVerified ? '#4CAF50' : '#7C6CFF',
+                  '&:hover': {
+                    borderColor: emailVerified ? 'rgba(76,175,80,0.7)' : '#7C6CFF',
+                    backgroundColor: emailVerified ? 'rgba(76,175,80,0.04)' : 'rgba(124,108,255,0.04)'
+                  }
+                }} 
                 onClick={handleVerifyCode}
                 disabled={verifyingCode || !emailVerificationCode || emailVerificationCode.length !== 6 || emailVerified}
               >
@@ -203,6 +224,14 @@ export default function SignUpForm(props) {
               onChange={handlePasswordChange}
               fullWidth
               error={!!errors.password}
+              sx={{
+                '& .MuiInputBase-input': {
+                  color: '#212121'
+                },
+                '& .MuiOutlinedInput-root': {
+                  height: '56px'
+                }
+              }}
             />
             {errors.password && (
               <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
@@ -220,6 +249,14 @@ export default function SignUpForm(props) {
               onChange={handleConfirmPasswordChange}
               fullWidth
               error={!!errors.confirmPassword}
+              sx={{
+                '& .MuiInputBase-input': {
+                  color: '#212121'
+                },
+                '& .MuiOutlinedInput-root': {
+                  height: '56px'
+                }
+              }}
             />
             {errors.confirmPassword && (
               <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
@@ -241,14 +278,15 @@ export default function SignUpForm(props) {
                   color: '#212121'
                 },
                 '& .MuiOutlinedInput-root': {
+                  height: '56px',
                   '& fieldset': {
                     borderColor: 'rgba(0,0,0,0.23)'
                   },
                   '&:hover fieldset': {
-                    borderColor: 'rgba(0,0,0,0.4)'
+                    borderColor: 'rgba(124,108,255,0.4)'
                   },
                   '&.Mui-focused fieldset': {
-                    borderColor: 'rgba(124,108,255,0.8)'
+                    borderColor: '#7C6CFF'
                   }
                 }
               }}
@@ -293,7 +331,13 @@ export default function SignUpForm(props) {
             fullWidth 
             onClick={handleSignup}
             disabled={signupLoading}
-            sx={{ pt: 1.5 }}
+            sx={{ 
+              py: 1.5,
+              backgroundColor: '#7C6CFF',
+              '&:hover': {
+                backgroundColor: '#6B5CE6'
+              }
+            }}
           >
             {signupLoading ? (
               <>
@@ -308,7 +352,15 @@ export default function SignUpForm(props) {
             variant="outlined" 
             fullWidth 
             onClick={onNavigateLogin}
-            sx={{ py: 1.5 }}
+            sx={{ 
+              py: 1.5,
+              borderColor: 'rgba(124,108,255,0.5)',
+              color: '#7C6CFF',
+              '&:hover': {
+                borderColor: '#7C6CFF',
+                backgroundColor: 'rgba(124,108,255,0.04)'
+              }
+            }}
           >
             로그인으로 돌아가기
           </Button>

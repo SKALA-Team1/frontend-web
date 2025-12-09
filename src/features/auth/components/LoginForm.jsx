@@ -1,7 +1,8 @@
 import React from 'react'
-import { Stack, TextField, Button, Divider, Box, Typography } from '@mui/material'
+import { Stack, TextField, Button, Divider, Box } from '@mui/material'
 import useLoginForm from '../hooks/useLoginForm'
 import googleLogo from '../../../images/google_logo.png'
+import skuseMeLogo from '../../../images/skuse_me.png'
 
 export default function LoginForm({ onLogin, onGoogleLogin, onNavigateSignup }) {
   const { email, password, handleEmailChange, handlePasswordChange, handleSubmit } = useLoginForm(onLogin)
@@ -14,7 +15,22 @@ export default function LoginForm({ onLogin, onGoogleLogin, onNavigateSignup }) 
 
   return (
     <Stack spacing={3} sx={{ width: '100%' }}>
-      <Typography variant="h5" fontWeight={700} align="center">로그인</Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'center'}}>
+        <Box
+          component="img"
+          src={skuseMeLogo}
+          alt="SKuse ME"
+          sx={{
+            height: 'auto',
+            maxWidth: '270px',
+            width: '100%',
+            objectFit: 'contain',
+          }}
+        />
+      </Box>
+
+      <Box sx={{height: 30}}>
+      </Box>
 
       <Stack spacing={1}>
         <TextField 
@@ -31,17 +47,17 @@ export default function LoginForm({ onLogin, onGoogleLogin, onNavigateSignup }) 
               color: 'rgba(0,0,0,0.6)'
             },
             '& .MuiInputLabel-root.Mui-focused': {
-              color: 'rgba(124,108,255,0.8)'
+              color: '#7C6CFF'
             },
             '& .MuiOutlinedInput-root': {
               '& fieldset': {
                 borderColor: 'rgba(0,0,0,0.23)'
               },
               '&:hover fieldset': {
-                borderColor: 'rgba(0,0,0,0.4)'
+                borderColor: 'rgba(124,108,255,0.4)'
               },
               '&.Mui-focused fieldset': {
-                borderColor: 'rgba(124,108,255,0.8)'
+                borderColor: '#7C6CFF'
               }
             },
             '& input::placeholder': {
@@ -65,9 +81,57 @@ export default function LoginForm({ onLogin, onGoogleLogin, onNavigateSignup }) 
           value={password} 
           onChange={handlePasswordChange} 
           fullWidth
+          sx={{
+            '& .MuiInputBase-input': {
+              color: '#212121'
+            },
+            '& .MuiInputLabel-root': {
+              color: 'rgba(0,0,0,0.6)'
+            },
+            '& .MuiInputLabel-root.Mui-focused': {
+              color: '#7C6CFF'
+            },
+            '& .MuiOutlinedInput-root': {
+              '& fieldset': {
+                borderColor: 'rgba(0,0,0,0.23)'
+              },
+              '&:hover fieldset': {
+                borderColor: 'rgba(124,108,255,0.4)'
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: '#7C6CFF'
+              }
+            }
+          }}
         />
-        <Button variant="contained" fullWidth sx={{ py: 1.5 }} onClick={handleSubmit}>로그인</Button>
-        <Button variant="contained" fullWidth sx={{ py: 1.5 }} onClick={onNavigateSignup}>
+        <Button 
+          variant="contained" 
+          fullWidth 
+          sx={{ 
+            py: 1.5,
+            backgroundColor: '#7C6CFF',
+            '&:hover': {
+              backgroundColor: '#6B5CE6'
+            }
+          }} 
+          onClick={handleSubmit}
+        >
+          로그인
+        </Button>
+        <Button 
+          variant="outlined" 
+          fullWidth 
+          sx={{ 
+            py: 1.5,
+            borderColor: 'rgba(124,108,255,0.5)',
+            color: '#7C6CFF',
+            '&:hover': {
+              borderColor: '#7C6CFF',
+              backgroundColor: 'rgba(124,108,255,0.04)'
+            }
+          }} 
+          onClick={onNavigateSignup}
+        >
           회원가입하기
         </Button>
       </Stack>
@@ -81,12 +145,10 @@ export default function LoginForm({ onLogin, onGoogleLogin, onNavigateSignup }) 
             width: 64,
             height: 64,
             minWidth: 64,
-            borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             p: 0,
-            border: '1px solid rgba(0, 0, 0, 0.12)'
           }}
         >
           <Box component="img" src={googleLogo} alt="Google" sx={{ width: 40, height: 40, objectFit: 'contain' }} />

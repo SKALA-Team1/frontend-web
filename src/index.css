@@ -13,3 +13,18 @@ html, body, #root {
   background: #FFFFFF;
   color: #212121;
 }
+
+/* 비밀번호 필드 강제 스타일 */
+input[type="password"] {
+  color: #212121 !important;
+  -webkit-text-fill-color: #212121 !important;
+}
+
+input[type="password"]::-webkit-input-placeholder {
+  color: rgba(0,0,0,0.4) !important;
+  -webkit-text-fill-color: rgba(0,0,0,0.4) !important;
+}
+
+input[type="password"]::-moz-placeholder {
+  color: rgba(0,0,0,0.4) !important;
+}

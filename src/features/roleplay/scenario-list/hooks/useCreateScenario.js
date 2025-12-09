@@ -1,16 +1,16 @@
 import React from 'react'
-import { requestPromptScenario, generateScenarioFromFastApi, saveScenarioToSpring2 } from '../../../services/roleplayService'
+import { requestPromptScenario, generateScenarioFromFastApi, saveScenarioToSpring2 } from '../../../../services/roleplayService'
 
 /**
- * 홈 페이지 관리를 위한 커스텀 훅
+ * 시나리오 생성을 위한 커스텀 훅
  * 
- * 홈 화면의 시나리오 목록, 롤플레이 생성 다이얼로그 상태 등을 관리
+ * 롤플레이 생성 다이얼로그 상태 및 시나리오 생성 로직을 관리
  * 
- * @returns {Object} 홈 페이지 상태 및 핸들러
+ * @returns {Object} 시나리오 생성 관련 상태 및 핸들러
  *   - openCreate: boolean - 롤플레이 생성 다이얼로그 열림 상태
  *   - aiRole: string - AI 역할 입력값
  *   - myRole: string - 내 역할 입력값
- *   - goal: string - 목표 입력값
+ *   - situation: string - 목적 상황 입력값
  *   - createLoading: boolean - 시나리오 생성 중 상태
  *   - createError: string | null - 시나리오 생성 에러 메시지
  *   - creationToast: string | null - 시나리오 생성 성공 토스트 메시지
@@ -19,10 +19,10 @@ import { requestPromptScenario, generateScenarioFromFastApi, saveScenarioToSprin
  *   - handleCloseCreate: Function - 생성 다이얼로그 닫기 핸들러
  *   - handleAiRoleChange: Function - AI 역할 변경 핸들러
  *   - handleMyRoleChange: Function - 내 역할 변경 핸들러
- *   - handleGoalChange: Function - 목표 변경 핸들러
+ *   - handleSituationChange: Function - 목적 상황 변경 핸들러
  *   - handleStartRoleplay: Function - 시나리오 생성 핸들러
  */
-export default function useHomePage(scenarios = [], options = {}) {
+export default function useCreateScenario(scenarios = [], options = {}) {
   const { onScenarioCreated } = options
   // 롤플레이 생성 다이얼로그 열림 상태
   const [openCreate, setOpenCreate] = React.useState(false)
@@ -33,8 +33,8 @@ export default function useHomePage(scenarios = [], options = {}) {
   // 내 역할 입력 상태
   const [myRole, setMyRole] = React.useState('')
   
-  // 목표 입력 상태
-  const [goal, setGoal] = React.useState('')
+  // 목적 상황 입력 상태
+  const [situation, setSituation] = React.useState('')
 
   const [createLoading, setCreateLoading] = React.useState(false)
   const [createError, setCreateError] = React.useState(null)
@@ -66,10 +66,10 @@ export default function useHomePage(scenarios = [], options = {}) {
   const handleMyRoleChange = (e) => setMyRole(e.target.value)
   
   /**
-   * 목표 입력 변경 핸들러
+   * 목적 상황 입력 변경 핸들러
    * @param {Event} e - 입력 이벤트 객체
    */
-  const handleGoalChange = (e) => setGoal(e.target.value)
+  const handleSituationChange = (e) => setSituation(e.target.value)
   
   /**
    * 롤플레이 시작 핸들러
@@ -78,9 +78,9 @@ export default function useHomePage(scenarios = [], options = {}) {
   const handleStartRoleplay = React.useCallback(async () => {
     const trimmedAiRole = aiRole.trim()
     const trimmedMyRole = myRole.trim()
-    const trimmedGoal = goal.trim()
+    const trimmedSituation = situation.trim()
 
-    if (!trimmedAiRole || !trimmedMyRole || !trimmedGoal) {
+    if (!trimmedAiRole || !trimmedMyRole || !trimmedSituation) {
       setCreateError('AI 역할, 나의 역할, 목적 상황을 모두 입력해주세요.')
       return
     }
@@ -92,7 +92,7 @@ export default function useHomePage(scenarios = [], options = {}) {
       const promptResponse = await requestPromptScenario({
         aiRole: trimmedAiRole,
         myRole: trimmedMyRole,
-        situation: trimmedGoal
+        situation: trimmedSituation
       })
 
       if (!promptResponse?.fastapi_url || !promptResponse?.userId) {
@@ -105,7 +105,7 @@ export default function useHomePage(scenarios = [], options = {}) {
         userId: promptResponse.userId,
         aiRole: trimmedAiRole,
         myRole: trimmedMyRole,
-        situation: trimmedGoal
+        situation: trimmedSituation
       })
 
       if (!scenarioResponse?.scenario) {
@@ -118,7 +118,7 @@ export default function useHomePage(scenarios = [], options = {}) {
       const savePayload = {
         userId: promptResponse.userId,
         myRole: trimmedMyRole,
-        situation: trimmedGoal,
+        situation: trimmedSituation,
         scenario: {
           aiRole: baseScenario.aiRole || trimmedAiRole,
           topicType: baseScenario.topicType || 'direct',
@@ -132,7 +132,7 @@ export default function useHomePage(scenarios = [], options = {}) {
 
       setAiRole('')
       setMyRole('')
-      setGoal('')
+      setSituation('')
       setOpenCreate(false)
 
       if (typeof onScenarioCreated === 'function') {
@@ -143,7 +143,7 @@ export default function useHomePage(scenarios = [], options = {}) {
     } finally {
       setCreateLoading(false)
     }
-  }, [aiRole, myRole, goal, onScenarioCreated])
+  }, [aiRole, myRole, situation, onScenarioCreated])
 
   React.useEffect(() => {
     if (!creationToast) return
@@ -157,7 +157,7 @@ export default function useHomePage(scenarios = [], options = {}) {
     openCreate,
     aiRole,
     myRole,
-    goal,
+    situation,
     createLoading,
     createError,
     creationToast,
@@ -166,7 +166,7 @@ export default function useHomePage(scenarios = [], options = {}) {
     handleCloseCreate,
     handleAiRoleChange,
     handleMyRoleChange,
-    handleGoalChange,
+    handleSituationChange,
     handleStartRoleplay
   }
 }

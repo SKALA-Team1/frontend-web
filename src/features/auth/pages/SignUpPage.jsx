@@ -12,7 +12,7 @@ export default function SignUpPage() {
   const signup = useSignupForm(() => navigate('/login'), notification)
 
   return (
-    <Box sx={{ minHeight: '100dvh', display: 'flex', alignItems: 'center', py: 4 }}>
+    <Box sx={{ minHeight: '100dvh', display: 'flex', alignItems: 'center', py: 1, backgroundColor: '#FFFFFF' }}>
       <Box sx={{ width: '100%', maxWidth: 400, mx: 'auto' }}>
         <SignUpForm
           {...signup}

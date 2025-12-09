@@ -23,23 +23,27 @@ export const SLACK_CONFIG = {
 export const ROUTES = {
   LOGIN: '/',
   SIGNUP: '/signup',
-  HOME: '/home',
+  ROLEPLAYING: '/roleplaying',
   LEARN: '/learn',
   FEEDBACK: '/feedback',
+  BOOKMARK: '/bookmark',
   MYPAGE: '/mypage',
 }
 
 // 네비게이션 링크
 export const NAV_LINKS = [
-  { label: '홈', path: ROUTES.HOME, key: 'home' },
+  { label: '롤플레잉', path: ROUTES.ROLEPLAYING, key: 'roleplay' },
   { label: '학습', path: ROUTES.LEARN, key: 'learn' },
   { label: '피드백', path: ROUTES.FEEDBACK, key: 'feedback' },
+  { label: '북마크', path: ROUTES.BOOKMARK, key: 'bookmark' },
   { label: '마이페이지', path: ROUTES.MYPAGE, key: 'mypage' },
 ]
 
 // UI 상수
 export const UI = {
-  DRAWER_WIDTH: 280,
+  DRAWER_WIDTH: 180, // 기본값 (하위 호환성)
+  DRAWER_WIDTH_DESKTOP: 240,
+  DRAWER_WIDTH_MOBILE: 240,
   MOBILE_BREAKPOINT: 900,
   MAX_CONTAINER_WIDTH: 600,
 }

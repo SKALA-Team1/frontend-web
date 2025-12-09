@@ -27,7 +27,7 @@ const theme = createTheme({
     },
     divider: 'rgba(0,0,0,0.12)'
   },
-  shape: { borderRadius: 16 },
+  shape: { borderRadius: 12 },
   typography: {
     fontFamily:
       "'NanumSquare', 'NanumSquareR', 'NanumSquareB', 'NanumSquareEB', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
@@ -72,7 +72,7 @@ const theme = createTheme({
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: 20,
+          borderRadius: 12,
           backgroundColor: '#FFFFFF',
           border: '1px solid rgba(0,0,0,0.12)',
           boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
@@ -126,21 +126,37 @@ const theme = createTheme({
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
-          borderRadius: 12,
-          backgroundColor: '#FFFFFF'
-        },
-        notchedOutline: {
-          borderColor: 'rgba(0,0,0,0.23)'
+          '& input': {
+            color: '#212121 !important',
+            WebkitTextFillColor: '#212121 !important'
+          },
+          '& input[type=password]': {
+            color: '#212121 !important',
+            WebkitTextFillColor: '#212121 !important',
+            fontFamily: 'text-security-disc !important',
+            '-webkit-text-security': 'disc !important'
+          }
         },
         input: {
-          color: '#212121',
-          '&::placeholder': {
-            color: 'rgba(0,0,0,0.5)',
-            opacity: 1
+          color: '#212121 !important',
+          WebkitTextFillColor: '#212121 !important',
+    
+          '&[type=password]': {
+            color: '#212121 !important',
+            WebkitTextFillColor: '#212121 !important',
+            fontFamily: 'text-security-disc !important',
+            '-webkit-text-security': 'disc !important'
           },
+    
+          '&:-webkit-autofill': {
+            WebkitTextFillColor: '#212121 !important',
+            boxShadow: '0 0 0px 1000px #FFFFFF inset !important'
+          }
         }
       }
-    },
+    }
+    
+    ,
     // 입력 라벨 스타일
     MuiInputLabel: {
       styleOverrides: {
