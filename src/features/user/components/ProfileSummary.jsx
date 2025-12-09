@@ -82,6 +82,7 @@ export default function ProfileSummary() {
       <CardContent sx={{ p: 3 }}>
         <Stack direction="row" spacing={2.5} alignItems="flex-start">
           <Avatar 
+            variant="rounded"
             sx={{ 
               width: 80, 
               height: 80, 
@@ -89,7 +90,8 @@ export default function ProfileSummary() {
               border: '3px solid rgba(255,255,255,0.9)',
               fontSize: '1.75rem',
               fontWeight: 700,
-              boxShadow: '0 4px 12px rgba(124,108,255,0.3)'
+              boxShadow: '0 4px 12px rgba(124,108,255,0.3)',
+              borderRadius: 1
             }}
           >
             {userInitials}
@@ -114,7 +116,7 @@ export default function ProfileSummary() {
               <Chip
                 icon={<LocalFireDepartmentIcon sx={{ fontSize: 18 }} />}
                 label={`${streakDays}일 연속 학습 중`}
-                sx={{
+                sx={{ 
                   width: 'fit-content',
                   background: 'linear-gradient(135deg, rgba(255,152,0,0.15) 0%, rgba(255,193,7,0.15) 100%)',
                   border: '1px solid rgba(255,152,0,0.3)',
@@ -144,8 +146,8 @@ export default function ProfileSummary() {
                     backgroundClip: 'text'
                   }}>
                     {completionStats.completed}/{completionStats.total} ({completionStats.percentage}%)
-                  </Typography>
-                </Box>
+              </Typography>
+            </Box>
                 <LinearProgress 
                   variant="determinate" 
                   value={completionStats.percentage} 
@@ -169,4 +171,3 @@ export default function ProfileSummary() {
     </Card>
   )
 }
-

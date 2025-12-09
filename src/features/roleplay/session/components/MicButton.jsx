@@ -1,5 +1,5 @@
 import React from 'react'
-import { Box, IconButton, Stack, Typography } from '@mui/material'
+import { Box, IconButton, Typography } from '@mui/material'
 import MicNoneIcon from '@mui/icons-material/MicNone'
 import KeyboardButton from './KeyboardButton'
 
@@ -10,58 +10,78 @@ export default function MicButton({
   isKeyboardMode = false
 }) {
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', py: 1 }}>
-      <Stack direction="row" spacing={1.5} alignItems="center">
-        {isKeyboardMode && (
-          <KeyboardButton 
-            onClick={onKeyboardToggle} 
-            isActive={isKeyboardMode}
-          />
-        )}
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          {isRecording && (
-            <Typography 
-              variant="caption" 
-              sx={{ 
-                fontWeight: 600,
-                fontSize: '0.75rem',
-                color: 'rgba(0,0,0,0.85)',
-                mb: 0.5
-              }}
-            >
-              녹음 중
-            </Typography>
+    <Box 
+      sx={{ 
+        position: 'relative', 
+        display: 'flex', 
+        justifyContent: 'center', 
+        py: 1, 
+        minHeight: 88 
+      }}
+    >
+      <Box
+        sx={{
+          position: 'absolute',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 0.5
+        }}
+      >
+        {isRecording && (
+          <Typography 
+            variant="caption" 
+            sx={{ 
+              fontWeight: 600,
+              fontSize: '0.75rem',
+              color: 'rgba(0,0,0,0.85)'
+            }}
+          >
+            녹음 중
+          </Typography>
         )}
         <IconButton
           color="primary"
           onClick={onClick}
           sx={{
-            width: 56,
-            height: 56,
-            border: '1px solid rgba(0,0,0,0.23)',
-            backgroundColor: isRecording 
-              ? 'rgba(124,108,255,0.3)' 
-              : 'rgba(0,0,0,0.04)',
-            color: '#212121',
-            '&:hover': {
-              backgroundColor: isRecording 
-                ? 'rgba(124,108,255,0.4)' 
-                : 'rgba(0,0,0,0.08)'
-            }
+            width: 64,
+            height: 64,
+            border: 'none',
+            background: isRecording 
+              ? 'linear-gradient(135deg, #FF6B6B 0%, #FF5252 100%)' 
+              : 'linear-gradient(135deg, #7C6CFF 0%, #4B3CF8 100%)',
+            color: '#FFFFFF',
+            borderRadius: '50%',
+            boxShadow: 'none',
+            transition: 'transform 0.15s ease',
+            '&:hover': { background: isRecording 
+              ? 'linear-gradient(135deg, #FF7B7B 0%, #FF6262 100%)' 
+              : 'linear-gradient(135deg, #8B7DFF 0%, #5B4DFF 100%)' },
+            '&:active': { transform: 'scale(0.97)' }
           }}
           aria-label={isRecording ? '녹음 중지' : '녹음 시작'}
         >
-          <MicNoneIcon sx={{ fontSize: 24 }} />
+          <MicNoneIcon sx={{ fontSize: 28 }} />
         </IconButton>
-        </Box>
-        {!isKeyboardMode && (
+      </Box>
+
+      {!isKeyboardMode && (
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%) translateX(90px)'
+          }}
+        >
           <KeyboardButton 
             onClick={onKeyboardToggle} 
             isActive={false}
           />
-        )}
-      </Stack>
+        </Box>
+      )}
     </Box>
   )
 }
-

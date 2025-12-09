@@ -557,7 +557,7 @@ export default function useRoleplaySession() {
       displayFeedbackMessages(pendingFeedbackSectionsRef.current)
       pendingFeedbackSectionsRef.current = []
     }
-    endSession()
+    endSession('auto')
   }
 
   /**
@@ -819,7 +819,7 @@ export default function useRoleplaySession() {
   /**
    * 롤플레이 세션 종료
    */
-  const endSession = () => {
+  const endSession = (reason = 'user') => {
     stopTTS()
     
     if (isRecording) {
@@ -834,11 +834,8 @@ export default function useRoleplaySession() {
     setIsInitialized(false)
     setIsAvatarLoaded(false)
     pendingFirstMessageRef.current = null
-    setEvaluating(true)
-    setTimeout(() => {
-      setEvaluating(false)
-      handleFeedbackView(selectedTitle, selectedBody)
-    }, EVALUATION_DELAY_MS)
+    setEvaluating(false)
+    setView(reason === 'auto' ? 'summary' : 'list')
   }
 
   /**

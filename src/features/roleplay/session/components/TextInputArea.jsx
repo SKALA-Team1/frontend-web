@@ -1,8 +1,6 @@
 import React from 'react'
-import { Box, TextField, IconButton, Stack } from '@mui/material'
-import SendIcon from '@mui/icons-material/Send'
+import { Box, TextField, IconButton } from '@mui/material'
 import MicNoneIcon from '@mui/icons-material/MicNone'
-import KeyboardButton from './KeyboardButton'
 
 export default function TextInputArea({ 
   value, 
@@ -29,9 +27,9 @@ export default function TextInputArea({
         flexDirection: 'column',
         gap: 1,
         p: 1.5,
-        backgroundColor: 'rgba(0,0,0,0.02)',
-        borderTop: '1px solid rgba(0,0,0,0.1)',
-        borderRadius: '0 0 12px 12px'
+        backgroundColor: 'transparent',
+        borderTop: 'none',
+        borderRadius: 0
       }}
     >
       <Box
@@ -53,7 +51,7 @@ export default function TextInputArea({
           size="small"
           sx={{
             '& .MuiOutlinedInput-root': {
-              backgroundColor: 'rgba(0,0,0,0.04)',
+              backgroundColor: '#ffffff',
               borderRadius: 2,
               color: '#212121',
               '& fieldset': {
@@ -76,50 +74,22 @@ export default function TextInputArea({
           }}
         />
         <IconButton
-          onClick={onSend}
-          disabled={!value.trim()}
-          sx={{
-            width: 40,
-            height: 40,
-            backgroundColor: value.trim() ? 'rgba(124,108,255,0.3)' : 'rgba(0,0,0,0.04)',
-            color: value.trim() ? '#212121' : 'rgba(245,246,255,0.4)',
-            border: '1px solid rgba(0,0,0,0.23)',
-            '&:hover': {
-              backgroundColor: value.trim() ? 'rgba(124,108,255,0.4)' : 'rgba(0,0,0,0.08)'
-            },
-            '&.Mui-disabled': {
-              backgroundColor: 'rgba(0,0,0,0.02)',
-              borderColor: 'rgba(0,0,0,0.1)'
-            }
-          }}
-          aria-label="전송"
-        >
-          <SendIcon sx={{ fontSize: 20 }} />
-        </IconButton>
-      </Box>
-      <Stack direction="row" spacing={1.5} justifyContent="center" alignItems="center">
-        <IconButton
           onClick={onMicToggle}
           sx={{
             width: 40,
             height: 40,
-            border: '1px solid rgba(0,0,0,0.23)',
-            backgroundColor: 'rgba(0,0,0,0.04)',
+            backgroundColor: '#ffffff',
             color: '#212121',
+            border: '1px solid rgba(0,0,0,0.2)',
             '&:hover': {
-              backgroundColor: 'rgba(0,0,0,0.08)'
+              backgroundColor: '#f5f5f5'
             }
           }}
-          aria-label="마이크"
+          aria-label="음성 모드로 전환"
         >
           <MicNoneIcon sx={{ fontSize: 20 }} />
         </IconButton>
-        <KeyboardButton 
-          onClick={onKeyboardToggle} 
-          isActive={isKeyboardMode}
-        />
-      </Stack>
+      </Box>
     </Box>
   )
 }
-
