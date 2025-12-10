@@ -85,8 +85,15 @@ export async function request(url, options = {}) {
       return await response.json()
     }
 
-    // JSON이 아니면 텍스트로 반환
-    return await response.text()
+    // Content-Type이 없거나 JSON이 아니면 텍스트로 받아서 JSON 파싱 시도
+    const text = await response.text()
+    try {
+      // 텍스트가 JSON 형식이면 파싱
+      return JSON.parse(text)
+    } catch {
+      // JSON이 아니면 텍스트 그대로 반환
+      return text
+    }
   } catch (error) {
     // 네트워크 에러 처리
     if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
@@ -220,7 +227,10 @@ async function handleErrorResponse(response) {
     }
   }
 
-  throw new Error(errorMessage)
+  const error = new Error(errorMessage)
+  // response 객체를 에러에 포함시켜서 상태 코드를 확인할 수 있도록 함
+  error.response = response
+  throw error
 }
 
 /**

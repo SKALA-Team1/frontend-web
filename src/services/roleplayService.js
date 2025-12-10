@@ -74,6 +74,24 @@ export async function startSession(scenarioId, interactionMode = 'default') {
 }
 
 /**
+ * 종합 피드백 조회
+ * Gateway를 통해 Spring2로 프록시
+ * @param {string} sessionId - 세션 ID
+ * @returns {Promise<Object>} 종합 피드백 데이터
+ *   {
+ *     avgPronunciaition: number,
+ *     avgGrammar: number,
+ *     avgRelevance: number,
+ *     feedbackShort: string,
+ *     feedbackLong: string
+ *   }
+ */
+export async function getComprehensiveFeedback(sessionId) {
+  const url = `${API_ENDPOINTS.GATEWAY}/feedback/comprehensive/${sessionId}`
+  return httpClient.get(url)
+}
+
+/**
  * WebSocket 연결 생성
  * @param {string} wsUrl - WebSocket URL
  * @param {Function} onMessage - 메시지 수신 핸들러

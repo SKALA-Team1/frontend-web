@@ -173,6 +173,7 @@ export default function RoleplayPage() {
         <SummaryView
           messages={session.messages}
           scenarioTitle={session.selectedTitle}
+          sessionId={session.sessionInfo?.sessionId || session.sessionInfo?.session_id}
           onClose={() => session.setView('list')}
         />
       </Suspense>
