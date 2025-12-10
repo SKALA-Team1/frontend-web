@@ -1186,6 +1186,7 @@ export default function useRoleplaySession() {
     setSummaryTab,
     evaluating,
     bottomRef,
+    sessionInfo, // sessionId 포함
     
     // 입력 모드 상태
     isKeyboardMode,
