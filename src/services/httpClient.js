@@ -16,6 +16,27 @@
 
 import { API_ENDPOINTS, HTTP_STATUS, STORAGE_KEYS } from '../config/constants'
 
+// 토큰 갱신 중복 방지를 위한 플래그
+let isRefreshing = false
+let refreshSubscribers = []
+
+/**
+ * 토큰 갱신 완료 후 대기 중인 요청들 재시도
+ * @param {string} token - 새로운 Access Token
+ */
+function onRefreshed(token) {
+  refreshSubscribers.forEach((callback) => callback(token))
+  refreshSubscribers = []
+}
+
+/**
+ * 토큰 갱신 대기열에 추가
+ * @param {Function} callback - 토큰 갱신 후 실행할 콜백
+ */
+function addRefreshSubscriber(callback) {
+  refreshSubscribers.push(callback)
+}
+
 /**
  * HTTP 요청 래퍼
  * @param {string} url - 요청 URL
@@ -46,6 +67,10 @@ export async function request(url, options = {}) {
 
     // 응답이 성공적이지 않으면 에러 처리
     if (!response.ok) {
+      // 401 에러이고, 인증이 필요한 요청이며, refresh 엔드포인트가 아닌 경우
+      if (response.status === 401 && !options.skipAuth && !url.includes('/auth/refresh')) {
+        return await handleUnauthorized(url, config)
+      }
       await handleErrorResponse(response)
     }
 
@@ -67,6 +92,108 @@ export async function request(url, options = {}) {
     if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
       throw new Error(`서버에 연결할 수 없습니다. URL: ${url}`)
     }
+    throw error
+  }
+}
+
+/**
+ * 401 Unauthorized 에러 처리 (토큰 자동 갱신)
+ * @param {string} url - 원본 요청 URL
+ * @param {Object} config - 원본 요청 설정
+ * @returns {Promise<any>} 재시도된 요청의 응답
+ */
+async function handleUnauthorized(url, config) {
+  const refreshToken = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)
+
+  if (!refreshToken) {
+    // Refresh Token이 없으면 로그인 페이지로 리다이렉트
+    localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN)
+    localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN)
+    window.location.href = '/login'
+    throw new Error('인증이 만료되었습니다. 다시 로그인해주세요.')
+  }
+
+  // 토큰 갱신 중이면 대기
+  if (isRefreshing) {
+    return new Promise((resolve, reject) => {
+      addRefreshSubscriber((newToken) => {
+        // 새 토큰으로 헤더 업데이트
+        config.headers['Authorization'] = `Bearer ${newToken}`
+        // 원본 요청 재시도
+        fetch(url, config)
+          .then((response) => {
+            if (!response.ok) {
+              return handleErrorResponse(response)
+            }
+            if (response.status === HTTP_STATUS.NO_CONTENT) {
+              return resolve({})
+            }
+            const contentType = response.headers.get('content-type')
+            if (contentType && contentType.includes('application/json')) {
+              return response.json().then(resolve)
+            }
+            return response.text().then(resolve)
+          })
+          .catch(reject)
+      })
+    })
+  }
+
+  // 토큰 갱신 시작
+  isRefreshing = true
+
+  try {
+    // Refresh Token으로 새 Access Token 발급
+    const refreshUrl = `${API_ENDPOINTS.GATEWAY}/auth/refresh`
+    const refreshResponse = await fetch(refreshUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: refreshToken }),
+    })
+
+    if (!refreshResponse.ok) {
+      // Refresh Token도 만료됨 → 로그인 페이지로
+      localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN)
+      localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN)
+      window.location.href = '/login'
+      throw new Error('인증이 만료되었습니다. 다시 로그인해주세요.')
+    }
+
+    const data = await refreshResponse.json()
+    const newAccessToken = data.accessToken || data.access_token
+    const newRefreshToken = data.refreshToken || data.refresh_token
+
+    // 새 토큰 저장
+    localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, newAccessToken)
+    if (newRefreshToken) {
+      localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, newRefreshToken)
+    }
+
+    // 대기 중인 요청들에게 새 토큰 전달
+    onRefreshed(newAccessToken)
+    isRefreshing = false
+
+    // 원본 요청 재시도
+    config.headers['Authorization'] = `Bearer ${newAccessToken}`
+    const retryResponse = await fetch(url, config)
+
+    if (!retryResponse.ok) {
+      await handleErrorResponse(retryResponse)
+    }
+
+    if (retryResponse.status === HTTP_STATUS.NO_CONTENT) {
+      return {}
+    }
+
+    const contentType = retryResponse.headers.get('content-type')
+    if (contentType && contentType.includes('application/json')) {
+      return await retryResponse.json()
+    }
+
+    return await retryResponse.text()
+  } catch (error) {
+    isRefreshing = false
+    refreshSubscribers = []
     throw error
   }
 }
