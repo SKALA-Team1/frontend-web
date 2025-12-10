@@ -17,8 +17,9 @@ import useItChatbot from '../hooks/useItChatbot'
 
 /**
  * IT 챗봇 대화 뷰
+ * @param {boolean} compact - 컴팩트 모드 (높이 제한)
  */
-export default function ChatView() {
+export default function ChatView({ compact = false }) {
   const {
     messages,
     inputMessage,
@@ -43,24 +44,43 @@ export default function ChatView() {
     }
   }
 
+  // 컴팩트 모드일 때는 Container 제거하고 높이 제한
+  const WrapperComponent = compact ? Box : Container
+  const wrapperProps = compact
+    ? { sx: { display: 'flex', flexDirection: 'column' } }
+    : { maxWidth: 'md', sx: { py: 4, height: '100vh', display: 'flex', flexDirection: 'column' } }
+
   return (
-    <Container maxWidth="md" sx={{ py: 4, height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {/* 헤더 */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Box>
-          <Typography variant="h4" sx={{ fontWeight: 700 }}>
-            IT 개념 챗봇
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            IT 개념에 대해 질문하고 설명을 들어보세요
-          </Typography>
+    <WrapperComponent {...wrapperProps}>
+      {/* 헤더 - compact 모드일 때는 작게 */}
+      {!compact && (
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Box>
+            <Typography variant="h4" sx={{ fontWeight: 700 }}>
+              IT 개념 챗봇
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              IT 개념에 대해 질문하고 설명을 들어보세요
+            </Typography>
+          </Box>
+          {messages.length > 0 && (
+            <Button startIcon={<RefreshIcon />} onClick={reset} variant="outlined">
+              새 대화
+            </Button>
+          )}
         </Box>
-        {messages.length > 0 && (
-          <Button startIcon={<RefreshIcon />} onClick={reset} variant="outlined">
-            새 대화
+      )}
+
+      {compact && messages.length > 0 && (
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            💬 질문 도우미
+          </Typography>
+          <Button startIcon={<RefreshIcon />} onClick={reset} variant="text" size="small">
+            초기화
           </Button>
-        )}
-      </Box>
+        </Box>
+      )}
 
       {/* 메시지 영역 */}
       <Paper
@@ -71,7 +91,8 @@ export default function ChatView() {
           mb: 2,
           overflowY: 'auto',
           display: 'flex',
-          flexDirection: 'column'
+          flexDirection: 'column',
+          ...(compact && { maxHeight: '400px', minHeight: '300px' })
         }}
       >
         {messages.length === 0 ? (
@@ -167,6 +188,6 @@ export default function ChatView() {
           <SendIcon />
         </IconButton>
       </Box>
-    </Container>
+    </WrapperComponent>
   )
 }

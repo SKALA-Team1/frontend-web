@@ -35,7 +35,20 @@ export default function QuestionView({ question }) {
 
   return (
     <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
-      <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+      {/* 영어 질문 (크게, 먼저) */}
+      <Typography variant="h5" sx={{ mb: 1.5, fontWeight: 600, lineHeight: 1.4 }}>
+        {question.questionTextEn || question.questionText}
+      </Typography>
+
+      {/* 한국어 번역 (작게, 아래) */}
+      {question.questionText && (
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2, fontStyle: 'italic' }}>
+          {question.questionText}
+        </Typography>
+      )}
+
+      {/* 카테고리 & 난이도 칩 */}
+      <Box sx={{ display: 'flex', gap: 1 }}>
         <Chip label={question.category} color="primary" size="small" />
         <Chip
           label={getDifficultyLabel(question.difficulty)}
@@ -43,16 +56,6 @@ export default function QuestionView({ question }) {
           size="small"
         />
       </Box>
-
-      <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-        {question.questionText}
-      </Typography>
-
-      {question.questionTextEn && question.questionTextEn !== question.questionText && (
-        <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
-          {question.questionTextEn}
-        </Typography>
-      )}
     </Paper>
   )
 }

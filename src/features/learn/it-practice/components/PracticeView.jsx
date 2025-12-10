@@ -1,13 +1,15 @@
 import React from 'react'
-import { Box, Container, Typography, Button, Alert } from '@mui/material'
+import { Box, Container, Typography, Button, Alert, Divider, Paper } from '@mui/material'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
 import useItPractice from '../hooks/useItPractice'
 import QuestionView from './QuestionView'
 import AnswerInput from './AnswerInput'
 import ResultView from './ResultView'
+import ChatView from '../../it-chatbot/components/ChatView'
 
 /**
- * IT 설명 연습 메인 뷰
+ * IT 설명 연습 메인 뷰 (챗봇 통합)
  */
 export default function PracticeView() {
   const {
@@ -24,12 +26,12 @@ export default function PracticeView() {
   } = useItPractice()
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
       <Typography variant="h4" sx={{ mb: 1, fontWeight: 700 }}>
         IT 개념 설명 연습
       </Typography>
       <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-        랜덤 IT 질문에 답변하고 AI 평가를 받아보세요
+        랜덤 IT 질문에 답변하고 AI 평가를 받아보세요. 모르는 개념은 아래 챗봇에게 물어보세요!
       </Typography>
 
       {error && (
@@ -68,6 +70,20 @@ export default function PracticeView() {
             loading={loading}
             disabled={false}
           />
+
+          {/* 챗봇 섹션 (스크롤 아래) */}
+          <Divider sx={{ my: 6 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <HelpOutlineIcon color="action" />
+              <Typography variant="body2" color="text.secondary">
+                모르는 개념이 있나요? 아래 챗봇에게 물어보세요
+              </Typography>
+            </Box>
+          </Divider>
+
+          <Paper elevation={3} sx={{ p: 3, bgcolor: 'grey.50' }}>
+            <ChatView compact />
+          </Paper>
         </Box>
       )}
 
