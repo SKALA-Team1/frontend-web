@@ -4,14 +4,15 @@ import { Fullscreen, FullscreenExit } from '@mui/icons-material'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { OrbitControls, useGLTF, useAnimations, Environment, PresentationControls } from '@react-three/drei'
 
-const DEFAULT_AVATAR_URL = 'https://models.readyplayer.me/6923c7a27b7a88e1f6a5ed6a.glb'
+const DEFAULT_AVATAR_URL = 'https://models.readyplayer.me/693a22fa100ae875d553c198.glb'
 
 // 아바타 모델 컴포넌트
-function AvatarModel({ url, onLoad, onError, isTTSPlaying = false }) {
+function AvatarModel({ url, onLoad, onError, isTTSPlaying = false, visemeQueue = null, audioRef = null }) {
   const groupRef = useRef()
   const { scene, animations } = useGLTF(url)
   const { actions, mixer } = useAnimations(animations, groupRef)
   const mouthTargetsRef = useRef([]) // 입 morph target 참조
+  const currentMouthValueRef = useRef(0) // 현재 입 모양 값 (부드러운 전환을 위해)
   
   // 아바타 위치 설정 (x: 좌우, y: 상하, z: 앞뒤)
   // 이 값들을 변경하여 아바타 위치를 조정하세요
@@ -30,22 +31,47 @@ function AvatarModel({ url, onLoad, onError, isTTSPlaying = false }) {
       // groupRef.current.rotation.y += delta * 0.1
     }
     
-    // TTS 재생 중 입 모양 애니메이션 (빠르고 크게)
-    if (isTTSPlaying && mouthTargetsRef.current.length > 0) {
-      // 빠른 속도로 입 벌리기 (sin 파형 사용, 빠르게)
-      const speed = 8 // 빠른 속도
-      const mouthValue = Math.abs(Math.sin(state.clock.elapsedTime * speed)) * 0.9 + 0.1 // 0.1 ~ 1.0
+    // ElevenLabs Viseme 데이터로 입 모양 제어 (부드러운 전환)
+    const LERP_SPEED = 8.0 // 전환 속도 (높을수록 빠름, 낮을수록 부드러움)
+    
+    // visemeQueue는 useRef로 관리되므로 .current로 접근
+    const queue = visemeQueue?.current || []
+    
+    if (isTTSPlaying && queue.length > 0 && mouthTargetsRef.current.length > 0 && audioRef?.current) {
+      // 오디오 재생 시간 가져오기
+      const currentTime = audioRef.current.currentTime || 0
       
+      // 현재 시간에 해당하는 Viseme 찾기
+      const currentViseme = queue.find(v => 
+        currentTime >= v.startTime && currentTime <= v.endTime
+      )
+      
+      // 목표 입 모양 값 결정
+      let targetMouthValue = 0
+      if (currentViseme) {
+        targetMouthValue = currentViseme.value
+      }
+      
+      // 부드러운 전환 (Lerp: Linear Interpolation)
+      const currentValue = currentMouthValueRef.current
+      const lerpValue = currentValue + (targetMouthValue - currentValue) * Math.min(delta * LERP_SPEED, 1.0)
+      currentMouthValueRef.current = lerpValue
+      
+      // 적용
       mouthTargetsRef.current.forEach(({ mesh, index }) => {
         if (mesh.morphTargetInfluences && mesh.morphTargetInfluences[index] !== undefined) {
-          mesh.morphTargetInfluences[index] = mouthValue
+          mesh.morphTargetInfluences[index] = lerpValue
         }
       })
     } else {
-      // TTS 재생 중지 시 입 닫기
+      // TTS 재생 중지 시 입 닫기 (부드럽게)
+      const currentValue = currentMouthValueRef.current
+      const lerpValue = currentValue + (0 - currentValue) * Math.min(delta * LERP_SPEED, 1.0)
+      currentMouthValueRef.current = lerpValue
+      
       mouthTargetsRef.current.forEach(({ mesh, index }) => {
         if (mesh.morphTargetInfluences && mesh.morphTargetInfluences[index] !== undefined) {
-          mesh.morphTargetInfluences[index] = 0
+          mesh.morphTargetInfluences[index] = lerpValue
         }
       })
     }
@@ -123,7 +149,7 @@ function AvatarModel({ url, onLoad, onError, isTTSPlaying = false }) {
 }
 
 // Three.js Canvas 래퍼
-function AvatarCanvas({ avatarUrl, onLoad, onError, isTTSPlaying }) {
+function AvatarCanvas({ avatarUrl, onLoad, onError, isTTSPlaying, visemeQueue = null, audioRef = null }) {
   return (
     <Canvas
       camera={{ position: [0, 0, 3.5], fov: 50 }}
@@ -152,6 +178,8 @@ function AvatarCanvas({ avatarUrl, onLoad, onError, isTTSPlaying }) {
           onLoad={onLoad}
           onError={onError}
           isTTSPlaying={isTTSPlaying}
+          visemeQueue={visemeQueue}
+          audioRef={audioRef}
         />
       </Suspense>
 
@@ -174,7 +202,7 @@ function AvatarCanvas({ avatarUrl, onLoad, onError, isTTSPlaying }) {
   )
 }
 
-export default function AvatarWindow({ avatarUrl, aiRoleName = 'AI', isTTSPlaying = false, onAvatarLoad }) {
+export default function AvatarWindow({ avatarUrl, aiRoleName = 'AI', isTTSPlaying = false, onAvatarLoad, visemeQueue = null, audioRef = null }) {
   const containerRef = useRef(null)
   const [isLoading, setIsLoading] = useState(true)
   const [loadError, setLoadError] = useState(null)
@@ -284,11 +312,13 @@ export default function AvatarWindow({ avatarUrl, aiRoleName = 'AI', isTTSPlayin
           }}
         >
           {!loadError ? (
-            <AvatarCanvas 
-              avatarUrl={avatarUrl || DEFAULT_AVATAR_URL} 
+            <AvatarCanvas
+              avatarUrl={avatarUrl || DEFAULT_AVATAR_URL}
               onLoad={handleAvatarLoad}
               onError={handleAvatarError}
               isTTSPlaying={isTTSPlaying}
+              visemeQueue={visemeQueue}
+              audioRef={audioRef}
             />
           ) : (
             <Box

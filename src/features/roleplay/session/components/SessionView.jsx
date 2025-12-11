@@ -19,7 +19,9 @@ export default function SessionView({
   onTextInputChange,
   onSendMessage,
   isTTSPlaying = false,
-  onAvatarLoad = () => {}
+  onAvatarLoad = () => {},
+  visemeQueue = null,
+  audioRef = null
 }) {
   return (
     <Box
@@ -34,7 +36,12 @@ export default function SessionView({
       }}
     >
       <SessionHeader title={selectedTitle} onEndSession={onEndSession} />
-      <AvatarWindow isTTSPlaying={isTTSPlaying} onAvatarLoad={onAvatarLoad} />
+      <AvatarWindow 
+        isTTSPlaying={isTTSPlaying} 
+        onAvatarLoad={onAvatarLoad}
+        visemeQueue={visemeQueue}
+        audioRef={audioRef}
+      />
       <MessageList messages={messages} bottomRef={bottomRef} />
       
       {isKeyboardMode ? (
