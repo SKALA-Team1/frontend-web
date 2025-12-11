@@ -27,11 +27,13 @@ export default function useRoleplayFilters(tab, scenarios = []) {
       
       // 같은 subjectId를 가진 시나리오들을 그룹화
       const groupedBySubject = {}
+      const ungroupedScenarios = [] // subjectId가 없는 시나리오 저장
+      
       filtered.forEach((scenario) => {
         const subjectId = scenario.subjectId
         if (!subjectId) {
-          // subjectId가 없으면 그대로 추가 (기존 동작 유지)
-          filtered.push(scenario)
+          // subjectId가 없으면 별도 배열에 저장
+          ungroupedScenarios.push(scenario)
           return
         }
         
@@ -82,7 +84,8 @@ export default function useRoleplayFilters(tab, scenarios = []) {
         }
       })
       
-      return result
+      // 그룹화된 결과와 subjectId가 없는 시나리오를 병합하여 반환
+      return [...result, ...ungroupedScenarios]
     }
 
     // created 탭은 프롬프트로 생성된 시나리오만 표시 (기존 동작 유지)
