@@ -46,10 +46,11 @@ function AvatarModel({ url, onLoad, onError, isTTSPlaying = false, visemeQueue =
         currentTime >= v.startTime && currentTime <= v.endTime
       )
       
-      // 목표 입 모양 값 결정
+      // 목표 입 모양 값 결정 (더 자연스러운 입 모양을 위해 증폭)
       let targetMouthValue = 0
       if (currentViseme) {
-        targetMouthValue = currentViseme.value
+        // viseme 값을 1.2배 증폭하여 입이 더 자연스럽게 벌어지도록 (최대 1.0 제한)
+        targetMouthValue = Math.min(currentViseme.value * 1.2, 1.0)
       }
       
       // 부드러운 전환 (Lerp: Linear Interpolation)
