@@ -56,7 +56,8 @@ export default function CreateRoleplayDialog({
           color: '#212121',
           pb: 1,
           pt: 3.5,
-          px: 3
+          px: 3,
+          textAlign: 'center'
         }}
       >
         롤플레이 만들기
@@ -75,14 +76,14 @@ export default function CreateRoleplayDialog({
                 gap: 0.5
               }}
             >
-              AI 역할
+              나의 역할
             </Typography>
             <TextField
               fullWidth
               variant="outlined"
-              value={aiRole}
-              onChange={onAiRoleChange}
-              placeholder="예: Project Manager"
+              value={myRole}
+              onChange={onMyRoleChange}
+              placeholder="예: Software Engineer"
               sx={{
                 '& .MuiOutlinedInput-root': {
                   backgroundColor: '#FFFFFF',
@@ -127,14 +128,14 @@ export default function CreateRoleplayDialog({
                 gap: 0.5
               }}
             >
-              나의 역할
+            AI 역할
             </Typography>
             <TextField
               fullWidth
               variant="outlined"
-              value={myRole}
-              onChange={onMyRoleChange}
-              placeholder="예: Software Engineer"
+              value={aiRole}
+              onChange={onAiRoleChange}
+              placeholder="예: Project Manager"
               sx={{
                 '& .MuiOutlinedInput-root': {
                   backgroundColor: '#FFFFFF',

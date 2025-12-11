@@ -19,11 +19,15 @@ export default function useScenarioData() {
     const createdAt = item.createdAt || item.created_at || null
     const createdDate = createdAt ? new Date(createdAt) : null
     const aiRole = item.aiRole || item.ai_role || 'AI 역할 미정'
+    const myRole = item.myRole || item.my_role || null
 
     return {
       scenarioId: item.scenarioId ?? item.id ?? 0,
+      subjectId: item.subjectId ?? item.subject_id ?? null,
       title: item.title || '제목 미정',
       aiRole,
+      myRole,  // 나의 역할 (SLACK=user.jobRole, PROMPT=subject.myRole)
+      topicType: item.topicType || item.topic_type || null,
       status: item.status || 'IN_PROGRESS',
       creationType: item.creationType || item.creation_type || 'UNKNOWN',
       createdAt: createdDate,
