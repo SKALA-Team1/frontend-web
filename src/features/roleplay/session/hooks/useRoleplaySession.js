@@ -88,7 +88,7 @@ export default function useRoleplaySession() {
   const [isInitialized, setIsInitialized] = useState(false)
   const [isTTSPlaying, setIsTTSPlaying] = useState(false)
   const [isAvatarLoaded, setIsAvatarLoaded] = useState(false)
-  const [visemeQueue, setVisemeQueue] = useState([])
+  const visemeQueue = useRef([]) // 성능 최적화: 리렌더링 없이 데이터 관리
 
   // ========================================
   // Ref 정의
@@ -256,7 +256,7 @@ export default function useRoleplaySession() {
     clearLipSyncDelay()
     clearLipSyncEnd()
     setIsTTSPlaying(false)
-    setVisemeQueue([]) // Viseme 큐 초기화
+    visemeQueue.current = [] // Viseme 큐 초기화
   }
 
   /**
@@ -269,7 +269,7 @@ export default function useRoleplaySession() {
         audioRef.current.pause()
         audioRef.current = null
       }
-      setVisemeQueue([]) // Viseme 큐 초기화
+      visemeQueue.current = [] // Viseme 큐 초기화
       setIsTTSPlaying(false)
 
       // Base64 디코딩
@@ -288,7 +288,7 @@ export default function useRoleplaySession() {
       audio.onended = () => {
         setIsTTSPlaying(false)
         URL.revokeObjectURL(audioUrl)
-        setVisemeQueue([]) // Viseme 큐 초기화
+        visemeQueue.current = [] // Viseme 큐 초기화
         audioRef.current = null
       }
       
@@ -296,7 +296,7 @@ export default function useRoleplaySession() {
         console.error('[TTS] 오디오 재생 실패:', error)
         setIsTTSPlaying(false)
         URL.revokeObjectURL(audioUrl)
-        setVisemeQueue([])
+        visemeQueue.current = []
         audioRef.current = null
       }
       
@@ -309,19 +309,20 @@ export default function useRoleplaySession() {
     } catch (error) {
       console.error('[TTS] 오디오 처리 실패:', error)
       setIsTTSPlaying(false)
-      setVisemeQueue([])
+      visemeQueue.current = []
     }
   }
 
   /**
    * TTS Viseme 데이터 수신 (ElevenLabs)
+   * 성능 최적화: useRef 사용으로 리렌더링 없이 데이터 관리
    */
   const handleTTSViseme = (visemeData) => {
-    setVisemeQueue(prev => [...prev, {
+    visemeQueue.current.push({
       startTime: visemeData.start_time,
       endTime: visemeData.end_time,
       value: visemeData.value
-    }])
+    })
   }
 
   // ========================================

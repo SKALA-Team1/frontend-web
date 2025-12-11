@@ -7,7 +7,7 @@ import { OrbitControls, useGLTF, useAnimations, Environment, PresentationControl
 const DEFAULT_AVATAR_URL = 'https://models.readyplayer.me/693a22fa100ae875d553c198.glb'
 
 // 아바타 모델 컴포넌트
-function AvatarModel({ url, onLoad, onError, isTTSPlaying = false, visemeQueue = [], audioRef = null }) {
+function AvatarModel({ url, onLoad, onError, isTTSPlaying = false, visemeQueue = null, audioRef = null }) {
   const groupRef = useRef()
   const { scene, animations } = useGLTF(url)
   const { actions, mixer } = useAnimations(animations, groupRef)
@@ -34,12 +34,15 @@ function AvatarModel({ url, onLoad, onError, isTTSPlaying = false, visemeQueue =
     // ElevenLabs Viseme 데이터로 입 모양 제어 (부드러운 전환)
     const LERP_SPEED = 8.0 // 전환 속도 (높을수록 빠름, 낮을수록 부드러움)
     
-    if (isTTSPlaying && visemeQueue.length > 0 && mouthTargetsRef.current.length > 0 && audioRef?.current) {
+    // visemeQueue는 useRef로 관리되므로 .current로 접근
+    const queue = visemeQueue?.current || []
+    
+    if (isTTSPlaying && queue.length > 0 && mouthTargetsRef.current.length > 0 && audioRef?.current) {
       // 오디오 재생 시간 가져오기
       const currentTime = audioRef.current.currentTime || 0
       
       // 현재 시간에 해당하는 Viseme 찾기
-      const currentViseme = visemeQueue.find(v => 
+      const currentViseme = queue.find(v => 
         currentTime >= v.startTime && currentTime <= v.endTime
       )
       
@@ -146,7 +149,7 @@ function AvatarModel({ url, onLoad, onError, isTTSPlaying = false, visemeQueue =
 }
 
 // Three.js Canvas 래퍼
-function AvatarCanvas({ avatarUrl, onLoad, onError, isTTSPlaying, visemeQueue = [], audioRef = null }) {
+function AvatarCanvas({ avatarUrl, onLoad, onError, isTTSPlaying, visemeQueue = null, audioRef = null }) {
   return (
     <Canvas
       camera={{ position: [0, 0, 3.5], fov: 50 }}
@@ -199,7 +202,7 @@ function AvatarCanvas({ avatarUrl, onLoad, onError, isTTSPlaying, visemeQueue = 
   )
 }
 
-export default function AvatarWindow({ avatarUrl, aiRoleName = 'AI', isTTSPlaying = false, onAvatarLoad, visemeQueue = [], audioRef = null }) {
+export default function AvatarWindow({ avatarUrl, aiRoleName = 'AI', isTTSPlaying = false, onAvatarLoad, visemeQueue = null, audioRef = null }) {
   const containerRef = useRef(null)
   const [isLoading, setIsLoading] = useState(true)
   const [loadError, setLoadError] = useState(null)

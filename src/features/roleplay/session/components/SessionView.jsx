@@ -20,7 +20,7 @@ export default function SessionView({
   onSendMessage,
   isTTSPlaying = false,
   onAvatarLoad = () => {},
-  visemeQueue = [],
+  visemeQueue = null,
   audioRef = null
 }) {
   return (
