@@ -138,6 +138,8 @@ export default function RoleplayPage() {
           onSendMessage={session.sendMessage}
           isTTSPlaying={session.isTTSPlaying}
           onAvatarLoad={session.handleAvatarLoad}
+          visemeQueue={session.visemeQueue}
+          audioRef={session.audioRef}
         />
         {openEnd && (
           <Suspense fallback={null}>

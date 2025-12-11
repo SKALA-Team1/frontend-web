@@ -88,6 +88,7 @@ export default function useRoleplaySession() {
   const [isInitialized, setIsInitialized] = useState(false)
   const [isTTSPlaying, setIsTTSPlaying] = useState(false)
   const [isAvatarLoaded, setIsAvatarLoaded] = useState(false)
+  const [visemeQueue, setVisemeQueue] = useState([])
 
   // ========================================
   // Ref 정의
@@ -98,6 +99,7 @@ export default function useRoleplaySession() {
   const streamingTimeoutRef = useRef(null)
   const aiTypingTimeoutRef = useRef(null)
   const currentUtteranceRef = useRef(null)
+  const audioRef = useRef(null)
   const mediaRecorderRef = useRef(null)
   const audioStreamRef = useRef(null)
   const sttPartialTextRef = useRef('')
@@ -228,83 +230,98 @@ export default function useRoleplaySession() {
 
   /**
    * TTS (Text-to-Speech) 함수
+   * ElevenLabs TTS로 대체되었으므로 비활성화
+   * WebSocket을 통해 TTS_AUDIO 메시지로 처리됨
    */
   const speakText = (text) => {
-    setTimeout(() => {
-      try {
-        if (currentUtteranceRef.current) {
-          window.speechSynthesis.cancel()
-          currentUtteranceRef.current = null
-        }
-        clearLipSyncDelay()
-        clearLipSyncEnd()
-        setIsTTSPlaying(false)
-
-        if (!text || text.trim().length === 0) {
-          return
-        }
-
-        if (!('speechSynthesis' in window)) {
-          return
-        }
-
-        const utterance = new SpeechSynthesisUtterance(text)
-        utterance.lang = TTS_CONFIG.lang
-        utterance.rate = TTS_CONFIG.rate
-        utterance.pitch = TTS_CONFIG.pitch
-        utterance.volume = TTS_CONFIG.volume
-
-        const voices = window.speechSynthesis.getVoices()
-        const englishVoice = voices.find(voice => 
-          voice.lang.startsWith('en') && voice.name.includes('English')
-        ) || voices.find(voice => voice.lang.startsWith('en'))
-        
-        if (englishVoice) {
-          utterance.voice = englishVoice
-        }
-
-        utterance.onstart = () => {
-          clearLipSyncDelay()
-          lipSyncDelayTimeoutRef.current = setTimeout(() => {
-            setIsTTSPlaying(true)
-            scheduleLipSyncEnd(text)
-            lipSyncDelayTimeoutRef.current = null
-          }, LIP_SYNC_DELAY_MS)
-        }
-
-        utterance.onend = () => {
-          currentUtteranceRef.current = null
-          clearLipSyncDelay()
-          clearLipSyncEnd()
-          setIsTTSPlaying(false)
-        }
-
-        utterance.onerror = () => {
-          currentUtteranceRef.current = null
-          clearLipSyncDelay()
-          clearLipSyncEnd()
-          setIsTTSPlaying(false)
-        }
-
-        currentUtteranceRef.current = utterance
-        window.speechSynthesis.speak(utterance)
-      } catch (error) {
-        currentUtteranceRef.current = null
-      }
-    }, 0)
+    // Web Speech API 비활성화 - ElevenLabs TTS 사용
+    return
   }
 
   /**
    * TTS 중단
    */
   const stopTTS = () => {
+    // Web Speech API 중단
     if (currentUtteranceRef.current) {
       window.speechSynthesis.cancel()
       currentUtteranceRef.current = null
     }
+    // ElevenLabs TTS 오디오 중단
+    if (audioRef.current) {
+      audioRef.current.pause()
+      audioRef.current.currentTime = 0
+      audioRef.current = null
+    }
     clearLipSyncDelay()
     clearLipSyncEnd()
     setIsTTSPlaying(false)
+    setVisemeQueue([]) // Viseme 큐 초기화
+  }
+
+  /**
+   * TTS 오디오 재생 (ElevenLabs)
+   */
+  const handleTTSAudio = (audioBase64) => {
+    try {
+      // 이전 오디오 중지 및 정리
+      if (audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current = null
+      }
+      setVisemeQueue([]) // Viseme 큐 초기화
+      setIsTTSPlaying(false)
+
+      // Base64 디코딩
+      const audioData = Uint8Array.from(atob(audioBase64), c => c.charCodeAt(0))
+      const blob = new Blob([audioData], { type: 'audio/mpeg' })
+      const audioUrl = URL.createObjectURL(blob)
+      
+      // 오디오 재생
+      const audio = new Audio(audioUrl)
+      audioRef.current = audio
+      
+      audio.onplay = () => {
+        setIsTTSPlaying(true)
+      }
+      
+      audio.onended = () => {
+        setIsTTSPlaying(false)
+        URL.revokeObjectURL(audioUrl)
+        setVisemeQueue([]) // Viseme 큐 초기화
+        audioRef.current = null
+      }
+      
+      audio.onerror = (error) => {
+        console.error('[TTS] 오디오 재생 실패:', error)
+        setIsTTSPlaying(false)
+        URL.revokeObjectURL(audioUrl)
+        setVisemeQueue([])
+        audioRef.current = null
+      }
+      
+      audio.play().catch(error => {
+        console.error('[TTS] 오디오 재생 시작 실패:', error)
+        setIsTTSPlaying(false)
+        URL.revokeObjectURL(audioUrl)
+        audioRef.current = null
+      })
+    } catch (error) {
+      console.error('[TTS] 오디오 처리 실패:', error)
+      setIsTTSPlaying(false)
+      setVisemeQueue([])
+    }
+  }
+
+  /**
+   * TTS Viseme 데이터 수신 (ElevenLabs)
+   */
+  const handleTTSViseme = (visemeData) => {
+    setVisemeQueue(prev => [...prev, {
+      startTime: visemeData.start_time,
+      endTime: visemeData.end_time,
+      value: visemeData.value
+    }])
   }
 
   // ========================================
@@ -696,6 +713,16 @@ export default function useRoleplaySession() {
         break
       case 'FEEDBACK_STREAMING':
         handleFeedbackStreaming(message)
+        break
+      case 'TTS_AUDIO':
+        handleTTSAudio(message.audio_base64)
+        break
+      case 'TTS_VISEME':
+        handleTTSViseme({
+          start_time: message.start_time,
+          end_time: message.end_time,
+          value: message.value
+        })
         break
       case 'ERROR':
         handleError(message)
@@ -1208,6 +1235,8 @@ export default function useRoleplaySession() {
     // TTS 및 아바타 상태
     isTTSPlaying,
     isAvatarLoaded,
-    handleAvatarLoad
+    handleAvatarLoad,
+    visemeQueue,
+    audioRef
   }
 }
