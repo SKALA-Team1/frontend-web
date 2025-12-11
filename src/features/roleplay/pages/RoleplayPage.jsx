@@ -1,5 +1,5 @@
 import React, { useState, useEffect, lazy, Suspense, useMemo } from 'react'
-import { Stack, Box, Typography, CircularProgress, useMediaQuery, useTheme, Alert, IconButton } from '@mui/material'
+import { Stack, Box, Typography, CircularProgress, useMediaQuery, useTheme, Alert, IconButton, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import useCreateScenario from '../scenario-list/hooks/useCreateScenario'
 import useSessionControls from '../session/hooks/useSessionControls'
@@ -50,25 +50,7 @@ export default function RoleplayPage() {
     }
   }, [])
 
-  // 롤플레이 생성 다이얼로그 관련
-  const {
-    openCreate,
-    aiRole,
-    myRole,
-    situation,
-    createLoading,
-    createError,
-    creationToast,
-    clearCreationToast,
-    handleOpenCreate,
-    handleCloseCreate,
-    handleAiRoleChange,
-    handleMyRoleChange,
-    handleSituationChange,
-    handleStartRoleplay: handleCreateScenario
-  } = useCreateScenario(scenarios, { onScenarioCreated: refresh })
-
-  // 롤플레이 세션 관련
+  // 롤플레이 세션 관련 (먼저 초기화하여 session을 useCreateScenario에서 사용 가능하도록)
   const {
     tab,
     setTab,
@@ -86,6 +68,31 @@ export default function RoleplayPage() {
     toggleBookmark,
     handleEndSession
   } = useSessionControls(scenarios)
+
+  // 롤플레이 생성 다이얼로그 관련 (session이 초기화된 후 호출)
+  const {
+    openCreate,
+    aiRole,
+    myRole,
+    situation,
+    createLoading,
+    createError,
+    creationToast,
+    clearCreationToast,
+    handleOpenCreate,
+    handleCloseCreate,
+    handleAiRoleChange,
+    handleMyRoleChange,
+    handleSituationChange,
+    handleStartRoleplay: handleCreateScenario,
+    openStartConfirm,
+    createdScenario,
+    handleConfirmStartRoleplay,
+    handleCancelStartRoleplay
+  } = useCreateScenario(scenarios, { 
+    onScenarioCreated: refresh,
+    onStartRoleplay: session.startWithMic
+  })
 
   // 시나리오 필터링 (메모이제이션)
   const { filteredItems } = useRoleplayFilters(tab, scenarios)
@@ -255,6 +262,77 @@ export default function RoleplayPage() {
           onClose={closeFeedbackModal}
           onSelect={handleFeedbackHistorySelect}
         /> */}
+
+        {/* 롤플레잉 시작 확인 다이얼로그 */}
+        <Dialog
+          open={openStartConfirm}
+          onClose={handleCancelStartRoleplay}
+          aria-labelledby="start-roleplay-dialog-title"
+          aria-describedby="start-roleplay-dialog-description"
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle 
+            id="start-roleplay-dialog-title"
+            sx={{ 
+              fontWeight: 700,
+              fontSize: '1.25rem',
+              pb: 1
+            }}
+          >
+            롤플레잉을 실행할까요?
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText 
+              id="start-roleplay-dialog-description"
+              sx={{ 
+                fontSize: '0.9375rem',
+                color: 'text.primary',
+                mb: 1
+              }}
+            >
+              시나리오가 성공적으로 생성되었습니다.
+            </DialogContentText>
+            {createdScenario && (
+              <Box sx={{ mt: 2, p: 2, bgcolor: 'rgba(124,108,255,0.05)', borderRadius: 2 }}>
+                <Typography variant="body2" fontWeight={600} sx={{ mb: 1, color: 'text.primary' }}>
+                  {createdScenario.title}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {createdScenario.body}
+                </Typography>
+              </Box>
+            )}
+          </DialogContent>
+          <DialogActions sx={{ px: 3, pb: 2.5 }}>
+            <Button 
+              onClick={handleCancelStartRoleplay}
+              variant="outlined"
+              sx={{
+                textTransform: 'none',
+                fontWeight: 600,
+                px: 3
+              }}
+            >
+              아니오
+            </Button>
+            <Button 
+              onClick={handleConfirmStartRoleplay}
+              variant="contained"
+              sx={{
+                textTransform: 'none',
+                fontWeight: 600,
+                px: 3,
+                background: 'linear-gradient(135deg, #7C6CFF 0%, #4B3CF8 100%)',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #6B5CE6 0%, #3B2CE8 100%)',
+                }
+              }}
+            >
+              예
+            </Button>
+          </DialogActions>
+        </Dialog>
     </Stack>
 
       {/* 고정 버튼: 스크롤이 맨 위에 있을 때만 표시 */}

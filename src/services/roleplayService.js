@@ -27,10 +27,10 @@ export async function fetchUserScenarios() {
 }
 
 /**
- * 프롬프트 기반 시나리오 요청
- * Gateway에서 FastAPI URL과 userId를 받아옴
+ * 프롬프트 기반 시나리오 생성 및 저장 (통합 API)
+ * Gateway가 Spring2를 통해 FastAPI 호출 및 DB 저장을 한 번에 처리
  * @param {Object} promptData - 프롬프트 데이터 { myRole, aiRole, situation }
- * @returns {Promise<Object>} { userId, fastapi_url }
+ * @returns {Promise<Object>} { scenarioId, subjectId, success, message }
  */
 export async function requestPromptScenario(promptData) {
   const url = `${API_ENDPOINTS.GATEWAY}/scenarios/roleplaying/generate-from-prompt`
