@@ -28,7 +28,22 @@ export default function RoleplayPage() {
   const theme = useTheme()
   const isDesktop = useMediaQuery(theme.breakpoints.up('md')) // 900px 이상
   const drawerWidth = isDesktop ? UI.DRAWER_WIDTH_DESKTOP : UI.DRAWER_WIDTH_MOBILE
-  
+
+  // Slack 연동 완료 알림 상태
+  const [slackConnectedToast, setSlackConnectedToast] = useState(false)
+
+  // Slack OAuth 콜백 처리 (slack_connected=true 쿼리 파라미터 감지)
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    if (urlParams.get('slack_connected') === 'true') {
+      setSlackConnectedToast(true)
+      // URL에서 쿼리 파라미터 제거
+      window.history.replaceState({}, '', window.location.pathname)
+      // 시나리오 목록 새로고침
+      refresh()
+    }
+  }, [refresh])
+
   // 스크롤 위치 감지
   const [isAtTop, setIsAtTop] = useState(true)
 
@@ -193,6 +208,23 @@ export default function RoleplayPage() {
   return (
     <>
       <Stack spacing={2} sx={{  px: { xs: 0, sm: 0 } }}>
+        {slackConnectedToast && (
+          <Alert
+            severity="success"
+            sx={{ mb: 1 }}
+            action={
+              <IconButton
+                size="small"
+                color="inherit"
+                onClick={() => setSlackConnectedToast(false)}
+              >
+                <CloseIcon fontSize="inherit" />
+              </IconButton>
+            }
+          >
+            Slack 연동이 완료되었습니다! 채널을 선택하여 시나리오를 생성하세요.
+          </Alert>
+        )}
         {creationToast && (
           <Alert
             severity="success"

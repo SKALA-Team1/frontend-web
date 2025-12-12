@@ -77,23 +77,20 @@ export default function useScenarioData() {
       }
 
       // 3. Slack 연동 상태 확인
-      // integration 테이블에 user_id가 있으면 연동된 것으로 처리
-      // 백엔드 엔드포인트가 없어도 시나리오가 있으면 연동된 것으로 간주
+      // SLACK 타입 시나리오가 있으면 연동된 것으로 판단
+      const hasSlackScenarios = scenariosLoaded.some(s => s.creationType === 'SLACK')
+
       let integrated = false
       try {
         integrated = await checkSlackIntegration()
       } catch (integrationError) {
         console.warn('[useScenarioData] Slack 연동 상태 확인 중 에러:', integrationError)
-        // 백엔드 엔드포인트가 없어도 시나리오가 있으면 연동된 것으로 간주
-        integrated = scenariosLoaded.length > 0
+        // API 실패 시 SLACK 시나리오 존재 여부로 판단
+        integrated = hasSlackScenarios
       }
-      
-      // integration 테이블 확인 결과 또는 시나리오 존재 여부로 연동 상태 결정
-      if (integrated || scenariosLoaded.length > 0) {
-        setIsSlackIntegrated(true)
-      } else {
-        setIsSlackIntegrated(false)
-      }
+
+      // integration 테이블 확인 결과 또는 SLACK 시나리오 존재 여부로 연동 상태 결정
+      setIsSlackIntegrated(integrated || hasSlackScenarios)
     } catch (err) {
       // 로그인 관련 에러만 표시
       if (err.message && err.message.includes('로그인')) {
