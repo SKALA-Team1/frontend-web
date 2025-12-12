@@ -22,6 +22,7 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime'
 import PersonIcon from '@mui/icons-material/Person'
 import SmartToyIcon from '@mui/icons-material/SmartToy'
 import SlackIntegrationPrompt from './SlackIntegrationPrompt'
+import SlackChannelSelectDialog from './SlackChannelSelectDialog'
 
 function ScenarioList({
   tab,
@@ -38,6 +39,9 @@ function ScenarioList({
 }) {
   // Detail 시나리오의 AI 역할 선택 상태 관리
   const [selectedAiRoleIndices, setSelectedAiRoleIndices] = useState({})
+
+  // Slack 채널 선택 모달 상태
+  const [channelSelectOpen, setChannelSelectOpen] = useState(false)
 
   const handleStart = useCallback((item) => {
     // 그룹화된 Detail 시나리오인 경우, 선택된 AI 역할의 scenarioId 사용
@@ -74,7 +78,18 @@ function ScenarioList({
           <Tab value="linked" label="Slack" />
           <Tab value="created" label="나의 롤플레잉" />
         </Tabs>
-        <SlackIntegrationPrompt />
+        <SlackIntegrationPrompt
+          isIntegrated={isSlackIntegrated}
+          onChannelSelect={() => setChannelSelectOpen(true)}
+        />
+        <SlackChannelSelectDialog
+          open={channelSelectOpen}
+          onClose={() => setChannelSelectOpen(false)}
+          onSuccess={() => {
+            // 채널 선택 성공 시 시나리오 목록 새로고침
+            onRetry?.()
+          }}
+        />
       </>
     )
   }
