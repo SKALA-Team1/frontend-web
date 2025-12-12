@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react'
+import React, { memo, useCallback, useState } from 'react'
 import {
   Tabs,
   Tab,
@@ -11,7 +11,10 @@ import {
   CircularProgress,
   IconButton,
   Button,
-  Chip
+  Chip,
+  Select,
+  MenuItem,
+  FormControl
 } from '@mui/material'
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
@@ -33,10 +36,33 @@ function ScenarioList({
   onRetry,
   onOpenCalendar
 }) {
+  // Detail 시나리오의 AI 역할 선택 상태 관리
+  const [selectedAiRoleIndices, setSelectedAiRoleIndices] = useState({})
+
   const handleStart = useCallback((item) => {
-    const body = item.description || item.summary || `AI 역할 ${item.aiRole}과의 대화`
-    onStartRoleplay(item.title, body, item.scenarioId || 1)
-  }, [onStartRoleplay])
+    // 그룹화된 Detail 시나리오인 경우, 선택된 AI 역할의 scenarioId 사용
+    let scenarioId = item.scenarioId || 1
+    let aiRole = item.aiRole
+    
+    if (item.isGrouped && item.groupType === 'detail' && item.availableAiRoles) {
+      const selectedIndex = selectedAiRoleIndices[item.scenarioId] ?? item.selectedAiRoleIndex ?? 0
+      const selectedRole = item.availableAiRoles[selectedIndex]
+      if (selectedRole) {
+        scenarioId = selectedRole.scenarioId
+        aiRole = selectedRole.aiRole
+      }
+    }
+    
+    const body = item.description || item.summary || `AI 역할 ${aiRole}과의 대화`
+    onStartRoleplay(item.title, body, scenarioId)
+  }, [onStartRoleplay, selectedAiRoleIndices])
+
+  const handleAiRoleChange = useCallback((scenarioId, index) => {
+    setSelectedAiRoleIndices(prev => ({
+      ...prev,
+      [scenarioId]: index
+    }))
+  }, [])
 
   const scenarioCount = filteredItems.length
 
@@ -132,7 +158,18 @@ function ScenarioList({
         </Box>
       ) : (
         <Stack spacing={2.5}>
-          {filteredItems.map((item, idx) => (
+          {filteredItems.map((item, idx) => {
+            // 그룹화된 Detail 시나리오인 경우, 선택된 AI 역할 정보 가져오기
+            let displayAiRole = item.aiRole
+            if (item.isGrouped && item.groupType === 'detail' && item.availableAiRoles) {
+              const selectedIndex = selectedAiRoleIndices[item.scenarioId] ?? item.selectedAiRoleIndex ?? 0
+              const selectedRole = item.availableAiRoles[selectedIndex]
+              if (selectedRole) {
+                displayAiRole = selectedRole.aiRole
+              }
+            }
+            
+            return (
             <Card 
               key={`${tab}-${item.idx ?? item.scenarioId}`} 
               onClick={() => handleStart(item)}
@@ -171,23 +208,60 @@ function ScenarioList({
             >
               <CardContent sx={{ p: 3 }}>
                 <Stack spacing={2}>
-                  {/* 제목 */}
-                  <Typography 
-                    variant="h6" 
-                    fontWeight={700} 
-                    sx={{ 
-                      fontSize: '1.0625rem',
-                      lineHeight: 1.4,
-                      color: '#212121'
-                    }}
-                  >
-                    {item.title}
-                  </Typography>
+                  {/* 제목 + Overview 배지 */}
+                  <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 1 }}>
+                    <Typography 
+                      variant="h6" 
+                      fontWeight={700} 
+                      sx={{ 
+                        fontSize: '1.0625rem',
+                        lineHeight: 1.4,
+                        color: '#212121',
+                        flex: 1
+                      }}
+                    >
+                      {item.title}
+                    </Typography>
+                    {item.isGrouped && item.groupType === 'overview' && (
+                      <Chip
+                        label="Overview"
+                        size="small"
+                        sx={{
+                          height: 24,
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                          background: 'linear-gradient(135deg, rgba(124,108,255,0.15) 0%, rgba(75,60,248,0.1) 100%)',
+                          color: 'primary.main',
+                          border: '1px solid rgba(124,108,255,0.3)',
+                          '& .MuiChip-label': {
+                            px: 1.5
+                          }
+                        }}
+                      />
+                    )}
+                    {item.isGrouped && item.groupType === 'detail' && (
+                      <Chip
+                        label="Detail"
+                        size="small"
+                        sx={{
+                          height: 24,
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                          background: 'linear-gradient(135deg, rgba(76,175,80,0.15) 0%, rgba(56,142,60,0.1) 100%)',
+                          color: '#4caf50',
+                          border: '1px solid rgba(76,175,80,0.3)',
+                          '& .MuiChip-label': {
+                            px: 1.5
+                          }
+                        }}
+                      />
+                    )}
+                  </Box>
 
                   {/* 역할 정보 그리드 */}
                   <Stack spacing={1.5}>
                     {/* 나의 역할 */}
-                    {userJobRole && (
+                    {item.myRole && (
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <PersonIcon sx={{ fontSize: 18, color: 'primary.main', opacity: 0.8 }} />
                         <Box>
@@ -195,7 +269,7 @@ function ScenarioList({
                             나의 역할
                           </Typography>
                           <Typography variant="body2" fontWeight={600} color="text.primary">
-                            {userJobRole}
+                            {item.myRole}
                           </Typography>
                         </Box>
                       </Box>
@@ -204,13 +278,46 @@ function ScenarioList({
                     {/* AI 역할 */}
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <SmartToyIcon sx={{ fontSize: 18, color: 'primary.main', opacity: 0.8 }} />
-                      <Box>
+                      <Box sx={{ flex: 1 }}>
                         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>
                           AI 역할
                         </Typography>
-                        <Typography variant="body2" fontWeight={600} color="text.primary">
-                          {item.aiRole || 'AI 역할 미정'}
-                        </Typography>
+                        {item.isGrouped && item.groupType === 'detail' && item.availableAiRoles && item.availableAiRoles.length > 1 ? (
+                          <FormControl size="small" fullWidth sx={{ mt: 0.5 }}>
+                            <Select
+                              value={selectedAiRoleIndices[item.scenarioId] ?? item.selectedAiRoleIndex ?? 0}
+                              onChange={(e) => {
+                                e.stopPropagation() // 카드 클릭 이벤트 방지
+                                handleAiRoleChange(item.scenarioId, e.target.value)
+                              }}
+                              onClick={(e) => e.stopPropagation()} // 카드 클릭 이벤트 방지
+                              sx={{
+                                height: 32,
+                                fontSize: '0.875rem',
+                                fontWeight: 600,
+                                '& .MuiOutlinedInput-notchedOutline': {
+                                  borderColor: 'rgba(124,108,255,0.3)',
+                                },
+                                '&:hover .MuiOutlinedInput-notchedOutline': {
+                                  borderColor: 'primary.main',
+                                },
+                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                  borderColor: 'primary.main',
+                                },
+                              }}
+                            >
+                              {item.availableAiRoles.map((role, idx) => (
+                                <MenuItem key={idx} value={idx}>
+                                  {role.aiRole}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                        ) : (
+                          <Typography variant="body2" fontWeight={600} color="text.primary">
+                            {displayAiRole || 'AI 역할 미정'}
+                          </Typography>
+                        )}
                       </Box>
                     </Box>
 
@@ -253,7 +360,8 @@ function ScenarioList({
                 </Stack>
               </CardContent>
             </Card>
-          ))}
+            )
+          })}
           {!error && filteredItems.length === 0 && (
             <Card 
               variant="outlined"
