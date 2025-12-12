@@ -64,7 +64,7 @@ export async function checkSlackIntegration() {
 }
 
 /**
- * Slack OAuth URL 생성
+ * Slack OAuth URL 생성 (클라이언트 사이드)
  * @param {number} userId - 사용자 ID
  * @returns {string} Slack OAuth URL
  */
@@ -78,5 +78,54 @@ export function getSlackLoginUrl(userId) {
   })
 
   return `https://slack.com/oauth/v2/authorize?${params.toString()}`
+}
+
+/**
+ * Slack OAuth URL 조회 (Gateway를 통해 서버에서 생성)
+ * @returns {Promise<string>} Slack OAuth URL
+ */
+export async function getSlackAuthUrl() {
+  const url = `${API_ENDPOINTS.GATEWAY}/integrations/slack/login`
+
+  try {
+    const data = await httpClient.get(url)
+    return data.authUrl
+  } catch (error) {
+    console.error('[Integration Service] Slack OAuth URL 조회 실패:', error)
+    throw new Error('Slack 인증 URL을 가져올 수 없습니다.')
+  }
+}
+
+/**
+ * Slack 채널 목록 조회
+ * @returns {Promise<Array>} 채널 목록 [{ id, name, isMember }]
+ */
+export async function getSlackChannels() {
+  const url = `${API_ENDPOINTS.GATEWAY}/integrations/slack/channels`
+
+  try {
+    const data = await httpClient.get(url)
+    return data
+  } catch (error) {
+    console.error('[Integration Service] Slack 채널 목록 조회 실패:', error)
+    throw new Error('Slack 채널 목록을 가져올 수 없습니다.')
+  }
+}
+
+/**
+ * Slack 채널 선택
+ * @param {string} channelId - 선택한 채널 ID
+ * @returns {Promise<string>} 성공 메시지
+ */
+export async function selectSlackChannel(channelId) {
+  const url = `${API_ENDPOINTS.GATEWAY}/integrations/slack/channels/${channelId}/select`
+
+  try {
+    const data = await httpClient.post(url)
+    return data
+  } catch (error) {
+    console.error('[Integration Service] Slack 채널 선택 실패:', error)
+    throw new Error('Slack 채널 선택에 실패했습니다.')
+  }
 }
 
