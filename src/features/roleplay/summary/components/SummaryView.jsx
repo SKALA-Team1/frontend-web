@@ -15,6 +15,7 @@ import {
 } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import TranslateIcon from '@mui/icons-material/Translate'
+import BookmarkIcon from '@mui/icons-material/Bookmark'
 import { getComprehensiveFeedback } from '../../../../services/roleplayService'
 import LoadingSpinner from '../../../../components/Common/LoadingSpinner'
 
@@ -44,6 +45,7 @@ export default function SummaryView({
   const [feedback, setFeedback] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [bookmarkedMessages, setBookmarkedMessages] = useState({})
 
   const normalizedMessages = normalizeConversationMessages(messages)
   const displayMessages = normalizedMessages.length > 0 ? normalizedMessages : MOCK_CONVERSATION
@@ -274,9 +276,12 @@ export default function SummaryView({
             <Stack spacing={1.5}>
               {displayMessages.map((msg, idx) => {
                 const isUser = msg.who === 'You'
+                const messageKey = `${msg.who}-${idx}`
+                const isBookmarked = bookmarkedMessages[messageKey] || false
+                
                 return (
-                  <Box key={`${msg.who}-${idx}`} sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                    <Stack direction="row" spacing={1} alignItems="center">
+                  <Box key={messageKey} sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                    <Stack direction="row" spacing={1} alignItems="center" justifyContent={isUser ? 'flex-end' : 'flex-start'}>
                       <Typography
                         variant="caption"
                         sx={{
@@ -290,6 +295,34 @@ export default function SummaryView({
                       <Typography variant="caption" color="text.secondary">
                         #{idx + 1}
                       </Typography>
+                      {isUser && (
+                        <IconButton
+                          size="small"
+                          onClick={() => {
+                            setBookmarkedMessages(prev => ({
+                              ...prev,
+                              [messageKey]: !prev[messageKey]
+                            }))
+                          }}
+                          sx={{
+                            padding: 0.25,
+                            minWidth: 'auto',
+                            width: 20,
+                            height: 20,
+                            '&:hover': {
+                              bgcolor: 'rgba(0,0,0,0.05)'
+                            }
+                          }}
+                        >
+                          <BookmarkIcon 
+                            sx={{ 
+                              fontSize: 16,
+                              color: isBookmarked ? '#FFA500' : 'rgba(0,0,0,0.4)',
+                              transition: 'color 0.2s ease'
+                            }} 
+                          />
+                        </IconButton>
+                      )}
                     </Stack>
                     <Card
                       variant="outlined"

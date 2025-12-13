@@ -70,39 +70,39 @@ export default function FeedbackPage() {
     handleViewFeedback,
     handleCloseFeedback
   } = useFeedbackPage()
-
+  
   // 피드백 상세 화면은 기존 로직 유지
   if (session.view === 'summary') {
     return (
       <Box sx={{ py: { xs: 2, sm: 3 }, px: { xs: 0, sm: 0 } }}>
         <Typography variant="h4" sx={{ fontWeight: 700, mb: 2, textAlign: 'center' }}>
           피드백 상세
-        </Typography>
+            </Typography>
         {/* 기존 상세 화면 로직은 유지 */}
       </Box>
     )
   }
 
   // 피드백 목록 화면
-  return (
-    <Stack spacing={3}>
-      {/* 헤더 */}
-      <Stack spacing={0.5} alignItems="center" textAlign="center">
-        <Typography variant="h4" sx={{ fontWeight: 700 }}>
-          피드백
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ opacity: 0.75 }}>
+    return (
+        <Stack spacing={3}>
+          {/* 헤더 */}
+          <Stack spacing={0.5} alignItems="center" textAlign="center">
+            <Typography variant="h4" sx={{ fontWeight: 700 }}>
+              피드백
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ opacity: 0.75 }}>
           완료된 롤플레잉의 피드백을 확인하세요
-        </Typography>
-      </Stack>
+            </Typography>
+          </Stack>
 
       {/* 피드백 카드 리스트 */}
       <Stack spacing={2.5}>
         {MOCK_FEEDBACK_LIST.map((feedback) => (
-          <Card
+              <Card 
             key={feedback.id}
             onClick={() => handleViewFeedback(feedback)}
-            sx={{
+                sx={{ 
               borderRadius: 3,
               border: '1px solid rgba(0,0,0,0.08)',
               background: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.95) 100%)',
@@ -121,7 +121,7 @@ export default function FeedbackPage() {
                 opacity: 0,
                 transition: 'opacity 0.3s ease'
               },
-              '&:hover': {
+                  '&:hover': {
                 boxShadow: '0 8px 24px rgba(124,108,255,0.2)',
                 borderColor: 'rgba(124,108,255,0.3)',
                 transform: 'translateY(-4px)',
@@ -134,10 +134,10 @@ export default function FeedbackPage() {
             <CardContent sx={{ p: 3 }}>
               <Stack spacing={2}>
                 {/* 시나리오 제목 */}
-                <Typography 
+                  <Typography 
                   variant="h6" 
                   fontWeight={700} 
-                  sx={{ 
+                    sx={{ 
                     fontSize: '1.0625rem',
                     lineHeight: 1.4,
                     color: '#212121',
@@ -145,52 +145,52 @@ export default function FeedbackPage() {
                   }}
                 >
                   {feedback.scenarioTitle}
-                </Typography>
+              </Typography>
 
                 {/* 정보 섹션 */}
                 <Stack spacing={1.5}>
                   {/* 나의 역할 */}
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <PersonIcon sx={{ fontSize: 18, color: 'primary.main', opacity: 0.8 }} />
-                    <Box>
+                          <Box>
                       <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>
                         나의 역할
-                      </Typography>
+                            </Typography>
                       <Typography variant="body2" fontWeight={600} color="text.primary">
                         {feedback.myRole}
-                      </Typography>
-                    </Box>
-                  </Box>
+                              </Typography>
+                      </Box>
+          </Box>
 
                   {/* AI 역할 */}
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <SmartToyIcon sx={{ fontSize: 18, color: 'primary.main', opacity: 0.8 }} />
-                    <Box>
+          <Box>
                       <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>
                         AI 역할
-                      </Typography>
+            </Typography>
                       <Typography variant="body2" fontWeight={600} color="text.primary">
                         {feedback.aiRole}
-                      </Typography>
-                    </Box>
+                    </Typography>
+                  </Box>
                   </Box>
 
                   {/* 실행 날짜 */}
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <CalendarMonthIcon sx={{ fontSize: 18, color: 'text.secondary', opacity: 0.6 }} />
-                    <Box>
+                  <Box>
                       <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>
                         실행 날짜
                       </Typography>
                       <Typography variant="body2" fontWeight={500} color="text.secondary">
                         {feedback.executedDate}
-                      </Typography>
-                    </Box>
+                    </Typography>
+                        </Box>
                   </Box>
                 </Stack>
-              </Stack>
-            </CardContent>
-          </Card>
+        </Stack>
+              </CardContent>
+            </Card>
         ))}
       </Stack>
     </Stack>

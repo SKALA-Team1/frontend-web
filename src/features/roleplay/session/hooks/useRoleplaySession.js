@@ -468,6 +468,30 @@ export default function useRoleplaySession() {
   }
 
   /**
+   * AI_TEXT_KOREAN 메시지 처리 (한글 번역)
+   */
+  const handleAIKorean = (message) => {
+    const translationText = message.text_ko || message.question_ko
+    
+    if (translationText) {
+      setMessages(prev => {
+        const lastMessage = prev[prev.length - 1]
+        // 마지막 메시지가 AI 메시지인 경우 번역 추가/업데이트
+        if (lastMessage && lastMessage.who === 'AI') {
+          return [
+            ...prev.slice(0, -1),
+            {
+              ...lastMessage,
+              translation: translationText
+            }
+          ]
+        }
+        return prev
+      })
+    }
+  }
+
+  /**
    * AI_TYPING 메시지 처리
    */
   const handleAITyping = () => {
@@ -534,17 +558,11 @@ export default function useRoleplaySession() {
     clearTimeoutRef(sttTimeoutRef)
     sttPartialTextRef.current = ''
     
-    // 사용자 답변 입력 시 키워드 초기화
-    if (keywordFetchTimeoutRef.current) {
-      clearTimeout(keywordFetchTimeoutRef.current)
-      keywordFetchTimeoutRef.current = null
-    }
-    setCurrentQuestionKeywords(null)
-    
     if (message.text && message.text.trim()) {
       setMessages(prev => {
         const lastMessage = prev[prev.length - 1]
         if (lastMessage && lastMessage.who === 'You' && lastMessage.isSTT) {
+          // STT_PARTIAL로 생성된 임시 메시지를 최종 텍스트로 업데이트
           return [
             ...prev.slice(0, -1),
             {
@@ -554,6 +572,7 @@ export default function useRoleplaySession() {
             }
           ]
         } else {
+          // STT_PARTIAL이 없었던 경우 새로 메시지 추가
           return [
             ...prev,
             {
@@ -565,6 +584,7 @@ export default function useRoleplaySession() {
         }
       })
     } else {
+      // 빈 텍스트인 경우 STT_PARTIAL 메시지 제거
       setMessages(prev => {
         const lastMessage = prev[prev.length - 1]
         if (lastMessage && lastMessage.who === 'You' && lastMessage.isSTT) {
@@ -697,6 +717,9 @@ export default function useRoleplaySession() {
         break
       case 'AI_TEXT_STREAMING':
         handleAIStreaming(message)
+        break
+      case 'AI_TEXT_KOREAN':
+        handleAIKorean(message)
         break
       case 'AI_TYPING':
         handleAITyping()
