@@ -210,18 +210,18 @@ function ScenarioList({
                 <Stack spacing={2}>
                   {/* 제목 + Overview 배지 */}
                   <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 1 }}>
-                    <Typography 
-                      variant="h6" 
-                      fontWeight={700} 
-                      sx={{ 
-                        fontSize: '1.0625rem',
-                        lineHeight: 1.4,
+                  <Typography 
+                    variant="h6" 
+                    fontWeight={700} 
+                    sx={{ 
+                      fontSize: '1.0625rem',
+                      lineHeight: 1.4,
                         color: '#212121',
                         flex: 1
-                      }}
-                    >
-                      {item.title}
-                    </Typography>
+                    }}
+                  >
+                    {item.title}
+                  </Typography>
                     {item.isGrouped && item.groupType === 'overview' && (
                       <Chip
                         label="Overview"
@@ -314,9 +314,9 @@ function ScenarioList({
                             </Select>
                           </FormControl>
                         ) : (
-                          <Typography variant="body2" fontWeight={600} color="text.primary">
+                        <Typography variant="body2" fontWeight={600} color="text.primary">
                             {displayAiRole || 'AI 역할 미정'}
-                          </Typography>
+                        </Typography>
                         )}
                       </Box>
                     </Box>

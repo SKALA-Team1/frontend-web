@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Box, Typography, IconButton } from '@mui/material'
+import { Box, Typography, IconButton, Divider, Chip, Stack } from '@mui/material'
 import TranslateIcon from '@mui/icons-material/Translate'
+import LightbulbIcon from '@mui/icons-material/Lightbulb'
 
 const MESSAGE_STYLES = {
   You: {
@@ -19,8 +20,8 @@ const MESSAGE_STYLES = {
 const TYPING_SPEED = 30
 const STREAMING_TYPING_SPEED = 15 // 스트리밍 중에는 더 빠른 타이핑
 
-function MessageBubble({ message, index, showTranslation, onToggleTranslation }) {
-  const { who, text, isStreaming, translation } = message || {}
+function MessageBubble({ message, index, showTranslation, onToggleTranslation, onFetchKeywords }) {
+  const { who, text, isStreaming, translation, recommendedKeywords } = message || {}
   const style = MESSAGE_STYLES[who] || MESSAGE_STYLES.AI
   const [displayedText, setDisplayedText] = useState('')
   const [isTyping, setIsTyping] = useState(false)
@@ -260,107 +261,185 @@ function MessageBubble({ message, index, showTranslation, onToggleTranslation })
 
   const shouldShowCursor = isTyping && (who !== 'AI' || isStreaming)
   const hasTranslation = who === 'AI' && translation
+  const isAIQuestion = who === 'AI' && !isStreaming && text
+
+  // 키워드 메시지인 경우 스타일 조정
+  const isKeywordsMsg = message.isKeywordsMessage
+  const messageStyle = isKeywordsMsg ? {
+    bgcolor: 'rgba(124,108,255,0.05)',
+    borderColor: 'rgba(124,108,255,0.2)'
+  } : style
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: style.justifyContent, width: '100%', alignItems: style.justifyContent === 'flex-start' ? 'flex-start' : 'flex-end' }}>
-      <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5, maxWidth: '80%' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: messageStyle.justifyContent, width: '100%', alignItems: messageStyle.justifyContent === 'flex-start' ? 'flex-start' : 'flex-end' }}>
+      <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5, maxWidth: '85%', position: 'relative' }}>
         <Box
           sx={{
-            bgcolor: style.bgcolor,
+            bgcolor: messageStyle.bgcolor,
             color: '#212121',
             px: 2,
-            py: 1.5,
+            py: isKeywordsMsg ? 1 : 1.5,
             borderRadius: 1,
-            border: `1px solid ${style.borderColor}`,
+            border: `1px solid ${messageStyle.borderColor}`,
             backdropFilter: 'none',
-            boxShadow: 'none'
+            boxShadow: 'none',
+            width: '100%',
+            pb: hasTranslation && isTranslationVisible ? 0 : (isKeywordsMsg ? 1 : 1.5)
           }}
         >
-          <Typography 
-            variant="caption" 
-            sx={{ 
-              opacity: 0.8,
-              fontWeight: 600,
-              display: 'block',
-              mb: 0.5
-            }}
-          >
-            {who}
-          </Typography>
-          <Typography 
-            variant="body2"
-            sx={{
-              lineHeight: 1.6,
-              wordBreak: 'break-word',
-              minHeight: '1.5em' // 타이핑 중 깜빡임 방지
-            }}
-          >
-            {displayedText || text}
-            {shouldShowCursor && (
-              <Box
-                component="span"
-                sx={{
-                  display: 'inline-block',
-                  width: '2px',
-                  height: '1em',
-                  bgcolor: '#212121',
-                  ml: 0.5,
-                  animation: 'blink 1s infinite',
-                  '@keyframes blink': {
-                    '0%, 50%': { opacity: 1 },
-                    '51%, 100%': { opacity: 0 }
-                  }
-                }}
+          {!message.isKeywordsMessage && (
+            <Typography 
+              variant="caption" 
+              sx={{ 
+                opacity: 0.8,
+                fontWeight: 600,
+                display: 'block',
+                mb: 0.5
+              }}
+            >
+              {who}
+            </Typography>
+          )}
+          {!message.isKeywordsMessage && (
+            <Typography 
+              variant="body2"
+              sx={{
+                lineHeight: 1.6,
+                wordBreak: 'break-word',
+                minHeight: '1em', // 타이핑 중 깜빡임 방지
+                fontSize: '0.75rem'
+              }}
+            >
+              {displayedText || text}
+              {shouldShowCursor && (
+                <Box
+                  component="span"
+                  sx={{
+                    display: 'inline-block',
+                    width: '2px',
+                    height: '1em',
+                    bgcolor: '#212121',
+                    ml: 0.5,
+                    animation: 'blink 1s infinite',
+                    '@keyframes blink': {
+                      '0%, 50%': { opacity: 1 },
+                      '51%, 100%': { opacity: 0 }
+                    }
+                  }}
+                />
+              )}
+            </Typography>
+          )}
+          
+          {hasTranslation && isTranslationVisible && (
+            <>
+              <Divider 
+                sx={{ 
+                  my: 0.5,
+                  borderColor: 'rgba(0,0,0,0.12)'
+                }} 
               />
-            )}
-          </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  lineHeight: 1.6,
+                  wordBreak: 'break-word',
+                  color: '#424242',
+                  fontSize: '0.5rem',
+                  pb: 0.5
+                }}
+              >
+                {translation}
+              </Typography>
+            </>
+          )}
+          
+          {/* 키워드 메시지 표시 */}
+          {who === 'AI' && message.isKeywordsMessage && recommendedKeywords && Array.isArray(recommendedKeywords) && recommendedKeywords.length > 0 && (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mt: 0.75 }}>
+              <Typography 
+                variant="caption" 
+                sx={{ 
+                  fontSize: '0.625rem',
+                  color: 'rgba(0,0,0,0.6)',
+                  fontWeight: 500
+                }}
+              >
+                추천 키워드
+              </Typography>
+              <Stack direction="row" spacing={0.5} flexWrap="wrap" gap={0.5}>
+                {recommendedKeywords.map((keyword, idx) => (
+                  <Chip
+                    key={idx}
+                    label={keyword}
+                    size="small"
+                    sx={{
+                      height: 24,
+                      fontSize: '0.75rem',
+                      bgcolor: 'rgba(124,108,255,0.1)',
+                      color: '#7C6CFF',
+                      fontWeight: 500,
+                      border: '1px solid rgba(124,108,255,0.2)',
+                      '& .MuiChip-label': {
+                        px: 1,
+                        py: 0
+                      }
+                    }}
+                  />
+                ))}
+              </Stack>
+            </Box>
+          )}
         </Box>
-
-        {hasTranslation && (
-          <IconButton
-            size="small"
-            onClick={() => setIsTranslationVisible(v => !v)}
-            sx={{
-              bgcolor: 'white',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-              border: '1px solid rgba(0,0,0,0.1)',
-              borderRadius: 1,
-              width: 28,
-              height: 28,
-              mt: 0.5,
-              flexShrink: 0,
-              '&:hover': { bgcolor: '#f5f5f5' }
-            }}
-          >
-            <TranslateIcon fontSize="small" />
-          </IconButton>
-        )}
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25, mt: 0.5 }}>
+          {hasTranslation && (
+            <IconButton
+              size="small"
+              onClick={() => setIsTranslationVisible(v => !v)}
+              sx={{
+                bgcolor: 'white',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                border: '1px solid rgba(0,0,0,0.1)',
+                borderRadius: 0.5,
+                width: 14,
+                height: 14,
+                flexShrink: 0,
+                minWidth: 14,
+                padding: 0,
+                '&:hover': { bgcolor: '#f5f5f5' },
+                '& .MuiSvgIcon-root': {
+                  fontSize: '0.75rem'
+                }
+              }}
+            >
+              <TranslateIcon sx={{ fontSize: '0.75rem' }} />
+            </IconButton>
+          )}
+          {isAIQuestion && onFetchKeywords && (
+            <IconButton
+              size="small"
+              onClick={() => onFetchKeywords(text, index)}
+              sx={{
+                bgcolor: 'white',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                border: '1px solid rgba(0,0,0,0.1)',
+                borderRadius: 0.5,
+                width: 14,
+                height: 14,
+                flexShrink: 0,
+                minWidth: 14,
+                padding: 0,
+                '&:hover': { bgcolor: '#f5f5f5' },
+                '& .MuiSvgIcon-root': {
+                  fontSize: '0.75rem'
+                }
+              }}
+            >
+              <LightbulbIcon sx={{ fontSize: '0.75rem' }} />
+            </IconButton>
+          )}
+        </Box>
       </Box>
-
-      {hasTranslation && isTranslationVisible && (
-        <Box
-          sx={{
-            maxWidth: '80%',
-            bgcolor: 'rgba(0,0,0,0.05)',
-            color: '#424242',
-            px: 2,
-            py: 1.5,
-            borderRadius: 1,
-            border: '1px solid rgba(0,0,0,0.1)',
-            mt: 0.5
-          }}
-        >
-          <Typography
-            variant="body2"
-            sx={{
-              lineHeight: 1.6,
-              wordBreak: 'break-word'
-            }}
-          >
-            {translation}
-          </Typography>
-        </Box>
-      )}
     </Box>
   )
 }
@@ -373,6 +452,7 @@ export default React.memo(MessageBubble, (prevProps, nextProps) => {
     prevProps.message?.who === nextProps.message?.who &&
     prevProps.message?.isStreaming === nextProps.message?.isStreaming &&
     prevProps.message?.translation === nextProps.message?.translation &&
+    JSON.stringify(prevProps.message?.recommendedKeywords) === JSON.stringify(nextProps.message?.recommendedKeywords) &&
     prevProps.index === nextProps.index
   )
 })

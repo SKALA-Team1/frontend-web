@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
-import { startSession, createWebSocketConnection } from '../../../../services/roleplayService'
+import { startSession, createWebSocketConnection, getSessionUtterances } from '../../../../services/roleplayService'
 import { getUserIdFromToken } from '../../../../utils/jwt'
 
 // ========================================
@@ -447,7 +447,7 @@ export default function useRoleplaySession() {
       }
     })
     
-    streamingTimeoutRef.current = setTimeout(() => {
+    streamingTimeoutRef.current = setTimeout(async () => {
       setMessages(prev => {
         const lastMessage = prev[prev.length - 1]
         if (lastMessage && lastMessage.who === 'AI' && lastMessage.isStreaming) {
@@ -523,6 +523,7 @@ export default function useRoleplaySession() {
           ]
         }
       })
+      
     }
   }
 
@@ -532,6 +533,13 @@ export default function useRoleplaySession() {
   const handleSTTFinal = (message) => {
     clearTimeoutRef(sttTimeoutRef)
     sttPartialTextRef.current = ''
+    
+    // 사용자 답변 입력 시 키워드 초기화
+    if (keywordFetchTimeoutRef.current) {
+      clearTimeout(keywordFetchTimeoutRef.current)
+      keywordFetchTimeoutRef.current = null
+    }
+    setCurrentQuestionKeywords(null)
     
     if (message.text && message.text.trim()) {
       setMessages(prev => {
@@ -917,6 +925,7 @@ export default function useRoleplaySession() {
       who: 'You',
       text: userText
     }])
+    
     setTextInput('')
 
     const userMessage = {

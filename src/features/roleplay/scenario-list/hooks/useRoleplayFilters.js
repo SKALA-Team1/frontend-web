@@ -18,7 +18,7 @@ export default function useRoleplayFilters(tab, scenarios = []) {
     if (!Array.isArray(scenarios)) return []
 
     let filtered = []
-    
+
     if (tab === 'linked') {
       // Slack으로 생성된 시나리오만 필터링
       filtered = scenarios.filter((item) => 
