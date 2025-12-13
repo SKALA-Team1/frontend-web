@@ -25,6 +25,10 @@ const CalendarDialog = lazy(() => import('../scenario-list/components/CalendarDi
  */
 export default function RoleplayPage() {
   const { scenarios, loading: scenariosLoading, error: scenariosError, isSlackIntegrated, userJobRole, refresh } = useScenarioData()
+  const [pendingSlackGeneration, setPendingSlackGeneration] = useState(false)
+  const scenariosCountRef = React.useRef(scenarios.length)
+  const pollTimerRef = React.useRef(null)
+  const idleStreakRef = React.useRef(0)
   const theme = useTheme()
   const isDesktop = useMediaQuery(theme.breakpoints.up('md')) // 900px 이상
   const drawerWidth = isDesktop ? UI.DRAWER_WIDTH_DESKTOP : UI.DRAWER_WIDTH_MOBILE
@@ -41,6 +45,8 @@ export default function RoleplayPage() {
       window.history.replaceState({}, '', window.location.pathname)
       // 시나리오 목록 새로고침
       refresh()
+      // Slack 채널 선택 후 시나리오 생성 중으로 표시
+      setPendingSlackGeneration(true)
     }
   }, [refresh])
 
@@ -64,6 +70,47 @@ export default function RoleplayPage() {
       window.removeEventListener('scroll', handleScroll)
     }
   }, [])
+
+  // 시나리오 자동 갱신 (채널 선택 후 일정 시간 폴링)
+  useEffect(() => {
+    // 이전보다 시나리오가 늘었으면 idle 카운터 리셋 (폴링은 유지)
+    const prev = scenariosCountRef.current
+    scenariosCountRef.current = scenarios.length
+    if (pendingSlackGeneration && scenarios.length > prev) {
+      idleStreakRef.current = 0
+    }
+  }, [scenarios.length, pendingSlackGeneration])
+
+  useEffect(() => {
+    if (!pendingSlackGeneration) return
+
+    const intervalMs = 3000
+    const maxAttempts = 100 // 최대 약 5분
+    const idleLimit = 20    // 변화 없는 60초(20회) 후 종료
+
+    let attempts = 0
+    pollTimerRef.current = setInterval(() => {
+      attempts += 1
+      idleStreakRef.current += 1
+      refresh({ silent: true })
+
+      if (idleStreakRef.current >= idleLimit || attempts >= maxAttempts) {
+        setPendingSlackGeneration(false)
+        if (pollTimerRef.current) {
+          clearInterval(pollTimerRef.current)
+          pollTimerRef.current = null
+        }
+      }
+    }, intervalMs)
+
+    return () => {
+      if (pollTimerRef.current) {
+        clearInterval(pollTimerRef.current)
+        pollTimerRef.current = null
+      }
+      idleStreakRef.current = 0
+    }
+  }, [pendingSlackGeneration, refresh])
 
   // 롤플레이 세션 관련 (먼저 초기화하여 session을 useCreateScenario에서 사용 가능하도록)
   const {
@@ -250,6 +297,8 @@ export default function RoleplayPage() {
           setTab={setTab}
           filteredItems={filteredItems}
           isSlackIntegrated={isSlackIntegrated}
+          pendingSlackGeneration={pendingSlackGeneration}
+          onChannelSelected={() => setPendingSlackGeneration(true)}
           userJobRole={userJobRole}
           loading={scenariosLoading}
           error={scenariosError}

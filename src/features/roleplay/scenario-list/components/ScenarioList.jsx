@@ -29,6 +29,8 @@ function ScenarioList({
   setTab,
   filteredItems = [],
   isSlackIntegrated = false,
+  pendingSlackGeneration = false,
+  onChannelSelected = () => {},
   userJobRole = null,
   onStartRoleplay,
   onViewFeedback,
@@ -42,6 +44,7 @@ function ScenarioList({
 
   // Slack 채널 선택 모달 상태
   const [channelSelectOpen, setChannelSelectOpen] = useState(false)
+  const [channelSelected, setChannelSelected] = useState(false)
 
   const handleStart = useCallback((item) => {
     // 그룹화된 Detail 시나리오인 경우, 선택된 AI 역할의 scenarioId 사용
@@ -70,7 +73,7 @@ function ScenarioList({
 
   const scenarioCount = filteredItems.length
 
-  // Slack 탭에서 시나리오가 없을 때 연동/채널 선택 유도
+  // Slack 탭에서 시나리오가 없을 때: 채널 선택/진행 상태 표시
   if (tab === 'linked' && !loading && filteredItems.length === 0) {
     return (
       <>
@@ -78,14 +81,23 @@ function ScenarioList({
           <Tab value="linked" label="Slack" />
           <Tab value="created" label="나의 롤플레잉" />
         </Tabs>
-        <SlackIntegrationPrompt
-          isIntegrated={isSlackIntegrated}
-          onChannelSelect={() => setChannelSelectOpen(true)}
-        />
+        {!channelSelected && (
+          <SlackIntegrationPrompt
+            isIntegrated={isSlackIntegrated}
+            onChannelSelect={() => setChannelSelectOpen(true)}
+          />
+        )}
+        {channelSelected && (
+          <Alert severity="info" sx={{ mt: 2 }}>
+            Slack 채널을 선택했습니다. 메시지 수집 및 시나리오 생성이 진행 중입니다.
+          </Alert>
+        )}
         <SlackChannelSelectDialog
           open={channelSelectOpen}
           onClose={() => setChannelSelectOpen(false)}
           onSuccess={() => {
+            setChannelSelected(true)
+            onChannelSelected?.()
             // 채널 선택 성공 시 시나리오 목록 새로고침
             onRetry?.()
           }}

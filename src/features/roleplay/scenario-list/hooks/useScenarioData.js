@@ -39,9 +39,12 @@ export default function useScenarioData() {
     }
   }, [])
 
-  const loadScenarios = useCallback(async () => {
+  const loadScenarios = useCallback(async (options = {}) => {
+    const { silent = false } = options
     try {
-      setLoading(true)
+      if (!silent) {
+        setLoading(true)
+      }
       setError(null)
 
       // 1. JWT에서 userId 추출
@@ -103,7 +106,9 @@ export default function useScenarioData() {
       setScenarios([])
       setIsSlackIntegrated(false)
     } finally {
-      setLoading(false)
+      if (!silent) {
+        setLoading(false)
+      }
     }
   }, [normalizeScenario])
 
@@ -120,4 +125,3 @@ export default function useScenarioData() {
     refresh: loadScenarios
   }
 }
-
