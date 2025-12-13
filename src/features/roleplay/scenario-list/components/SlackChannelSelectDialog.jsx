@@ -68,7 +68,15 @@ export default function SlackChannelSelectDialog({ open, onClose, onSuccess }) {
       }, 1500)
     } catch (err) {
       console.error('[Slack] 채널 선택 실패:', err)
-      setError(err.message || '채널 선택에 실패했습니다.')
+      const message = err.message || '채널 선택에 실패했습니다.'
+      const isTimeout =
+        message.toLowerCase().includes('timeout') ||
+        message.includes('서버에 연결할 수 없습니다')
+      setError(
+        isTimeout
+          ? '채널 선택 요청이 처리 중입니다. 잠시 후 새로고침하거나 다시 확인해주세요.'
+          : message
+      )
       setSelecting(false)
     }
   }
@@ -80,6 +88,13 @@ export default function SlackChannelSelectDialog({ open, onClose, onSuccess }) {
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
             <CircularProgress />
+          </Box>
+        ) : selecting && !selectedChannelId ? (
+          <Box sx={{ textAlign: 'center', py: 4 }}>
+            <CircularProgress sx={{ mb: 2 }} />
+            <Typography variant="body2" color="text.secondary">
+              채널 선택 중입니다. 메시지 수집 및 시나리오 생성까지 잠시만 기다려주세요.
+            </Typography>
           </Box>
         ) : error ? (
           <Alert severity="error" sx={{ mb: 2 }}>

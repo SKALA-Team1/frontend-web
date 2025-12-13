@@ -70,8 +70,8 @@ function ScenarioList({
 
   const scenarioCount = filteredItems.length
 
-  // Slack 미연동 시 연동 유도 화면 표시
-  if (!isSlackIntegrated && tab === 'linked' && !loading && filteredItems.length === 0) {
+  // Slack 탭에서 시나리오가 없을 때 연동/채널 선택 유도
+  if (tab === 'linked' && !loading && filteredItems.length === 0) {
     return (
       <>
         <Tabs value={tab} onChange={(_, v) => setTab(v)} variant="fullWidth">
