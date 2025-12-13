@@ -1,77 +1,193 @@
-import React from 'react'
-import { Typography, Stack, Box, Chip } from '@mui/material'
+import { useState } from 'react'
+import { Typography, Stack, Box, Chip, CircularProgress, Alert, IconButton, Collapse } from '@mui/material'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import useBookmarks from '../../../hooks/useBookmarks'
 
-export default function BookmarkList({ bookmarkedSentences }) {
+export default function BookmarkList() {
+  const { bookmarks, loading, error } = useBookmarks()
+  const [expandedIds, setExpandedIds] = useState(new Set())
+
+  const toggleExpand = (bookmarkId) => {
+    setExpandedIds(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(bookmarkId)) {
+        newSet.delete(bookmarkId)
+      } else {
+        newSet.add(bookmarkId)
+      }
+      return newSet
+    })
+  }
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+        <CircularProgress />
+      </Box>
+    )
+  }
+
+  if (error) {
+    return (
+      <Alert severity="error" sx={{ m: 2 }}>
+        {error}
+      </Alert>
+    )
+  }
+
+  if (bookmarks.length === 0) {
+    return (
+      <Box sx={{ textAlign: 'center', p: 4 }}>
+        <Typography variant="body2" color="text.secondary">
+          북마크한 내용이 없습니다.
+        </Typography>
+      </Box>
+    )
+  }
+
   return (
     <Stack spacing={2}>
-      {bookmarkedSentences.map((item, idx) => (
-        <Box
-          key={item.id}
-          sx={{
-            p: 2,
-            borderRadius: 2,
-            border: '1px solid rgba(0,0,0,0.1)',
-            backgroundColor: 'rgba(0,0,0,0.03)',
-            backdropFilter: 'blur(6px)',
-            transition: 'all 0.2s ease',
-            '&:hover': {
-              bgcolor: 'rgba(0,0,0,0.05)',
-              borderColor: 'rgba(124,108,255,0.3)'
-            }
-          }}
-        >
-          <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1.5 }}>
-            <Typography variant="subtitle2" fontWeight={700} sx={{ color: '#212121' }}>
-              {item.scenario}
-            </Typography>
-            <Chip
-              label={`#${idx + 1}`}
-              size="small"
-              sx={{
-                borderRadius: 1,
-                backgroundColor: 'rgba(124,108,255,0.2)',
-                color: '#6C63FF',
-                fontWeight: 600,
-                fontSize: '0.7rem',
-                height: 20
-              }}
-            />
-          </Stack>
-          <Stack spacing={1.5}>
-            <Box>
-              <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
-                AI 질문
+      {bookmarks.map((bookmark, idx) => {
+        const isExpanded = expandedIds.has(bookmark.bookmarkId)
+
+        return (
+          <Box
+            key={bookmark.bookmarkId}
+            sx={{
+              p: 2,
+              borderRadius: 2,
+              border: '1px solid rgba(0,0,0,0.1)',
+              backgroundColor: 'rgba(0,0,0,0.03)',
+              backdropFilter: 'blur(6px)',
+              transition: 'all 0.2s ease',
+              '&:hover': {
+                bgcolor: 'rgba(0,0,0,0.05)',
+                borderColor: 'rgba(124,108,255,0.3)'
+              }
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1.5 }}>
+              <Typography variant="subtitle2" fontWeight={700} sx={{ color: '#212121' }}>
+                {bookmark.scenarioTitle || '시나리오'}
               </Typography>
-              <Typography variant="body2" sx={{ color: '#212121', fontSize: '0.8125rem' }}>
-                {item.ai}
-              </Typography>
-            </Box>
-            <Box>
-              <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
-                내 답변
-              </Typography>
-              <Typography variant="body2" sx={{ color: '#212121', fontSize: '0.8125rem' }}>
-                {item.you}
-              </Typography>
-            </Box>
-            <Box
-              sx={{
-                p: 1.5,
-                borderRadius: 1.5,
-                bgcolor: 'rgba(124,108,255,0.1)',
-                border: '1px dashed rgba(124,108,255,0.3)'
-              }}
-            >
-              <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
-                제안 문장
-              </Typography>
-              <Typography variant="body2" sx={{ color: '#212121', fontSize: '0.8125rem' }}>
-                {item.suggestion}
-              </Typography>
-            </Box>
-          </Stack>
-        </Box>
-      ))}
+              <Chip
+                label={`#${idx + 1}`}
+                size="small"
+                sx={{
+                  borderRadius: 1,
+                  backgroundColor: 'rgba(124,108,255,0.2)',
+                  color: '#6C63FF',
+                  fontWeight: 600,
+                  fontSize: '0.7rem',
+                  height: 20
+                }}
+              />
+            </Stack>
+
+            <Stack spacing={1.5}>
+              {/* AI 질문 */}
+              {bookmark.aiQuestion && (
+                <Box>
+                  <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
+                    AI 질문
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#212121', fontSize: '0.8125rem' }}>
+                    {bookmark.aiQuestion}
+                  </Typography>
+                </Box>
+              )}
+
+              {/* 내 답변 */}
+              <Box>
+                <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
+                  내 답변
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#212121', fontSize: '0.8125rem' }}>
+                  {bookmark.messageText}
+                </Typography>
+              </Box>
+
+              {/* 피드백 점수 태그 */}
+              {bookmark.feedbackSections && bookmark.feedbackSections.length > 0 && (
+                <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+                  {bookmark.feedbackSections.map((section) => {
+                    const typeLabel = section.type === 'pronunciation' ? '발음' :
+                                     section.type === 'grammar' ? '문법' : '문맥'
+                    const color = section.type === 'pronunciation' ? '#4CAF50' :
+                                 section.type === 'grammar' ? '#2196F3' : '#FF9800'
+
+                    return (
+                      <Chip
+                        key={section.type}
+                        label={`${typeLabel} ${section.score}`}
+                        size="small"
+                        sx={{
+                          backgroundColor: `${color}20`,
+                          color: color,
+                          fontWeight: 600,
+                          fontSize: '0.75rem'
+                        }}
+                      />
+                    )
+                  })}
+                </Stack>
+              )}
+
+              {/* 상세보기 버튼 */}
+              {bookmark.feedbackSections && bookmark.feedbackSections.length > 0 && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
+                  <IconButton
+                    onClick={() => toggleExpand(bookmark.bookmarkId)}
+                    size="small"
+                    sx={{
+                      transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                      transition: 'transform 0.3s'
+                    }}
+                  >
+                    <ExpandMoreIcon />
+                  </IconButton>
+                </Box>
+              )}
+
+              {/* 피드백 상세 내용 (접기/펼치기) */}
+              <Collapse in={isExpanded} timeout="auto" unmountOnExit>
+                <Stack spacing={1.5} sx={{ mt: 1 }}>
+                  {bookmark.feedbackSections?.map((section) => {
+                    const typeLabel = section.type === 'pronunciation' ? '발음 피드백' :
+                                     section.type === 'grammar' ? '문법 피드백' : '문맥 피드백'
+
+                    return (
+                      <Box
+                        key={section.type}
+                        sx={{
+                          p: 1.5,
+                          borderRadius: 1.5,
+                          bgcolor: 'rgba(124,108,255,0.1)',
+                          border: '1px dashed rgba(124,108,255,0.3)'
+                        }}
+                      >
+                        <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
+                          {typeLabel}
+                        </Typography>
+                        {section.feedbackKo && (
+                          <Typography variant="body2" sx={{ color: '#212121', fontSize: '0.8125rem', mb: 0.5 }}>
+                            {section.feedbackKo}
+                          </Typography>
+                        )}
+                        {section.feedbackEn && (
+                          <Typography variant="body2" sx={{ color: '#666', fontSize: '0.75rem', fontStyle: 'italic' }}>
+                            {section.feedbackEn}
+                          </Typography>
+                        )}
+                      </Box>
+                    )
+                  })}
+                </Stack>
+              </Collapse>
+            </Stack>
+          </Box>
+        )
+      })}
     </Stack>
   )
 }
