@@ -14,6 +14,7 @@ import {
   Chip
 } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import TranslateIcon from '@mui/icons-material/Translate'
 import { getComprehensiveFeedback } from '../../../../services/roleplayService'
 import LoadingSpinner from '../../../../components/Common/LoadingSpinner'
 

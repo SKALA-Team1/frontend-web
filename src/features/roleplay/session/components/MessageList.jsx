@@ -2,7 +2,7 @@ import React from 'react'
 import { Stack, Box } from '@mui/material'
 import MessageBubble from './MessageBubble'
 
-export default function MessageList({ messages, bottomRef }) {
+export default function MessageList({ messages, bottomRef, onFetchKeywords }) {
   return (
     <Stack
       spacing={2}
@@ -30,7 +30,12 @@ export default function MessageList({ messages, bottomRef }) {
       }}
     >
       {messages.map((message, index) => (
-        <MessageBubble key={index} message={message} index={index} />
+        <MessageBubble 
+          key={index} 
+          message={message} 
+          index={index} 
+          onFetchKeywords={onFetchKeywords}
+        />
       ))}
       <div ref={bottomRef} />
     </Stack>

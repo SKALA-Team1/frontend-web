@@ -92,6 +92,31 @@ export async function getComprehensiveFeedback(sessionId) {
 }
 
 /**
+ * 세션의 발화 목록 조회 (추천 키워드 포함)
+ * @param {string} sessionId - 세션 ID
+ * @returns {Promise<Object>} 발화 목록
+ *   {
+ *     session_id: string,
+ *     status: string,
+ *     utterances: [
+ *       {
+ *         id: number,
+ *         utterance_index: number,
+ *         speaker: string,
+ *         text: string,
+ *         question_ko: string,
+ *         recommended_keywords: string[]
+ *       },
+ *       ...
+ *     ]
+ *   }
+ */
+export async function getSessionUtterances(sessionId) {
+  const url = `${API_ENDPOINTS.GATEWAY}/roleplaying/sessions/${sessionId}/utterances`
+  return httpClient.get(url)
+}
+
+/**
  * WebSocket 연결 생성
  * @param {string} wsUrl - WebSocket URL
  * @param {Function} onMessage - 메시지 수신 핸들러

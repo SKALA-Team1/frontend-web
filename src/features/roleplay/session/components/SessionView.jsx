@@ -21,7 +21,8 @@ export default function SessionView({
   isTTSPlaying = false,
   onAvatarLoad = () => {},
   visemeQueue = null,
-  audioRef = null
+  audioRef = null,
+  onFetchKeywords = () => {}
 }) {
   return (
     <Box
@@ -42,7 +43,7 @@ export default function SessionView({
         visemeQueue={visemeQueue}
         audioRef={audioRef}
       />
-      <MessageList messages={messages} bottomRef={bottomRef} />
+      <MessageList messages={messages} bottomRef={bottomRef} onFetchKeywords={onFetchKeywords} />
       
       {isKeyboardMode ? (
         <TextInputArea
