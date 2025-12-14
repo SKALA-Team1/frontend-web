@@ -16,7 +16,8 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import TranslateIcon from '@mui/icons-material/Translate'
 import BookmarkIcon from '@mui/icons-material/Bookmark'
-import { getComprehensiveFeedback } from '../../../../services/roleplayService'
+import { getComprehensiveFeedback, getSessionUtterances } from '../../../../services/roleplayService'
+import { createBookmark } from '../../../../services/bookmarkService'
 import LoadingSpinner from '../../../../components/Common/LoadingSpinner'
 
 const normalizeConversationMessages = (rawMessages = []) => {
@@ -46,9 +47,57 @@ export default function SummaryView({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [bookmarkedMessages, setBookmarkedMessages] = useState({})
+  const [messageIdMap, setMessageIdMap] = useState({}) // utterance_index -> messageId 매핑
+  const [pendingBookmarks, setPendingBookmarks] = useState(new Set()) // 선택된 북마크 messageId들 (닫기 버튼에서 저장)
+  const [savingBookmarks, setSavingBookmarks] = useState(false) // 북마크 저장 중 상태
 
   const normalizedMessages = normalizeConversationMessages(messages)
   const displayMessages = normalizedMessages.length > 0 ? normalizedMessages : MOCK_CONVERSATION
+
+  // utterances 가져와서 messageId 매핑 (한 번만 실행)
+  useEffect(() => {
+    if (!sessionId) return
+
+    const loadUtterances = async () => {
+      try {
+        const utterancesData = await getSessionUtterances(sessionId)
+        const utterances = utterancesData?.utterances || []
+        
+        // utterances를 turn_index 순서로 정렬
+        const sortedUtterances = [...utterances].sort((a, b) => 
+          (a.utterance_index || 0) - (b.utterance_index || 0)
+        )
+        
+        // displayMessages의 인덱스와 utterances의 turn_index를 매칭
+        // displayMessages는 AI와 User가 번갈아 나오므로, turn_index로 직접 매칭 불가
+        // 대신 텍스트 매칭으로 user 메시지의 messageId 찾기
+        const idMap = {}
+        const currentDisplayMessages = normalizedMessages.length > 0 ? normalizedMessages : MOCK_CONVERSATION
+        
+        sortedUtterances.forEach(utterance => {
+          if ((utterance.speaker === 'user' || utterance.speaker === 'USER') && utterance.id) {
+            // currentDisplayMessages에서 같은 텍스트를 가진 사용자 메시지 찾기
+            currentDisplayMessages.forEach((msg, idx) => {
+              if (msg.who === 'You' && msg.text && utterance.text) {
+                const msgText = msg.text.trim()
+                const utteranceText = utterance.text.trim()
+                if (msgText === utteranceText) {
+                  idMap[idx] = utterance.id
+                }
+              }
+            })
+          }
+        })
+        
+        setMessageIdMap(idMap)
+      } catch (err) {
+        console.error('[SummaryView] Failed to load utterances:', err)
+      }
+    }
+
+    loadUtterances()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionId]) // displayMessages 제거 - messages prop이 변경될 때만 재실행되도록
 
   // 종합 피드백 조회 (피드백 생성 완료까지 대기)
   useEffect(() => {
@@ -123,8 +172,45 @@ export default function SummaryView({
         <Alert severity="warning" sx={{ mb: 1 }}>
           {error}
         </Alert>
-        <Button variant="outlined" onClick={onClose} sx={{ mt: 2 }}>
-          닫기
+        <Button 
+          variant="outlined" 
+          onClick={async () => {
+            // 선택된 북마크들을 일괄 저장
+            if (pendingBookmarks.size > 0) {
+              setSavingBookmarks(true)
+              try {
+                const messageIds = Array.from(pendingBookmarks)
+                
+                const bookmarkPromises = messageIds.map(messageId => 
+                  createBookmark(messageId).catch(err => {
+                    return { error: true, messageId, errorMessage: err?.message || 'Unknown error' }
+                  })
+                )
+                
+                const results = await Promise.all(bookmarkPromises)
+                const successCount = results.filter(r => r === undefined || (r && !r.error)).length
+                const failedResults = results.filter(r => r && r.error)
+                
+                if (failedResults.length > 0) {
+                  alert(`북마크 저장 실패: ${failedResults.length}개 실패\n\n실패한 메시지 ID: ${failedResults.map(f => f.messageId).join(', ')}\n\n에러: ${failedResults[0]?.errorMessage || '알 수 없는 오류'}`)
+                }
+                
+                // 저장 완료 후 상태 초기화
+                setPendingBookmarks(new Set())
+              } catch (err) {
+                alert('북마크 저장 중 오류가 발생했습니다: ' + (err?.message || '알 수 없는 오류'))
+              } finally {
+                setSavingBookmarks(false)
+              }
+            }
+            
+            // 닫기 콜백 실행
+            onClose()
+          }}
+          disabled={savingBookmarks}
+          sx={{ mt: 2 }}
+        >
+          {savingBookmarks ? '저장 중...' : pendingBookmarks.size > 0 ? `닫기 (${pendingBookmarks.size}개 저장)` : '닫기'}
         </Button>
       </Box>
     )
@@ -277,7 +363,8 @@ export default function SummaryView({
               {displayMessages.map((msg, idx) => {
                 const isUser = msg.who === 'You'
                 const messageKey = `${msg.who}-${idx}`
-                const isBookmarked = bookmarkedMessages[messageKey] || false
+                const messageId = messageIdMap[idx]
+                const isBookmarked = bookmarkedMessages[messageKey] || (messageId && pendingBookmarks.has(messageId))
                 
                 return (
                   <Box key={messageKey} sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
@@ -299,11 +386,33 @@ export default function SummaryView({
                         <IconButton
                           size="small"
                           onClick={() => {
-                            setBookmarkedMessages(prev => ({
-                              ...prev,
-                              [messageKey]: !prev[messageKey]
-                            }))
+                            const utteranceIndex = idx
+                            const messageId = messageIdMap[utteranceIndex]
+                            
+                            if (!messageId) {
+                              return
+                            }
+
+                            // 로컬 상태만 변경 (즉시 DB 저장하지 않음)
+                            setPendingBookmarks(prev => {
+                              const newSet = new Set(prev)
+                              if (newSet.has(messageId)) {
+                                newSet.delete(messageId)
+                                setBookmarkedMessages(prevMsgs => ({
+                                  ...prevMsgs,
+                                  [messageKey]: false
+                                }))
+                              } else {
+                                newSet.add(messageId)
+                                setBookmarkedMessages(prevMsgs => ({
+                                  ...prevMsgs,
+                                  [messageKey]: true
+                                }))
+                              }
+                              return newSet
+                            })
                           }}
+                          disabled={!messageIdMap[idx] || savingBookmarks}
                           sx={{
                             padding: 0.25,
                             minWidth: 'auto',
@@ -353,8 +462,45 @@ export default function SummaryView({
           </Collapse>
         </Box>
 
-        <Button variant="outlined" onClick={onClose} sx={{ mt: 2 }}>
-          닫기
+        <Button 
+          variant="outlined" 
+          onClick={async () => {
+            // 선택된 북마크들을 일괄 저장
+            if (pendingBookmarks.size > 0) {
+              setSavingBookmarks(true)
+              try {
+                const messageIds = Array.from(pendingBookmarks)
+                
+                const bookmarkPromises = messageIds.map(messageId => 
+                  createBookmark(messageId).catch(err => {
+                    return { error: true, messageId, errorMessage: err?.message || 'Unknown error' }
+                  })
+                )
+                
+                const results = await Promise.all(bookmarkPromises)
+                const successCount = results.filter(r => r === undefined || (r && !r.error)).length
+                const failedResults = results.filter(r => r && r.error)
+                
+                if (failedResults.length > 0) {
+                  alert(`북마크 저장 실패: ${failedResults.length}개 실패\n\n실패한 메시지 ID: ${failedResults.map(f => f.messageId).join(', ')}\n\n에러: ${failedResults[0]?.errorMessage || '알 수 없는 오류'}`)
+                }
+                
+                // 저장 완료 후 상태 초기화
+                setPendingBookmarks(new Set())
+              } catch (err) {
+                alert('북마크 저장 중 오류가 발생했습니다: ' + (err?.message || '알 수 없는 오류'))
+              } finally {
+                setSavingBookmarks(false)
+              }
+            }
+            
+            // 닫기 콜백 실행
+            onClose()
+          }}
+          disabled={savingBookmarks}
+          sx={{ mt: 2 }}
+        >
+          {savingBookmarks ? '저장 중...' : pendingBookmarks.size > 0 ? `닫기 (${pendingBookmarks.size}개 저장)` : '닫기'}
         </Button>
       </Stack>
     </Box>

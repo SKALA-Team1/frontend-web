@@ -117,6 +117,25 @@ export async function getSessionUtterances(sessionId) {
 }
 
 /**
+ * 완료된 세션 목록 조회
+ * @returns {Promise<Array>} 완료된 세션 목록
+ *   [
+ *     {
+ *       sessionId: string,
+ *       scenarioTitle: string,
+ *       myRole: string,
+ *       aiRole: string,
+ *       executedDate: string (ISO date string)
+ *     },
+ *     ...
+ *   ]
+ */
+export async function getCompletedSessions() {
+  const url = `${API_ENDPOINTS.GATEWAY}/roleplaying/sessions/completed`
+  return httpClient.get(url)
+}
+
+/**
  * WebSocket 연결 생성
  * @param {string} wsUrl - WebSocket URL
  * @param {Function} onMessage - 메시지 수신 핸들러

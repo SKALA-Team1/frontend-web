@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { 
   Typography, 
   Stack, 
@@ -8,11 +8,14 @@ import {
   Chip,
   IconButton,
   Collapse,
-  Divider
+  Divider,
+  CircularProgress,
+  Alert
 } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import BookmarkIcon from '@mui/icons-material/Bookmark'
+import useBookmarks from '../../../hooks/useBookmarks'
 
 // 더미 북마크 채팅 데이터 5개
 const MOCK_BOOKMARKED_CHATS = [
@@ -184,8 +187,14 @@ const MOCK_BOOKMARKED_CHATS = [
 ]
 
 export default function UserPage() {
+  const { bookmarks, loading, error, removeBookmark, refreshBookmarks } = useBookmarks()
   const [expandedCards, setExpandedCards] = useState({})
-  const [bookmarkedItems, setBookmarkedItems] = useState({})
+
+  // UserPage 마운트 시 북마크 목록 로드 (한 번만 실행)
+  useEffect(() => {
+    refreshBookmarks()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handleToggleExpand = (bookmarkId) => {
     setExpandedCards(prev => ({
@@ -194,11 +203,17 @@ export default function UserPage() {
     }))
   }
 
-  const handleToggleBookmark = (bookmarkId) => {
-    setBookmarkedItems(prev => ({
-      ...prev,
-      [bookmarkId]: !prev[bookmarkId]
-    }))
+  const handleDeleteBookmark = async (bookmarkId) => {
+    if (window.confirm('북마크를 삭제하시겠습니까?')) {
+      await removeBookmark(bookmarkId)
+    }
+  }
+
+  // 피드백 타입별 라벨 매핑
+  const feedbackTypeLabels = {
+    pronunciation: '발음',
+    grammar: '문법',
+    relevance: '관련성'
   }
 
   return (
@@ -214,8 +229,34 @@ export default function UserPage() {
       </Stack>
 
       {/* 북마크 채팅 리스트 */}
+      {loading && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+          <CircularProgress />
+        </Box>
+      )}
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
+      {!loading && !error && (!Array.isArray(bookmarks) || bookmarks.length === 0) && (
+        <Box sx={{ textAlign: 'center', py: 4 }}>
+          <Typography variant="body2" color="text.secondary">
+            북마크한 채팅이 없습니다.
+          </Typography>
+        </Box>
+      )}
       <Stack spacing={2.5}>
-        {MOCK_BOOKMARKED_CHATS.map((bookmark) => (
+        {Array.isArray(bookmarks) && bookmarks.map((bookmark) => {
+          // feedbackSections를 맵으로 변환 (type을 키로)
+          const feedbacksMap = {}
+          if (bookmark.feedbackSections && Array.isArray(bookmark.feedbackSections)) {
+            bookmark.feedbackSections.forEach(section => {
+              feedbacksMap[section.type] = section
+            })
+          }
+          
+          return (
           <Card
             key={bookmark.id}
             sx={{
@@ -249,16 +290,16 @@ export default function UserPage() {
             <CardContent sx={{ p: 3, position: 'relative' }}>
               {/* 북마크 아이콘 - 카드 오른쪽 위 */}
               <IconButton
-                onClick={() => handleToggleBookmark(bookmark.id)}
+                onClick={() => handleDeleteBookmark(bookmark.bookmarkId)}
                 size="small"
                 sx={{
                   position: 'absolute',
                   top: 16,
                   right: 16,
-                  color: bookmarkedItems[bookmark.id] ? '#FFA500' : 'rgba(0,0,0,0.4)',
+                  color: '#FFA500',
                   '&:hover': {
                     bgcolor: 'rgba(0,0,0,0.05)',
-                    color: bookmarkedItems[bookmark.id] ? '#FF8C00' : 'rgba(0,0,0,0.6)'
+                    color: '#FF8C00'
                   },
                   transition: 'color 0.2s ease',
                   zIndex: 1
@@ -296,7 +337,7 @@ export default function UserPage() {
                           lineHeight: 1.6
                         }}
                       >
-                        {bookmark.aiQuestion}
+                        {bookmark.aiQuestion || 'AI 질문 없음'}
                       </Typography>
                     </Box>
                   </Box>
@@ -329,13 +370,43 @@ export default function UserPage() {
                           lineHeight: 1.6
                         }}
                       >
-                        {bookmark.myAnswer}
+                        {bookmark.messageText}
                       </Typography>
                     </Box>
                   </Box>
 
                 {/* 점수 */}
-                {bookmark.scores && (
+                {bookmark.feedbackSections && bookmark.feedbackSections.length > 0 && (
+                  <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                    {bookmark.feedbackSections.map((section) => {
+                      if (!section.score) return null
+                      const typeColors = {
+                        pronunciation: { bg: 'rgba(76,175,80,0.1)', color: '#4caf50', border: 'rgba(76,175,80,0.2)' },
+                        grammar: { bg: 'rgba(33,150,243,0.1)', color: '#2196f3', border: 'rgba(33,150,243,0.2)' },
+                        relevance: { bg: 'rgba(255,152,0,0.1)', color: '#ff9800', border: 'rgba(255,152,0,0.2)' }
+                      }
+                      const colors = typeColors[section.type] || typeColors.pronunciation
+                      return (
+                        <Chip
+                          key={section.type}
+                          label={`${feedbackTypeLabels[section.type] || section.type} ${section.score}`}
+                          size="small"
+                          sx={{
+                            height: 24,
+                            fontSize: '0.75rem',
+                            fontWeight: 500,
+                            bgcolor: colors.bg,
+                            color: colors.color,
+                            border: `1px solid ${colors.border}`
+                          }}
+                        />
+                      )
+                    })}
+                  </Box>
+                )}
+
+                {/* 점수 (기존 코드 백업용 - 추후 제거 가능) */}
+                {(!bookmark.feedbackSections || bookmark.feedbackSections.length === 0) && bookmark.scores && (
                   <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                     {bookmark.scores.pronunciation && (
                       <Chip
@@ -360,6 +431,7 @@ export default function UserPage() {
                           fontSize: '0.75rem',
                           fontWeight: 500,
                           bgcolor: 'rgba(33,150,243,0.1)',
+                          color: '#2196f3',
                           color: '#2196f3',
                           border: '1px solid rgba(33,150,243,0.2)'
                         }}
@@ -400,7 +472,7 @@ export default function UserPage() {
                       }
                     }
                   }}
-                  onClick={() => handleToggleExpand(bookmark.id)}
+                  onClick={() => handleToggleExpand(bookmark.bookmarkId)}
                 >
                   <Typography 
                     variant="body2" 
@@ -413,7 +485,7 @@ export default function UserPage() {
                   >
                     상세보기
                   </Typography>
-                  {expandedCards[bookmark.id] ? (
+                  {expandedCards[bookmark.bookmarkId] ? (
                     <ExpandLessIcon className="detail-icon" sx={{ fontSize: 20, color: 'text.secondary', transition: 'color 0.2s ease' }} />
                   ) : (
                     <ExpandMoreIcon className="detail-icon" sx={{ fontSize: 20, color: 'text.secondary', transition: 'color 0.2s ease' }} />
@@ -421,60 +493,97 @@ export default function UserPage() {
                 </Box>
 
                 {/* 피드백 상세 (토글) */}
-                <Collapse in={expandedCards[bookmark.id]}>
+                <Collapse in={expandedCards[bookmark.bookmarkId]}>
                   <Box sx={{ pt: 2 }}>
                     <Divider sx={{ mb: 2, borderColor: 'rgba(0,0,0,0.08)' }} />
                     <Stack spacing={2.5}>
-                      {/* 발음 피드백 */}
-                      {bookmark.feedbacks?.pronunciation && (
-                        <Box>
-                          <Typography variant="subtitle2" fontWeight={600} color="text.primary" sx={{ mb: 1 }}>
-                            발음 피드백
-                          </Typography>
-                          <Box
-                            sx={{
-                              p: 1.5,
-                              borderRadius: 2,
-                              bgcolor: 'rgba(76,175,80,0.05)',
-                              border: '1px solid rgba(76,175,80,0.15)'
-                            }}
-                          >
-                            <Typography variant="body2" sx={{ color: '#212121', lineHeight: 1.6, mb: 1 }}>
-                              {bookmark.feedbacks.pronunciation.feedback_ko}
-                            </Typography>
-                            <Typography variant="caption" sx={{ color: 'text.secondary', fontStyle: 'italic' }}>
-                              {bookmark.feedbacks.pronunciation.feedback_en}
-                            </Typography>
-                          </Box>
-                        </Box>
+                      {/* 피드백 섹션들 */}
+                      {bookmark.feedbackSections && bookmark.feedbackSections.length > 0 ? (
+                        bookmark.feedbackSections.map((section) => {
+                          const typeColors = {
+                            pronunciation: { bg: 'rgba(76,175,80,0.05)', border: 'rgba(76,175,80,0.15)' },
+                            grammar: { bg: 'rgba(33,150,243,0.05)', border: 'rgba(33,150,243,0.15)' },
+                            relevance: { bg: 'rgba(255,152,0,0.05)', border: 'rgba(255,152,0,0.15)' }
+                          }
+                          const colors = typeColors[section.type] || typeColors.pronunciation
+                          return (
+                            <Box key={section.type}>
+                              <Typography variant="subtitle2" fontWeight={600} color="text.primary" sx={{ mb: 1 }}>
+                                {feedbackTypeLabels[section.type] || section.type} 피드백
+                              </Typography>
+                              <Box
+                                sx={{
+                                  p: 1.5,
+                                  borderRadius: 2,
+                                  bgcolor: colors.bg,
+                                  border: `1px solid ${colors.border}`
+                                }}
+                              >
+                                <Typography variant="body2" sx={{ color: '#212121', lineHeight: 1.6, mb: 1 }}>
+                                  {section.feedbackKo || section.feedback_ko || ''}
+                                </Typography>
+                                <Typography variant="caption" sx={{ color: 'text.secondary', fontStyle: 'italic' }}>
+                                  {section.feedbackEn || section.feedback_en || ''}
+                                </Typography>
+                              </Box>
+                            </Box>
+                          )
+                        })
+                      ) : (
+                        // 기존 코드 (백업용 - 추후 제거 가능)
+                        <>
+                          {/* 발음 피드백 */}
+                          {feedbacksMap.pronunciation && (
+                            <Box>
+                              <Typography variant="subtitle2" fontWeight={600} color="text.primary" sx={{ mb: 1 }}>
+                                발음 피드백
+                              </Typography>
+                              <Box
+                                sx={{
+                                  p: 1.5,
+                                  borderRadius: 2,
+                                  bgcolor: 'rgba(76,175,80,0.05)',
+                                  border: '1px solid rgba(76,175,80,0.15)'
+                                }}
+                              >
+                                <Typography variant="body2" sx={{ color: '#212121', lineHeight: 1.6, mb: 1 }}>
+                                  {feedbacksMap.pronunciation.feedback_ko || feedbacksMap.pronunciation.feedbackKo}
+                                </Typography>
+                                <Typography variant="caption" sx={{ color: 'text.secondary', fontStyle: 'italic' }}>
+                                  {feedbacksMap.pronunciation.feedback_en || feedbacksMap.pronunciation.feedbackEn}
+                                </Typography>
+                              </Box>
+                            </Box>
+                          )}
+
+                          {/* 문법 피드백 */}
+                          {feedbacksMap.grammar && (
+                            <Box>
+                              <Typography variant="subtitle2" fontWeight={600} color="text.primary" sx={{ mb: 1 }}>
+                                문법 피드백
+                              </Typography>
+                              <Box
+                                sx={{
+                                  p: 1.5,
+                                  borderRadius: 2,
+                                  bgcolor: 'rgba(33,150,243,0.05)',
+                                  border: '1px solid rgba(33,150,243,0.15)'
+                                }}
+                              >
+                                <Typography variant="body2" sx={{ color: '#212121', lineHeight: 1.6, mb: 1 }}>
+                                  {feedbacksMap.grammar.feedback_ko || feedbacksMap.grammar.feedbackKo}
+                                </Typography>
+                                <Typography variant="caption" sx={{ color: 'text.secondary', fontStyle: 'italic' }}>
+                                  {feedbacksMap.grammar.feedback_en || feedbacksMap.grammar.feedbackEn}
+                                </Typography>
+                              </Box>
+                            </Box>
+                          )}
+                        </>
                       )}
 
-                      {/* 문법 피드백 */}
-                      {bookmark.feedbacks?.grammar && (
-                        <Box>
-                          <Typography variant="subtitle2" fontWeight={600} color="text.primary" sx={{ mb: 1 }}>
-                            문법 피드백
-                          </Typography>
-                          <Box
-                            sx={{
-                              p: 1.5,
-                              borderRadius: 2,
-                              bgcolor: 'rgba(33,150,243,0.05)',
-                              border: '1px solid rgba(33,150,243,0.15)'
-                            }}
-                          >
-                            <Typography variant="body2" sx={{ color: '#212121', lineHeight: 1.6, mb: 1 }}>
-                              {bookmark.feedbacks.grammar.feedback_ko}
-                            </Typography>
-                            <Typography variant="caption" sx={{ color: 'text.secondary', fontStyle: 'italic' }}>
-                              {bookmark.feedbacks.grammar.feedback_en}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      )}
-
-                      {/* 관련성 피드백 */}
-                      {bookmark.feedbacks?.relevance && (
+                      {/* 관련성 피드백 (기존 코드 - 추후 제거 가능) */}
+                      {feedbacksMap.relevance && (
                         <Box>
                           <Typography variant="subtitle2" fontWeight={600} color="text.primary" sx={{ mb: 1 }}>
                             문맥 피드백
@@ -488,10 +597,10 @@ export default function UserPage() {
                             }}
                           >
                             <Typography variant="body2" sx={{ color: '#212121', lineHeight: 1.6, mb: 1 }}>
-                              {bookmark.feedbacks.relevance.feedback_ko}
+                              {feedbacksMap.relevance.feedback_ko || feedbacksMap.relevance.feedbackKo}
                             </Typography>
                             <Typography variant="caption" sx={{ color: 'text.secondary', fontStyle: 'italic' }}>
-                              {bookmark.feedbacks.relevance.feedback_en}
+                              {feedbacksMap.relevance.feedback_en || feedbacksMap.relevance.feedbackEn}
                             </Typography>
                           </Box>
                         </Box>
@@ -502,7 +611,8 @@ export default function UserPage() {
               </Stack>
             </CardContent>
           </Card>
-        ))}
+        )
+        })}
       </Stack>
     </Stack>
   )

@@ -12,8 +12,9 @@
  */
 
 import { request } from './httpClient'
+import { API_ENDPOINTS } from '../config/constants'
 
-const BASE_URL = '/internal/bookmarks'
+const BASE_URL = `${API_ENDPOINTS.GATEWAY}/bookmarks`
 
 /**
  * 내 북마크 목록 조회

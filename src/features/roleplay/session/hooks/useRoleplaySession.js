@@ -138,15 +138,14 @@ export default function useRoleplaySession() {
 
   /**
    * 피드백 섹션 필터링 및 정렬
-   * grammar와 relevance만 필터링하고 grammar를 먼저 정렬
+   * grammar, pronunciation, relevance를 필터링하고 grammar -> pronunciation -> relevance 순으로 정렬
    */
   const filterAndSortFeedbackSections = (sections) => {
     return sections
-      .filter(section => section.type === 'grammar' || section.type === 'relevance')
+      .filter(section => section.type === 'grammar' || section.type === 'pronunciation' || section.type === 'relevance')
       .sort((a, b) => {
-        if (a.type === 'grammar' && b.type === 'relevance') return -1
-        if (a.type === 'relevance' && b.type === 'grammar') return 1
-        return 0
+        const order = { 'grammar': 0, 'pronunciation': 1, 'relevance': 2 }
+        return (order[a.type] ?? 999) - (order[b.type] ?? 999)
       })
   }
 
@@ -335,12 +334,25 @@ export default function useRoleplaySession() {
   const displayFeedbackMessages = (sections) => {
     const feedbackToShow = filterAndSortFeedbackSections(sections)
     
-    feedbackToShow.forEach((section) => {
-      const translationText = section.feedback_ko
-      const feedbackText = parseFeedbackText(section.feedback_en)
-      
-      addAIMessage(feedbackText, translationText, false, false)
-    })
+    if (feedbackToShow.length === 0) return
+    
+    // 모든 피드백을 하나의 메시지로 합치기
+    const feedbackSections = feedbackToShow.map(section => ({
+      type: section.type,
+      feedback_en: parseFeedbackText(section.feedback_en),
+      feedback_ko: section.feedback_ko,
+      score: section.score
+    }))
+    
+    // 피드백 섹션을 포함한 하나의 메시지 추가 (타이핑 효과 없음)
+    setMessages(prev => [...prev, {
+      who: 'AI',
+      text: '', // 피드백은 feedbackSections로 표시
+      translation: '',
+      isFixedQuestion: false,
+      isStreaming: false,
+      feedbackSections: feedbackSections
+    }])
   }
 
   /**
@@ -628,14 +640,28 @@ export default function useRoleplaySession() {
     if (needsCorrectionRef.current) {
       const feedbackToShow = filterAndSortFeedbackSections(pendingFeedbackSectionsRef.current)
       
-      feedbackToShow.forEach((section) => {
-        const translationText = section.feedback_ko
-        const feedbackText = parseFeedbackText(section.feedback_en)
-        addAIMessage(feedbackText, translationText, false, false)
-      })
+      if (feedbackToShow.length > 0) {
+        // 모든 피드백을 하나의 메시지로 합치기
+        const feedbackSections = feedbackToShow.map(section => ({
+          type: section.type,
+          feedback_en: parseFeedbackText(section.feedback_en),
+          feedback_ko: section.feedback_ko,
+          score: section.score
+        }))
+        
+        // 피드백 섹션을 포함한 하나의 메시지 추가 (타이핑 효과 없음)
+        setMessages(prev => [...prev, {
+          who: 'AI',
+          text: '', // 피드백은 feedbackSections로 표시
+          translation: '',
+          isFixedQuestion: false,
+          isStreaming: false,
+          feedbackSections: feedbackSections
+        }])
+      }
       
       pendingFeedbackSectionsRef.current = pendingFeedbackSectionsRef.current.filter(
-        section => section.type !== 'grammar' && section.type !== 'relevance'
+        section => section.type !== 'grammar' && section.type !== 'pronunciation' && section.type !== 'relevance'
       )
       needsCorrectionRef.current = false
     }

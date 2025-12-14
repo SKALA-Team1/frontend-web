@@ -126,8 +126,8 @@ export default function RoleplayPage() {
     setOpenEnd,
     currentQuestion,
     session,
-    bookmarked,
-    toggleBookmark,
+    // bookmarked,
+    // toggleBookmark,
     handleEndSession
   } = useSessionControls(scenarios)
 

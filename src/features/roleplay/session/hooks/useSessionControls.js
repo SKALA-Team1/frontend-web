@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import useRoleplaySession from './useRoleplaySession'
-import useBookmarks from '../../../../hooks/useBookmarks'
+// import useBookmarks from '../../../../hooks/useBookmarks' // SummaryView에서 사용하지 않으므로 제거
 
 /**
  * 롤플레이 세션 제어를 위한 커스텀 훅
@@ -44,8 +44,8 @@ export default function useSessionControls(scenarios = []) {
   const session = useRoleplaySession()
   
   // 롤플레이 필터 관리 훅 (현재 탭에 따라 필터링)
-  // 북마크 관리 훅
-  const { bookmarked, toggleBookmark } = useBookmarks()
+  // 북마크 관리 훅 (사용하지 않으므로 제거)
+  // const { bookmarked, toggleBookmark } = useBookmarks()
 
   /**
    * 현재 AI 질문 텍스트
@@ -84,8 +84,8 @@ export default function useSessionControls(scenarios = []) {
     
     // Hooks
     session,
-    bookmarked,
-    toggleBookmark,
+    // bookmarked,
+    // toggleBookmark,
     
     // Handlers
     handleEndSession
