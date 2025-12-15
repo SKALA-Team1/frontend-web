@@ -305,6 +305,7 @@ export default function RoleplayPage() {
           tab={tab}
           setTab={setTab}
           filteredItems={filteredItems}
+          totalScenarios={scenarios.length}
           isSlackIntegrated={isSlackIntegrated}
           pendingSlackGeneration={pendingSlackGeneration}
           onChannelSelected={() => setPendingSlackGeneration(true)}

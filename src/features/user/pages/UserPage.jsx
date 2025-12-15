@@ -149,7 +149,7 @@ export default function UserPage() {
         {Array.isArray(bookmarks) && bookmarks.map((bookmark) => {
           return (
           <Card
-            key={bookmark.id}
+            key={bookmark.bookmarkId || bookmark.id}
             sx={{
               borderRadius: 3,
               border: '1px solid rgba(0,0,0,0.08)',

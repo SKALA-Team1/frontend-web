@@ -17,14 +17,12 @@ import {
   Divider,
   Typography,
   Button,
-  Stack,
 } from '@mui/material'
 import HomeIcon from '@mui/icons-material/Home'
 import SchoolIcon from '@mui/icons-material/School'
 import FeedbackIcon from '@mui/icons-material/Feedback'
 import BookmarkIcon from '@mui/icons-material/Bookmark'
 import PersonIcon from '@mui/icons-material/Person'
-import EditIcon from '@mui/icons-material/Edit'
 import LogoutIcon from '@mui/icons-material/Logout'
 import { NAV_LINKS, ROUTES } from '../../config/constants'
 import { getCurrentUser } from '../../services/userService'
@@ -236,64 +234,34 @@ export default function AppDrawer({
 
         {/* 푸터 */}
         <Box sx={{ p: 2.5 }}>
-          <Stack spacing={1.5}>
-            <Button
-              variant="outlined"
-              size="medium"
-              startIcon={<EditIcon />}
-              fullWidth
-              onClick={() => onNavigate(ROUTES.MYPAGE)}
-              sx={{
-                color: '#7C6CFF',
-                borderColor: 'rgba(124,108,255,0.3)',
+          <Button
+            variant="outlined"
+            size="medium"
+            startIcon={<LogoutIcon />}
+            fullWidth
+            onClick={handleLogout}
+            sx={{
+              color: '#FF6B6B',
+              borderColor: 'rgba(255,107,107,0.3)',
+              borderWidth: 2,
+              borderRadius: 2.5,
+              py: 1.25,
+              justifyContent: 'center',
+              fontWeight: 600,
+              fontSize: '0.875rem',
+              background: 'linear-gradient(135deg, rgba(255,107,107,0.05) 0%, rgba(255,82,82,0.03) 100%)',
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                background: 'linear-gradient(135deg, rgba(255,107,107,0.12) 0%, rgba(255,82,82,0.08) 100%)',
+                borderColor: 'rgba(255,107,107,0.5)',
                 borderWidth: 2,
-                borderRadius: 2.5,
-                py: 1.25,
-                justifyContent: 'center',
-                fontWeight: 600,
-                fontSize: '0.875rem',
-                background: 'linear-gradient(135deg, rgba(124,108,255,0.05) 0%, rgba(75,60,248,0.03) 100%)',
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                  background: 'linear-gradient(135deg, rgba(124,108,255,0.12) 0%, rgba(75,60,248,0.08) 100%)',
-                  borderColor: 'rgba(124,108,255,0.5)',
-                  borderWidth: 2,
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 4px 12px rgba(124,108,255,0.2)',
-                },
-              }}
-            >
-              개인정보 수정
-            </Button>
-            <Button
-              variant="outlined"
-              size="medium"
-              startIcon={<LogoutIcon />}
-              fullWidth
-              onClick={handleLogout}
-              sx={{
-                color: '#FF6B6B',
-                borderColor: 'rgba(255,107,107,0.3)',
-                borderWidth: 2,
-                borderRadius: 2.5,
-                py: 1.25,
-                justifyContent: 'center',
-                fontWeight: 600,
-                fontSize: '0.875rem',
-                background: 'linear-gradient(135deg, rgba(255,107,107,0.05) 0%, rgba(255,82,82,0.03) 100%)',
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                  background: 'linear-gradient(135deg, rgba(255,107,107,0.12) 0%, rgba(255,82,82,0.08) 100%)',
-                  borderColor: 'rgba(255,107,107,0.5)',
-                  borderWidth: 2,
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 4px 12px rgba(255,107,107,0.2)',
-                },
-              }}
-            >
-              로그아웃
-            </Button>
-          </Stack>
+                transform: 'translateY(-2px)',
+                boxShadow: '0 4px 12px rgba(255,107,107,0.2)',
+              },
+            }}
+          >
+            로그아웃
+          </Button>
         </Box>
       </Box>
     </Drawer>

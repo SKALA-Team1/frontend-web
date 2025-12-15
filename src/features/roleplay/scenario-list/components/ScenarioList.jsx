@@ -28,6 +28,7 @@ function ScenarioList({
   tab,
   setTab,
   filteredItems = [],
+  totalScenarios = 0,
   isSlackIntegrated = false,
   pendingSlackGeneration = false,
   onChannelSelected = () => {},
@@ -71,7 +72,8 @@ function ScenarioList({
     }))
   }, [])
 
-  const scenarioCount = filteredItems.length
+  // 전체 시나리오 개수 사용 (ProfileSummary의 completionStats.total과 동일)
+  const scenarioCount = totalScenarios > 0 ? totalScenarios : filteredItems.length
 
   // Slack 탭에서 시나리오가 없을 때: 채널 선택/진행 상태 표시
   if (tab === 'linked' && !loading && filteredItems.length === 0) {
@@ -309,7 +311,7 @@ function ScenarioList({
                           AI 역할
                         </Typography>
                         {item.isGrouped && item.groupType === 'detail' && item.availableAiRoles && item.availableAiRoles.length > 1 ? (
-                          <FormControl size="small" fullWidth sx={{ mt: 0.25 }}>
+                          <FormControl size="small" sx={{ mt: 0.25, width: 'auto', minWidth: 120 }}>
                             <Select
                               value={selectedAiRoleIndices[item.scenarioId] ?? item.selectedAiRoleIndex ?? 0}
                               onChange={(e) => {
