@@ -28,6 +28,7 @@ function ScenarioList({
   tab,
   setTab,
   filteredItems = [],
+  totalScenarios = 0,
   isSlackIntegrated = false,
   pendingSlackGeneration = false,
   onChannelSelected = () => {},
@@ -71,7 +72,8 @@ function ScenarioList({
     }))
   }, [])
 
-  const scenarioCount = filteredItems.length
+  // 전체 시나리오 개수 사용 (ProfileSummary의 completionStats.total과 동일)
+  const scenarioCount = totalScenarios > 0 ? totalScenarios : filteredItems.length
 
   // Slack 탭에서 시나리오가 없을 때: 채널 선택/진행 상태 표시
   if (tab === 'linked' && !loading && filteredItems.length === 0) {
@@ -88,7 +90,7 @@ function ScenarioList({
           />
         )}
         {channelSelected && (
-          <Alert severity="info" sx={{ mt: 2 }}>
+          <Alert severity="info" sx={{ mt: 1 }}>
             Slack 채널을 선택했습니다. 메시지 수집 및 시나리오 생성이 진행 중입니다.
           </Alert>
         )}
@@ -113,7 +115,7 @@ function ScenarioList({
         onChange={(_, v) => setTab(v)} 
         variant="fullWidth"
         sx={{
-          mb: 3,
+          mb: 1.5,
           '& .MuiTabs-indicator': {
             height: 3,
             borderRadius: '3px 3px 0 0',
@@ -166,7 +168,7 @@ function ScenarioList({
       {error && (
         <Alert
           severity="error"
-          sx={{ mt: 2 }}
+          sx={{ mt: 1 }}
           action={
             onRetry && (
               <Button color="inherit" size="small" onClick={onRetry}>
@@ -233,72 +235,71 @@ function ScenarioList({
                 }
               }}
             >
-              <CardContent sx={{ p: 3 }}>
-                <Stack spacing={2}>
-                  {/* 제목 + Overview 배지 */}
-                  <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 1 }}>
+              <CardContent sx={{ p: 1.5 }}>
+                <Stack spacing={1}>
+                  {/* 제목 */}
                   <Typography 
                     variant="h6" 
                     fontWeight={700} 
                     sx={{ 
                       fontSize: '1.0625rem',
                       lineHeight: 1.4,
-                        color: '#212121',
-                        flex: 1
+                      color: '#212121'
                     }}
                   >
                     {item.title}
                   </Typography>
-                    {item.isGrouped && item.groupType === 'overview' && (
-                      <Chip
-                        label="Overview"
-                        size="small"
-                        sx={{
-                          height: 24,
-                          fontSize: '0.75rem',
-                          fontWeight: 600,
-                          background: 'linear-gradient(135deg, rgba(124,108,255,0.15) 0%, rgba(75,60,248,0.1) 100%)',
-                          color: 'primary.main',
-                          border: '1px solid rgba(124,108,255,0.3)',
-                          '& .MuiChip-label': {
-                            px: 1.5
-                          }
-                        }}
-                      />
-                    )}
-                    {item.isGrouped && item.groupType === 'detail' && (
-                      <Chip
-                        label="Detail"
-                        size="small"
-                        sx={{
-                          height: 24,
-                          fontSize: '0.75rem',
-                          fontWeight: 600,
-                          background: 'linear-gradient(135deg, rgba(76,175,80,0.15) 0%, rgba(56,142,60,0.1) 100%)',
-                          color: '#4caf50',
-                          border: '1px solid rgba(76,175,80,0.3)',
-                          '& .MuiChip-label': {
-                            px: 1.5
-                          }
-                        }}
-                      />
-                    )}
-                  </Box>
 
                   {/* 역할 정보 그리드 */}
                   <Stack spacing={1.5}>
                     {/* 나의 역할 */}
                     {item.myRole && (
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <PersonIcon sx={{ fontSize: 18, color: 'primary.main', opacity: 0.8 }} />
-                        <Box>
-                          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>
-                            나의 역할
-                          </Typography>
-                          <Typography variant="body2" fontWeight={600} color="text.primary">
-                            {item.myRole}
-                          </Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
+                          <PersonIcon sx={{ fontSize: 18, color: 'primary.main', opacity: 0.8 }} />
+                          <Box>
+                            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.125 }}>
+                              나의 역할
+                            </Typography>
+                            <Typography variant="body2" fontWeight={600} color="text.primary">
+                              {item.myRole}
+                            </Typography>
+                          </Box>
                         </Box>
+                        {item.isGrouped && item.groupType === 'overview' && (
+                          <Chip
+                            label="Overview"
+                            size="small"
+                            sx={{
+                              height: 24,
+                              fontSize: '0.75rem',
+                              fontWeight: 600,
+                              background: 'linear-gradient(135deg, rgba(124,108,255,0.15) 0%, rgba(75,60,248,0.1) 100%)',
+                              color: 'primary.main',
+                              border: '1px solid rgba(124,108,255,0.3)',
+                              '& .MuiChip-label': {
+                                px: 1.5
+                              }
+                            }}
+                          />
+                        )}
+                        {item.isGrouped && item.groupType === 'detail' && (
+                          <Chip
+                            label="Detail"
+                            size="small"
+                            sx={{
+                              height: 24,
+                              fontSize: '0.75rem',
+                              fontWeight: 600,
+                              background: 'linear-gradient(135deg, rgba(76,175,80,0.15) 0%, rgba(56,142,60,0.1) 100%)',
+                              color: '#4caf50',
+                              border: '1px solid rgba(76,175,80,0.3)',
+                              '& .MuiChip-label': {
+                                px: 1.5
+                              }
+                            }}
+                          />
+                        )}
                       </Box>
                     )}
 
@@ -306,11 +307,11 @@ function ScenarioList({
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <SmartToyIcon sx={{ fontSize: 18, color: 'primary.main', opacity: 0.8 }} />
                       <Box sx={{ flex: 1 }}>
-                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>
+                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.125 }}>
                           AI 역할
                         </Typography>
                         {item.isGrouped && item.groupType === 'detail' && item.availableAiRoles && item.availableAiRoles.length > 1 ? (
-                          <FormControl size="small" fullWidth sx={{ mt: 0.5 }}>
+                          <FormControl size="small" sx={{ mt: 0.25, width: 'auto', minWidth: 120 }}>
                             <Select
                               value={selectedAiRoleIndices[item.scenarioId] ?? item.selectedAiRoleIndex ?? 0}
                               onChange={(e) => {
@@ -353,7 +354,7 @@ function ScenarioList({
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
                         <AccessTimeIcon sx={{ fontSize: 18, color: 'text.secondary', opacity: 0.6 }} />
                         <Box>
-                          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>
+                          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.125 }}>
                             생성날짜
                           </Typography>
                           <Typography variant="body2" fontWeight={500} color="text.secondary">
@@ -399,7 +400,7 @@ function ScenarioList({
                 boxShadow: '0 6px 18px rgba(124,108,255,0.12)'
               }}
             >
-              <CardContent sx={{ py: 6, textAlign: 'center' }}>
+              <CardContent sx={{ py: 3, textAlign: 'center' }}>
                 <Typography 
                   variant="subtitle1" 
                   sx={{ 

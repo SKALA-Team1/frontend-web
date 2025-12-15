@@ -78,7 +78,7 @@ export default function FeedbackPage() {
   if (selectedSession) {
     if (loadingMessages) {
       return (
-        <Box sx={{ py: { xs: 2, sm: 3 }, px: { xs: 0, sm: 0 }, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+        <Box sx={{ py: { xs: 1, sm: 1.5 }, px: { xs: 0, sm: 0 }, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
           <CircularProgress />
         </Box>
       )
@@ -99,7 +99,7 @@ export default function FeedbackPage() {
   // 피드백 목록 화면
   if (loading) {
     return (
-      <Box sx={{ py: { xs: 2, sm: 3 }, px: { xs: 0, sm: 0 }, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+      <Box sx={{ py: { xs: 1, sm: 1.5 }, px: { xs: 0, sm: 0 }, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
         <CircularProgress />
       </Box>
     )
@@ -107,16 +107,16 @@ export default function FeedbackPage() {
 
   if (error) {
     return (
-      <Box sx={{ py: { xs: 2, sm: 3 }, px: { xs: 0, sm: 0 } }}>
+      <Box sx={{ py: { xs: 1, sm: 1.5 }, px: { xs: 0, sm: 0 } }}>
         <Alert severity="error">{error}</Alert>
       </Box>
     )
   }
 
   return (
-    <Stack spacing={3}>
+    <Stack spacing={1.5}>
       {/* 헤더 */}
-      <Stack spacing={0.5} alignItems="center" textAlign="center">
+      <Stack spacing={0.25} alignItems="center" textAlign="center">
         <Typography variant="h4" sx={{ fontWeight: 700 }}>
           피드백
         </Typography>
@@ -127,13 +127,13 @@ export default function FeedbackPage() {
 
       {/* 피드백 카드 리스트 */}
       {completedSessions.length === 0 ? (
-        <Box sx={{ textAlign: 'center', py: 4 }}>
+        <Box sx={{ textAlign: 'center', py: 2 }}>
           <Typography variant="body2" color="text.secondary">
             완료된 롤플레잉이 없습니다.
           </Typography>
         </Box>
       ) : (
-        <Stack spacing={2.5}>
+        <Stack spacing={1.25}>
           {completedSessions.map((session) => {
             // 실행 날짜 포맷팅
             const executedDate = session.executedDate 
@@ -177,8 +177,8 @@ export default function FeedbackPage() {
                   }
                 }}
               >
-                <CardContent sx={{ p: 3 }}>
-                  <Stack spacing={2}>
+                <CardContent sx={{ p: 1.5 }}>
+                  <Stack spacing={1}>
                     {/* 시나리오 제목 */}
                     <Typography 
                       variant="h6" 
@@ -194,12 +194,12 @@ export default function FeedbackPage() {
                     </Typography>
 
                 {/* 정보 섹션 */}
-                <Stack spacing={1.5}>
+                <Stack spacing={0.75}>
                   {/* 나의 역할 */}
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <PersonIcon sx={{ fontSize: 18, color: 'primary.main', opacity: 0.8 }} />
                     <Box>
-                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>
+                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.125 }}>
                         나의 역할
                       </Typography>
                       <Typography variant="body2" fontWeight={600} color="text.primary">
@@ -212,7 +212,7 @@ export default function FeedbackPage() {
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <SmartToyIcon sx={{ fontSize: 18, color: 'primary.main', opacity: 0.8 }} />
                     <Box>
-                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>
+                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.125 }}>
                         AI 역할
                       </Typography>
                       <Typography variant="body2" fontWeight={600} color="text.primary">
@@ -225,7 +225,7 @@ export default function FeedbackPage() {
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <CalendarMonthIcon sx={{ fontSize: 18, color: 'text.secondary', opacity: 0.6 }} />
                     <Box>
-                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>
+                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.125 }}>
                         실행 날짜
                       </Typography>
                       <Typography variant="body2" fontWeight={500} color="text.secondary">

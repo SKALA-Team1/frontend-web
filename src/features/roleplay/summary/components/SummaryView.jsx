@@ -162,7 +162,7 @@ export default function SummaryView({
   // 로딩 중이거나 피드백이 없으면 전체 페이지 대신 로딩 스피너만 표시
   if (loading || !feedback) {
     return (
-      <Box sx={{ py: { xs: 2, sm: 3 }, px: { xs: 0, sm: 0 }, minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <Box sx={{ py: { xs: 1, sm: 1.5 }, px: { xs: 0, sm: 0 }, minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <LoadingSpinner message="종합 피드백을 생성하고 있습니다..." />
       </Box>
     )
@@ -171,8 +171,8 @@ export default function SummaryView({
   // 에러가 있으면 에러 메시지 표시
   if (error) {
     return (
-      <Box sx={{ py: { xs: 2, sm: 3 }, px: { xs: 0, sm: 0 } }}>
-        <Alert severity="warning" sx={{ mb: 1 }}>
+      <Box sx={{ py: { xs: 1, sm: 1.5 }, px: { xs: 0, sm: 0 } }}>
+        <Alert severity="warning" sx={{ mb: 0.5 }}>
           {error}
         </Alert>
         <Button 
@@ -211,7 +211,7 @@ export default function SummaryView({
             onClose()
           }}
           disabled={savingBookmarks}
-          sx={{ mt: 2 }}
+          sx={{ mt: 1 }}
         >
           {savingBookmarks ? '저장 중...' : pendingBookmarks.size > 0 ? `닫기 (${pendingBookmarks.size}개 저장)` : '닫기'}
         </Button>
@@ -220,10 +220,10 @@ export default function SummaryView({
   }
 
   return (
-    <Box sx={{ py: { xs: 2, sm: 3 }, px: { xs: 0, sm: 0 } }}>
-      <Stack spacing={3}>
+    <Box sx={{ py: { xs: 1, sm: 1.5 }, px: { xs: 0, sm: 0 } }}>
+      <Stack spacing={1.5}>
         {/* 헤더 */}
-        <Stack spacing={0.5} alignItems="center" textAlign="center">
+        <Stack spacing={0.25} alignItems="center" textAlign="center">
           <Typography variant="overline" sx={{ letterSpacing: 1.2, color: 'text.secondary' }}>
             롤플레잉 종합 피드백
           </Typography>
@@ -245,12 +245,12 @@ export default function SummaryView({
               boxShadow: '0 8px 24px rgba(124,108,255,0.12)'
             }}
           >
-            <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               {/* 점수 표시 */}
               {(avgPronunciation !== null || avgGrammar !== null || avgRelevance !== null) && (
                 <>
                   <Box>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.5 }}>
                       평균 점수
                     </Typography>
                     <Stack direction="row" spacing={1} flexWrap="wrap" gap={1}>
@@ -278,7 +278,7 @@ export default function SummaryView({
                       )}
                       {avgRelevance !== null && (
                         <Chip
-                          label={`관련성: ${avgRelevance}점`}
+                          label={`문맥: ${avgRelevance}점`}
                           size="small"
                           sx={{
                             bgcolor: 'rgba(124,108,255,0.1)',
@@ -295,7 +295,7 @@ export default function SummaryView({
 
               {/* 짧은 피드백 */}
               <Box>
-                <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.5 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.25 }}>
                   짧은 버전
                 </Typography>
                 <Typography variant="body2" color="text.primary">
@@ -320,7 +320,7 @@ export default function SummaryView({
                   </IconButton>
                 </Box>
                 <Collapse in={isLongOpen} timeout="auto" unmountOnExit>
-                  <Typography variant="body2" color="text.primary" sx={{ mt: 1, whiteSpace: 'pre-wrap' }}>
+                  <Typography variant="body2" color="text.primary" sx={{ mt: 0.5, whiteSpace: 'pre-wrap' }}>
                     {longFeedback}
                   </Typography>
                 </Collapse>
@@ -335,9 +335,9 @@ export default function SummaryView({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              mb: 2,
+              mb: 1,
               cursor: 'pointer',
-              p: 1,
+              p: 0.5,
               borderRadius: 1,
               transition: 'background-color 0.2s ease',
               '&:hover': {
@@ -362,7 +362,7 @@ export default function SummaryView({
           </Box>
 
           <Collapse in={isConversationOpen} timeout="auto" unmountOnExit>
-            <Stack spacing={1.5}>
+            <Stack spacing={0.75}>
               {displayMessages.map((msg, idx) => {
                 const isUser = msg.who === 'You'
                 const messageKey = `${msg.who}-${idx}`
@@ -460,12 +460,12 @@ export default function SummaryView({
                         boxShadow: '0 6px 16px rgba(0,0,0,0.08)'
                       }}
                     >
-                      <CardContent sx={{ py: 1.5, px: 2 }}>
+                      <CardContent sx={{ py: 0.75, px: 1 }}>
                         <Typography variant="body2" color="text.primary" sx={{ whiteSpace: 'pre-wrap' }}>
                           {msg.text}
                         </Typography>
                         {msg.translation && (
-                          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.75 }}>
+                          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.375 }}>
                             {msg.translation}
                           </Typography>
                         )}
@@ -474,12 +474,12 @@ export default function SummaryView({
                     
                     {/* 사용자 발화 밑에 피드백 점수 및 내용 */}
                     {isUser && hasFeedback && (
-                      <Box sx={{ alignSelf: 'flex-end', maxWidth: '88%', mt: 0.5 }}>
+                      <Box sx={{ alignSelf: 'flex-end', maxWidth: '88%', mt: 0.25 }}>
                         {/* 점수는 기본으로 항상 표시 */}
                         {(userUtterance.pronunciation_score !== null || 
                           userUtterance.grammar_score !== null || 
                           userUtterance.relevance_score !== null) && (
-                          <Stack direction="row" spacing={1} flexWrap="wrap" gap={1} sx={{ mb: 1 }}>
+                          <Stack direction="row" spacing={1} flexWrap="wrap" gap={1} sx={{ mb: 0.5 }}>
                             {userUtterance.pronunciation_score !== null && (
                               <Chip
                                 label={`발음: ${userUtterance.pronunciation_score}점`}
@@ -504,7 +504,7 @@ export default function SummaryView({
                             )}
                             {userUtterance.relevance_score !== null && (
                               <Chip
-                                label={`관련성: ${userUtterance.relevance_score}점`}
+                                label={`문맥: ${userUtterance.relevance_score}점`}
                                 size="small"
                                 sx={{
                                   bgcolor: 'rgba(124,108,255,0.1)',
@@ -564,23 +564,23 @@ export default function SummaryView({
                                 <Card
                                   variant="outlined"
                                   sx={{
-                                    mt: 1,
+                                    mt: 0.5,
                                     bgcolor: 'rgba(124,108,255,0.04)',
                                     border: '1px solid rgba(124,108,255,0.15)',
                                     borderRadius: 2
                                   }}
                                 >
-                                  <CardContent sx={{ py: 1.5, px: 2 }}>
+                                  <CardContent sx={{ py: 0.75, px: 1 }}>
                                     {/* 피드백 섹션 표시 (롤플레잉 도중 채팅과 동일한 형식) */}
                                     {(() => {
                                       const feedbackTypeLabels = {
                                         pronunciation: '발음',
                                         grammar: '문법',
-                                        relevance: '관련성'
+                                        relevance: '문맥'
                                       }
                                       
                                       return (
-                                        <Stack spacing={1.5}>
+                                        <Stack spacing={0.75}>
                                           {feedbackSections.map((section, sectionIdx) => {
                                             // 필드명 변형 지원 (snake_case, camelCase)
                                             const feedbackKo = section.feedback_ko || section.feedbackKo
@@ -596,7 +596,7 @@ export default function SummaryView({
                                             
                                             return (
                                               <Box key={sectionIdx}>
-                                                <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 0.5 }}>
+                                                <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 0.25 }}>
                                                   <Typography
                                                     variant="caption"
                                                     sx={{
@@ -637,7 +637,7 @@ export default function SummaryView({
                                                 >
                                                   {feedbackText}
                                                 </Typography>
-                                                {sectionIdx < feedbackSections.length - 1 && <Divider sx={{ mt: 1.5 }} />}
+                                                {sectionIdx < feedbackSections.length - 1 && <Divider sx={{ mt: 0.75 }} />}
                                               </Box>
                                             )
                                           })}
@@ -695,7 +695,7 @@ export default function SummaryView({
             onClose()
           }}
           disabled={savingBookmarks}
-          sx={{ mt: 2 }}
+          sx={{ mt: 1 }}
         >
           {savingBookmarks ? '저장 중...' : pendingBookmarks.size > 0 ? `닫기 (${pendingBookmarks.size}개 저장)` : '닫기'}
         </Button>

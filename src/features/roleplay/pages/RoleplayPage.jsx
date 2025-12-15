@@ -210,6 +210,7 @@ export default function RoleplayPage() {
           onAvatarLoad={session.handleAvatarLoad}
           visemeQueue={session.visemeQueue}
           audioRef={session.audioRef}
+          onFetchKeywords={session.handleFetchKeywords}
         />
         {openEnd && (
           <Suspense fallback={null}>
@@ -304,6 +305,7 @@ export default function RoleplayPage() {
           tab={tab}
           setTab={setTab}
           filteredItems={filteredItems}
+          totalScenarios={scenarios.length}
           isSlackIntegrated={isSlackIntegrated}
           pendingSlackGeneration={pendingSlackGeneration}
           onChannelSelected={() => setPendingSlackGeneration(true)}

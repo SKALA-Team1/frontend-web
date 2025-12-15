@@ -80,6 +80,7 @@ export default function ProfileSummary() {
       }}
     >
       <CardContent sx={{ p: 3 }}>
+        <Stack spacing={2}>
         <Stack direction="row" spacing={2.5} alignItems="flex-start">
           <Avatar 
             variant="rounded"
@@ -111,7 +112,6 @@ export default function ProfileSummary() {
               {userName || '사용자'} 님
             </Typography>
             
-            <Stack spacing={2}>
               {/* 연속 학습 */}
               <Chip
                 icon={<LocalFireDepartmentIcon sx={{ fontSize: 18 }} />}
@@ -129,6 +129,8 @@ export default function ProfileSummary() {
                   }
                 }}
               />
+            </Box>
+          </Stack>
               
               {/* 완료한 롤플레잉 % 게이지 */}
               <Box>
@@ -152,6 +154,7 @@ export default function ProfileSummary() {
                   variant="determinate" 
                   value={completionStats.percentage} 
                   sx={{
+                    width: '100%',
                     height: 10,
                     borderRadius: 2,
                     backgroundColor: 'rgba(0,0,0,0.06)',
@@ -163,8 +166,6 @@ export default function ProfileSummary() {
                     }
                   }}
                 />
-              </Box>
-            </Stack>
           </Box>
         </Stack>
       </CardContent>

@@ -28,7 +28,7 @@ function MessageBubble({ message, index, showTranslation, onToggleTranslation, o
   const feedbackTypeLabels = {
     pronunciation: '발음',
     grammar: '문법',
-    relevance: '관련성'
+    relevance: '문맥'
   }
   const [displayedText, setDisplayedText] = useState('')
   const [isTyping, setIsTyping] = useState(false)
@@ -299,7 +299,7 @@ function MessageBubble({ message, index, showTranslation, onToggleTranslation, o
             pb: hasTranslation && isTranslationVisible ? 0 : (isKeywordsMsg ? 1 : 1.5)
           }}
         >
-          {!message.isKeywordsMessage && (
+          {!message.isKeywordsMessage && !(feedbackSections && Array.isArray(feedbackSections) && feedbackSections.length > 0) && (
             <Typography 
               variant="caption" 
               sx={{ 
@@ -408,7 +408,7 @@ function MessageBubble({ message, index, showTranslation, onToggleTranslation, o
                   lineHeight: 1.6,
                   wordBreak: 'break-word',
                   color: '#424242',
-                  fontSize: '0.5rem',
+                  fontSize: '0.75rem',
                   pb: 0.5
                 }}
               >
@@ -417,19 +417,9 @@ function MessageBubble({ message, index, showTranslation, onToggleTranslation, o
             </>
           )}
           
-          {/* 키워드 메시지 표시 */}
-          {who === 'AI' && message.isKeywordsMessage && recommendedKeywords && Array.isArray(recommendedKeywords) && recommendedKeywords.length > 0 && (
+          {/* 키워드 메시지 표시 (사용자 메시지 영역에 표시) */}
+          {message.isKeywordsMessage && recommendedKeywords && Array.isArray(recommendedKeywords) && recommendedKeywords.length > 0 && (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mt: 0.75 }}>
-              <Typography 
-                variant="caption" 
-                sx={{ 
-                  fontSize: '0.625rem',
-                  color: 'rgba(0,0,0,0.6)',
-                  fontWeight: 500
-                }}
-              >
-                추천 키워드
-              </Typography>
               <Stack direction="row" spacing={0.5} flexWrap="wrap" gap={0.5}>
                 {recommendedKeywords.map((keyword, idx) => (
                   <Chip
