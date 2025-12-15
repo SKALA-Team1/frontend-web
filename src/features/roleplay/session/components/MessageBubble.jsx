@@ -21,7 +21,7 @@ const TYPING_SPEED = 30
 const STREAMING_TYPING_SPEED = 15 // 스트리밍 중에는 더 빠른 타이핑
 
 function MessageBubble({ message, index, showTranslation, onToggleTranslation, onFetchKeywords }) {
-  const { who, text, isStreaming, translation, recommendedKeywords, feedbackSections, isFeedbackGenerating } = message || {}
+  const { who, text, isStreaming, translation, recommendedKeywords, feedbackSections } = message || {}
   const style = MESSAGE_STYLES[who] || MESSAGE_STYLES.AI
   
   // 피드백 타입별 소제목 매핑
@@ -299,7 +299,7 @@ function MessageBubble({ message, index, showTranslation, onToggleTranslation, o
             pb: hasTranslation && isTranslationVisible ? 0 : (isKeywordsMsg ? 1 : 1.5)
           }}
         >
-          {!message.isKeywordsMessage && !(feedbackSections && Array.isArray(feedbackSections) && feedbackSections.length > 0) && !isFeedbackGenerating && (
+          {!message.isKeywordsMessage && !(feedbackSections && Array.isArray(feedbackSections) && feedbackSections.length > 0) && (
             <Typography 
               variant="caption" 
               sx={{ 
@@ -369,9 +369,7 @@ function MessageBubble({ message, index, showTranslation, onToggleTranslation, o
                   lineHeight: 1.6,
                   wordBreak: 'break-word',
                   minHeight: '1em', // 타이핑 중 깜빡임 방지
-                  fontSize: '0.75rem',
-                  color: isFeedbackGenerating ? 'rgba(0,0,0,0.6)' : undefined,
-                  fontStyle: isFeedbackGenerating ? 'italic' : undefined
+                  fontSize: '0.75rem'
                 }}
               >
                 {displayedText || text}
@@ -419,19 +417,9 @@ function MessageBubble({ message, index, showTranslation, onToggleTranslation, o
             </>
           )}
           
-          {/* 키워드 메시지 표시 */}
-          {who === 'AI' && message.isKeywordsMessage && recommendedKeywords && Array.isArray(recommendedKeywords) && recommendedKeywords.length > 0 && (
+          {/* 키워드 메시지 표시 (사용자 메시지 영역에 표시) */}
+          {message.isKeywordsMessage && recommendedKeywords && Array.isArray(recommendedKeywords) && recommendedKeywords.length > 0 && (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mt: 0.75 }}>
-              <Typography 
-                variant="caption" 
-                sx={{ 
-                  fontSize: '0.625rem',
-                  color: 'rgba(0,0,0,0.6)',
-                  fontWeight: 500
-                }}
-              >
-                추천 키워드
-              </Typography>
               <Stack direction="row" spacing={0.5} flexWrap="wrap" gap={0.5}>
                 {recommendedKeywords.map((keyword, idx) => (
                   <Chip

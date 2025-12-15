@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
-import { startSession, createWebSocketConnection, getSessionUtterances } from '../../../../services/roleplayService'
+import { startSession, createWebSocketConnection, getSessionUtterances, fetchRecommendedKeywords } from '../../../../services/roleplayService'
 import { getUserIdFromToken } from '../../../../utils/jwt'
 
 // ========================================
@@ -973,6 +973,92 @@ export default function useRoleplaySession(options = {}) {
     setSummaryTab('summary')
   }
 
+  /**
+   * 추천 키워드 조회 핸들러 (토글)
+   * AI 질문의 전구 아이콘 클릭 시 키워드를 표시/숨김
+   * @param {string} aiText - AI 질문 텍스트
+   * @param {number} messageIndex - 메시지 배열의 인덱스
+   */
+  const handleFetchKeywords = async (aiText, messageIndex) => {
+    try {
+      // 현재 메시지에서 해당 인덱스의 메시지 찾기
+      const aiMessage = messages[messageIndex]
+      if (!aiMessage || aiMessage.who !== 'AI') {
+        console.error('Invalid AI message at index:', messageIndex)
+        return
+      }
+
+      // 이미 키워드 메시지가 있는지 확인 (토글용)
+      const existingKeywordsIndex = messages.findIndex((msg, idx) => 
+        idx > messageIndex && 
+        msg.isKeywordsMessage && 
+        msg.keywordsMessageIndex === messageIndex
+      )
+
+      if (existingKeywordsIndex !== -1) {
+        // 이미 있으면 제거 (토글 - 숨김)
+        setMessages(prev => prev.filter((msg, idx) => idx !== existingKeywordsIndex))
+        return
+      }
+
+      // messageId가 없으면 세션 발화 목록에서 찾기
+      let messageId = aiMessage.messageId
+      
+      if (!messageId && sessionInfo?.sessionId) {
+        try {
+          const utterancesResponse = await getSessionUtterances(sessionInfo.sessionId)
+          const utterances = utterancesResponse?.utterances || []
+          
+          // AI 질문 중에서 현재 메시지와 일치하는 것 찾기 (텍스트 매칭)
+          const matchingUtterance = utterances.find(utt => 
+            (utt.speaker === 'ai' || utt.speaker === 'AI') && 
+            (utt.text === aiText || utt.question_ko === aiMessage.translation)
+          )
+
+          if (matchingUtterance && matchingUtterance.id) {
+            messageId = matchingUtterance.id
+            // messageId를 메시지에 저장
+            setMessages(prev => prev.map((msg, idx) => 
+              idx === messageIndex ? { ...msg, messageId: matchingUtterance.id } : msg
+            ))
+          }
+        } catch (err) {
+          console.error('Failed to fetch utterances:', err)
+        }
+      }
+
+      if (!messageId) {
+        console.warn('Could not find messageId for AI message')
+        return
+      }
+
+      // 키워드 조회
+      const keywords = await fetchRecommendedKeywords(messageId)
+      
+      if (keywords && Array.isArray(keywords) && keywords.length > 0) {
+        // 키워드를 사용자 메시지로 추가 (사용자 쪽에 표시)
+        // AI 질문 다음 위치에 삽입
+        setMessages(prev => {
+          const insertIndex = messageIndex + 1
+          const newMessage = {
+            who: 'You',
+            text: '',
+            isKeywordsMessage: true,
+            recommendedKeywords: keywords,
+            keywordsMessageIndex: messageIndex
+          }
+          return [
+            ...prev.slice(0, insertIndex),
+            newMessage,
+            ...prev.slice(insertIndex)
+          ]
+        })
+      }
+    } catch (error) {
+      console.error('Failed to fetch recommended keywords:', error)
+    }
+  }
+
   // ========================================
   // 입력 모드 관련 함수
   // ========================================
@@ -1328,6 +1414,9 @@ export default function useRoleplaySession(options = {}) {
     handleTextInputChange,
     sendMessage,
     handleMicToggle,
+    
+    // 키워드 조회 핸들러
+    handleFetchKeywords,
     
     // TTS 및 아바타 상태
     isTTSPlaying,

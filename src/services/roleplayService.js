@@ -117,6 +117,16 @@ export async function getSessionUtterances(sessionId) {
 }
 
 /**
+ * 메시지의 추천 키워드 조회
+ * @param {number} messageId - 메시지 ID
+ * @returns {Promise<Array<string>>} 추천 키워드 목록
+ */
+export async function fetchRecommendedKeywords(messageId) {
+  const url = `${API_ENDPOINTS.GATEWAY}/roleplaying/messages/${messageId}/keywords`
+  return httpClient.get(url)
+}
+
+/**
  * 완료된 세션 목록 조회
  * @returns {Promise<Array>} 완료된 세션 목록
  *   [

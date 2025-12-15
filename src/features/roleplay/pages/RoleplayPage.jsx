@@ -210,6 +210,7 @@ export default function RoleplayPage() {
           onAvatarLoad={session.handleAvatarLoad}
           visemeQueue={session.visemeQueue}
           audioRef={session.audioRef}
+          onFetchKeywords={session.handleFetchKeywords}
         />
         {openEnd && (
           <Suspense fallback={null}>

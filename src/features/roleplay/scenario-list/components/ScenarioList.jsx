@@ -88,7 +88,7 @@ function ScenarioList({
           />
         )}
         {channelSelected && (
-          <Alert severity="info" sx={{ mt: 2 }}>
+          <Alert severity="info" sx={{ mt: 1 }}>
             Slack 채널을 선택했습니다. 메시지 수집 및 시나리오 생성이 진행 중입니다.
           </Alert>
         )}
@@ -113,7 +113,7 @@ function ScenarioList({
         onChange={(_, v) => setTab(v)} 
         variant="fullWidth"
         sx={{
-          mb: 3,
+          mb: 1.5,
           '& .MuiTabs-indicator': {
             height: 3,
             borderRadius: '3px 3px 0 0',
@@ -166,7 +166,7 @@ function ScenarioList({
       {error && (
         <Alert
           severity="error"
-          sx={{ mt: 2 }}
+          sx={{ mt: 1 }}
           action={
             onRetry && (
               <Button color="inherit" size="small" onClick={onRetry}>
@@ -233,8 +233,8 @@ function ScenarioList({
                 }
               }}
             >
-              <CardContent sx={{ p: 3 }}>
-                <Stack spacing={2}>
+              <CardContent sx={{ p: 1.5 }}>
+                <Stack spacing={1}>
                   {/* 제목 + Overview 배지 */}
                   <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 1 }}>
                   <Typography 
@@ -292,7 +292,7 @@ function ScenarioList({
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <PersonIcon sx={{ fontSize: 18, color: 'primary.main', opacity: 0.8 }} />
                         <Box>
-                          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>
+                          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.125 }}>
                             나의 역할
                           </Typography>
                           <Typography variant="body2" fontWeight={600} color="text.primary">
@@ -306,11 +306,11 @@ function ScenarioList({
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <SmartToyIcon sx={{ fontSize: 18, color: 'primary.main', opacity: 0.8 }} />
                       <Box sx={{ flex: 1 }}>
-                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>
+                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.125 }}>
                           AI 역할
                         </Typography>
                         {item.isGrouped && item.groupType === 'detail' && item.availableAiRoles && item.availableAiRoles.length > 1 ? (
-                          <FormControl size="small" fullWidth sx={{ mt: 0.5 }}>
+                          <FormControl size="small" fullWidth sx={{ mt: 0.25 }}>
                             <Select
                               value={selectedAiRoleIndices[item.scenarioId] ?? item.selectedAiRoleIndex ?? 0}
                               onChange={(e) => {
@@ -353,7 +353,7 @@ function ScenarioList({
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
                         <AccessTimeIcon sx={{ fontSize: 18, color: 'text.secondary', opacity: 0.6 }} />
                         <Box>
-                          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>
+                          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.125 }}>
                             생성날짜
                           </Typography>
                           <Typography variant="body2" fontWeight={500} color="text.secondary">
@@ -399,7 +399,7 @@ function ScenarioList({
                 boxShadow: '0 6px 18px rgba(124,108,255,0.12)'
               }}
             >
-              <CardContent sx={{ py: 6, textAlign: 'center' }}>
+              <CardContent sx={{ py: 3, textAlign: 'center' }}>
                 <Typography 
                   variant="subtitle1" 
                   sx={{ 

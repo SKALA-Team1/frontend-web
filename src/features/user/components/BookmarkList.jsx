@@ -6,7 +6,7 @@ export default function BookmarkList() {
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
         <CircularProgress />
       </Box>
     )
@@ -14,7 +14,7 @@ export default function BookmarkList() {
 
   if (error) {
     return (
-      <Alert severity="error" sx={{ m: 2 }}>
+      <Alert severity="error" sx={{ m: 1 }}>
         {error}
       </Alert>
     )
@@ -22,7 +22,7 @@ export default function BookmarkList() {
 
   if (bookmarks.length === 0) {
     return (
-      <Box sx={{ textAlign: 'center', p: 4 }}>
+      <Box sx={{ textAlign: 'center', p: 2 }}>
         <Typography variant="body2" color="text.secondary">
           북마크한 내용이 없습니다.
         </Typography>
@@ -31,13 +31,13 @@ export default function BookmarkList() {
   }
 
   return (
-    <Stack spacing={2}>
+    <Stack spacing={1}>
       {bookmarks.map((bookmark, idx) => {
         return (
           <Box
             key={bookmark.bookmarkId}
             sx={{
-              p: 2,
+              p: 1,
               borderRadius: 2,
               border: '1px solid rgba(0,0,0,0.1)',
               backgroundColor: 'rgba(0,0,0,0.03)',
@@ -49,7 +49,7 @@ export default function BookmarkList() {
               }
             }}
           >
-            <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1.5 }}>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 0.75 }}>
               <Typography variant="subtitle2" fontWeight={700} sx={{ color: '#212121' }}>
                 {bookmark.scenarioTitle || '시나리오'}
               </Typography>
@@ -67,11 +67,11 @@ export default function BookmarkList() {
               />
             </Stack>
 
-            <Stack spacing={1.5}>
+            <Stack spacing={0.75}>
               {/* AI 질문 */}
               {bookmark.aiQuestion && (
                 <Box>
-                  <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ mb: 0.25, display: 'block' }}>
                     AI 질문
                   </Typography>
                   <Typography variant="body2" sx={{ color: '#212121', fontSize: '0.8125rem' }}>
@@ -82,7 +82,7 @@ export default function BookmarkList() {
 
               {/* 내 답변 */}
               <Box>
-                <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
+                <Typography variant="caption" color="text.secondary" sx={{ mb: 0.25, display: 'block' }}>
                   내 답변
                 </Typography>
                 <Typography variant="body2" sx={{ color: '#212121', fontSize: '0.8125rem' }}>
@@ -92,7 +92,7 @@ export default function BookmarkList() {
 
               {/* 피드백 점수 태그 */}
               {bookmark.feedbackSections && bookmark.feedbackSections.length > 0 && (
-                <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+                <Stack direction="row" spacing={1} sx={{ mt: 0.5 }}>
                   {bookmark.feedbackSections.map((section) => {
                     const typeLabel = section.type === 'pronunciation' ? '발음' :
                                      section.type === 'grammar' ? '문법' : '문맥'
@@ -118,7 +118,7 @@ export default function BookmarkList() {
 
               {/* 피드백 상세 내용 (항상 표시) */}
               {bookmark.feedbackSections && bookmark.feedbackSections.length > 0 && (
-                <Stack spacing={1.5} sx={{ mt: 1 }}>
+                <Stack spacing={0.75} sx={{ mt: 0.5 }}>
                   {bookmark.feedbackSections.map((section) => {
                     const typeLabel = section.type === 'pronunciation' ? '발음 피드백' :
                                      section.type === 'grammar' ? '문법 피드백' : '문맥 피드백'
@@ -127,17 +127,17 @@ export default function BookmarkList() {
                       <Box
                         key={section.type}
                         sx={{
-                          p: 1.5,
+                          p: 0.75,
                           borderRadius: 1.5,
                           bgcolor: 'rgba(124,108,255,0.1)',
                           border: '1px dashed rgba(124,108,255,0.3)'
                         }}
                       >
-                        <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
+                        <Typography variant="caption" color="text.secondary" sx={{ mb: 0.25, display: 'block' }}>
                           {typeLabel}
                         </Typography>
                         {section.feedbackKo && (
-                          <Typography variant="body2" sx={{ color: '#212121', fontSize: '0.8125rem', mb: 0.5 }}>
+                          <Typography variant="body2" sx={{ color: '#212121', fontSize: '0.8125rem', mb: 0.25 }}>
                             {section.feedbackKo}
                           </Typography>
                         )}
