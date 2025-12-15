@@ -16,7 +16,8 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import TranslateIcon from '@mui/icons-material/Translate'
 import BookmarkIcon from '@mui/icons-material/Bookmark'
-import { getComprehensiveFeedback } from '../../../../services/roleplayService'
+import { getComprehensiveFeedback, getSessionUtterances } from '../../../../services/roleplayService'
+import { createBookmark } from '../../../../services/bookmarkService'
 import LoadingSpinner from '../../../../components/Common/LoadingSpinner'
 
 const normalizeConversationMessages = (rawMessages = []) => {
@@ -46,9 +47,60 @@ export default function SummaryView({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [bookmarkedMessages, setBookmarkedMessages] = useState({})
+  const [messageIdMap, setMessageIdMap] = useState({}) // utterance_index -> messageId 매핑
+  const [pendingBookmarks, setPendingBookmarks] = useState(new Set()) // 선택된 북마크 messageId들 (닫기 버튼에서 저장)
+  const [savingBookmarks, setSavingBookmarks] = useState(false) // 북마크 저장 중 상태
+  const [utterances, setUtterances] = useState([]) // utterances 데이터 (피드백 포함)
+  const [expandedFeedback, setExpandedFeedback] = useState({}) // 피드백 토글 상태 (messageId -> boolean)
 
   const normalizedMessages = normalizeConversationMessages(messages)
   const displayMessages = normalizedMessages.length > 0 ? normalizedMessages : MOCK_CONVERSATION
+
+  // utterances 가져와서 messageId 매핑 (한 번만 실행)
+  useEffect(() => {
+    if (!sessionId) return
+
+    const loadUtterances = async () => {
+      try {
+        const utterancesData = await getSessionUtterances(sessionId)
+        const utterances = utterancesData?.utterances || []
+        
+        // utterances를 turn_index 순서로 정렬
+        const sortedUtterances = [...utterances].sort((a, b) => 
+          (a.utterance_index || 0) - (b.utterance_index || 0)
+        )
+        
+        // displayMessages의 인덱스와 utterances의 turn_index를 매칭
+        // displayMessages는 AI와 User가 번갈아 나오므로, turn_index로 직접 매칭 불가
+        // 대신 텍스트 매칭으로 user 메시지의 messageId 찾기
+        const idMap = {}
+        const currentDisplayMessages = normalizedMessages.length > 0 ? normalizedMessages : MOCK_CONVERSATION
+        
+        sortedUtterances.forEach(utterance => {
+          if ((utterance.speaker === 'user' || utterance.speaker === 'USER') && utterance.id) {
+            // currentDisplayMessages에서 같은 텍스트를 가진 사용자 메시지 찾기
+            currentDisplayMessages.forEach((msg, idx) => {
+              if (msg.who === 'You' && msg.text && utterance.text) {
+                const msgText = msg.text.trim()
+                const utteranceText = utterance.text.trim()
+                if (msgText === utteranceText) {
+                  idMap[idx] = utterance.id
+                }
+              }
+            })
+          }
+        })
+        
+        setMessageIdMap(idMap)
+        setUtterances(sortedUtterances) // utterances 데이터 저장
+      } catch (err) {
+        console.error('[SummaryView] Failed to load utterances:', err)
+      }
+    }
+
+    loadUtterances()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionId]) // displayMessages 제거 - messages prop이 변경될 때만 재실행되도록
 
   // 종합 피드백 조회 (피드백 생성 완료까지 대기)
   useEffect(() => {
@@ -123,8 +175,45 @@ export default function SummaryView({
         <Alert severity="warning" sx={{ mb: 1 }}>
           {error}
         </Alert>
-        <Button variant="outlined" onClick={onClose} sx={{ mt: 2 }}>
-          닫기
+        <Button 
+          variant="outlined" 
+          onClick={async () => {
+            // 선택된 북마크들을 일괄 저장
+            if (pendingBookmarks.size > 0) {
+              setSavingBookmarks(true)
+              try {
+                const messageIds = Array.from(pendingBookmarks)
+                
+                const bookmarkPromises = messageIds.map(messageId => 
+                  createBookmark(messageId).catch(err => {
+                    return { error: true, messageId, errorMessage: err?.message || 'Unknown error' }
+                  })
+                )
+                
+                const results = await Promise.all(bookmarkPromises)
+                const successCount = results.filter(r => r === undefined || (r && !r.error)).length
+                const failedResults = results.filter(r => r && r.error)
+                
+                if (failedResults.length > 0) {
+                  alert(`북마크 저장 실패: ${failedResults.length}개 실패\n\n실패한 메시지 ID: ${failedResults.map(f => f.messageId).join(', ')}\n\n에러: ${failedResults[0]?.errorMessage || '알 수 없는 오류'}`)
+                }
+                
+                // 저장 완료 후 상태 초기화
+                setPendingBookmarks(new Set())
+              } catch (err) {
+                alert('북마크 저장 중 오류가 발생했습니다: ' + (err?.message || '알 수 없는 오류'))
+              } finally {
+                setSavingBookmarks(false)
+              }
+            }
+            
+            // 닫기 콜백 실행
+            onClose()
+          }}
+          disabled={savingBookmarks}
+          sx={{ mt: 2 }}
+        >
+          {savingBookmarks ? '저장 중...' : pendingBookmarks.size > 0 ? `닫기 (${pendingBookmarks.size}개 저장)` : '닫기'}
         </Button>
       </Box>
     )
@@ -277,7 +366,21 @@ export default function SummaryView({
               {displayMessages.map((msg, idx) => {
                 const isUser = msg.who === 'You'
                 const messageKey = `${msg.who}-${idx}`
-                const isBookmarked = bookmarkedMessages[messageKey] || false
+                const messageId = messageIdMap[idx]
+                const isBookmarked = bookmarkedMessages[messageKey] || (messageId && pendingBookmarks.has(messageId))
+                
+                // 사용자 발화인 경우 utterances에서 피드백 데이터 찾기
+                const userUtterance = isUser && messageId 
+                  ? utterances.find(u => u.id === messageId && (u.speaker === 'user' || u.speaker === 'USER'))
+                  : null
+                
+                const hasFeedback = userUtterance && (
+                  userUtterance.pronunciation_score !== null || 
+                  userUtterance.grammar_score !== null || 
+                  userUtterance.relevance_score !== null ||
+                  (userUtterance.feedback_sections && userUtterance.feedback_sections.length > 0)
+                )
+                const isFeedbackExpanded = expandedFeedback[messageId] || false
                 
                 return (
                   <Box key={messageKey} sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
@@ -299,11 +402,33 @@ export default function SummaryView({
                         <IconButton
                           size="small"
                           onClick={() => {
-                            setBookmarkedMessages(prev => ({
-                              ...prev,
-                              [messageKey]: !prev[messageKey]
-                            }))
+                            const utteranceIndex = idx
+                            const messageId = messageIdMap[utteranceIndex]
+                            
+                            if (!messageId) {
+                              return
+                            }
+
+                            // 로컬 상태만 변경 (즉시 DB 저장하지 않음)
+                            setPendingBookmarks(prev => {
+                              const newSet = new Set(prev)
+                              if (newSet.has(messageId)) {
+                                newSet.delete(messageId)
+                                setBookmarkedMessages(prevMsgs => ({
+                                  ...prevMsgs,
+                                  [messageKey]: false
+                                }))
+                              } else {
+                                newSet.add(messageId)
+                                setBookmarkedMessages(prevMsgs => ({
+                                  ...prevMsgs,
+                                  [messageKey]: true
+                                }))
+                              }
+                              return newSet
+                            })
                           }}
+                          disabled={!messageIdMap[idx] || savingBookmarks}
                           sx={{
                             padding: 0.25,
                             minWidth: 'auto',
@@ -346,6 +471,187 @@ export default function SummaryView({
                         )}
                       </CardContent>
                     </Card>
+                    
+                    {/* 사용자 발화 밑에 피드백 점수 및 내용 */}
+                    {isUser && hasFeedback && (
+                      <Box sx={{ alignSelf: 'flex-end', maxWidth: '88%', mt: 0.5 }}>
+                        {/* 점수는 기본으로 항상 표시 */}
+                        {(userUtterance.pronunciation_score !== null || 
+                          userUtterance.grammar_score !== null || 
+                          userUtterance.relevance_score !== null) && (
+                          <Stack direction="row" spacing={1} flexWrap="wrap" gap={1} sx={{ mb: 1 }}>
+                            {userUtterance.pronunciation_score !== null && (
+                              <Chip
+                                label={`발음: ${userUtterance.pronunciation_score}점`}
+                                size="small"
+                                sx={{
+                                  bgcolor: 'rgba(124,108,255,0.1)',
+                                  color: 'primary.main',
+                                  fontWeight: 600
+                                }}
+                              />
+                            )}
+                            {userUtterance.grammar_score !== null && (
+                              <Chip
+                                label={`문법: ${userUtterance.grammar_score}점`}
+                                size="small"
+                                sx={{
+                                  bgcolor: 'rgba(124,108,255,0.1)',
+                                  color: 'primary.main',
+                                  fontWeight: 600
+                                }}
+                              />
+                            )}
+                            {userUtterance.relevance_score !== null && (
+                              <Chip
+                                label={`관련성: ${userUtterance.relevance_score}점`}
+                                size="small"
+                                sx={{
+                                  bgcolor: 'rgba(124,108,255,0.1)',
+                                  color: 'primary.main',
+                                  fontWeight: 600
+                                }}
+                              />
+                            )}
+                          </Stack>
+                        )}
+                        
+                        {/* 피드백 내용이 있는 경우에만 토글 버튼 표시 */}
+                        {(() => {
+                          const feedbackSections = userUtterance?.feedback_sections || userUtterance?.feedbackSections
+                          const hasFeedbackContent = feedbackSections && Array.isArray(feedbackSections) && feedbackSections.length > 0 && 
+                            feedbackSections.some(section => {
+                              const feedbackKo = section.feedback_ko || section.feedbackKo
+                              const feedbackEn = section.feedback_en || section.feedbackEn
+                              return feedbackKo || feedbackEn
+                            })
+                          
+                          if (!hasFeedbackContent) {
+                            return null
+                          }
+                          
+                          return (
+                            <>
+                              <Button
+                                variant="text"
+                                size="small"
+                                onClick={() => {
+                                  setExpandedFeedback(prev => ({
+                                    ...prev,
+                                    [messageId]: !prev[messageId]
+                                  }))
+                                }}
+                                endIcon={
+                                  <ExpandMoreIcon 
+                                    sx={{ 
+                                      transform: isFeedbackExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                                      transition: 'transform 0.2s ease'
+                                    }} 
+                                  />
+                                }
+                                sx={{
+                                  textTransform: 'none',
+                                  color: 'primary.main',
+                                  fontWeight: 600,
+                                  fontSize: '0.75rem',
+                                  py: 0.5,
+                                  px: 1
+                                }}
+                              >
+                                피드백 보기
+                              </Button>
+                              <Collapse in={isFeedbackExpanded} timeout="auto" unmountOnExit>
+                                <Card
+                                  variant="outlined"
+                                  sx={{
+                                    mt: 1,
+                                    bgcolor: 'rgba(124,108,255,0.04)',
+                                    border: '1px solid rgba(124,108,255,0.15)',
+                                    borderRadius: 2
+                                  }}
+                                >
+                                  <CardContent sx={{ py: 1.5, px: 2 }}>
+                                    {/* 피드백 섹션 표시 (롤플레잉 도중 채팅과 동일한 형식) */}
+                                    {(() => {
+                                      const feedbackTypeLabels = {
+                                        pronunciation: '발음',
+                                        grammar: '문법',
+                                        relevance: '관련성'
+                                      }
+                                      
+                                      return (
+                                        <Stack spacing={1.5}>
+                                          {feedbackSections.map((section, sectionIdx) => {
+                                            // 필드명 변형 지원 (snake_case, camelCase)
+                                            const feedbackKo = section.feedback_ko || section.feedbackKo
+                                            const feedbackEn = section.feedback_en || section.feedbackEn
+                                            // 롤플레잉 도중과 동일하게 한글 우선, 없으면 영문
+                                            const feedbackText = feedbackKo || feedbackEn
+                                            const score = section.score !== null && section.score !== undefined ? section.score : null
+                                            
+                                            // 피드백 텍스트가 없는 섹션은 표시하지 않음
+                                            if (!feedbackText) {
+                                              return null
+                                            }
+                                            
+                                            return (
+                                              <Box key={sectionIdx}>
+                                                <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 0.5 }}>
+                                                  <Typography
+                                                    variant="caption"
+                                                    sx={{
+                                                      fontSize: '0.7rem',
+                                                      fontWeight: 600,
+                                                      color: '#7C6CFF'
+                                                    }}
+                                                  >
+                                                    {feedbackTypeLabels[section.type] || section.type}
+                                                  </Typography>
+                                                  {score !== null && score !== undefined && (
+                                                    <Chip
+                                                      label={`${score}점`}
+                                                      size="small"
+                                                      sx={{
+                                                        height: 20,
+                                                        fontSize: '0.65rem',
+                                                        bgcolor: 'rgba(124,108,255,0.1)',
+                                                        color: '#7C6CFF',
+                                                        fontWeight: 600,
+                                                        border: '1px solid rgba(124,108,255,0.2)',
+                                                        '& .MuiChip-label': {
+                                                          px: 0.75,
+                                                          py: 0
+                                                        }
+                                                      }}
+                                                    />
+                                                  )}
+                                                </Stack>
+                                                <Typography
+                                                  variant="body2"
+                                                  sx={{
+                                                    lineHeight: 1.6,
+                                                    wordBreak: 'break-word',
+                                                    fontSize: '0.75rem',
+                                                    color: '#212121'
+                                                  }}
+                                                >
+                                                  {feedbackText}
+                                                </Typography>
+                                                {sectionIdx < feedbackSections.length - 1 && <Divider sx={{ mt: 1.5 }} />}
+                                              </Box>
+                                            )
+                                          })}
+                                        </Stack>
+                                      )
+                                    })()}
+                                  </CardContent>
+                                </Card>
+                              </Collapse>
+                            </>
+                          )
+                        })()}
+                      </Box>
+                    )}
                   </Box>
                 )
               })}
@@ -353,8 +659,45 @@ export default function SummaryView({
           </Collapse>
         </Box>
 
-        <Button variant="outlined" onClick={onClose} sx={{ mt: 2 }}>
-          닫기
+        <Button 
+          variant="outlined" 
+          onClick={async () => {
+            // 선택된 북마크들을 일괄 저장
+            if (pendingBookmarks.size > 0) {
+              setSavingBookmarks(true)
+              try {
+                const messageIds = Array.from(pendingBookmarks)
+                
+                const bookmarkPromises = messageIds.map(messageId => 
+                  createBookmark(messageId).catch(err => {
+                    return { error: true, messageId, errorMessage: err?.message || 'Unknown error' }
+                  })
+                )
+                
+                const results = await Promise.all(bookmarkPromises)
+                const successCount = results.filter(r => r === undefined || (r && !r.error)).length
+                const failedResults = results.filter(r => r && r.error)
+                
+                if (failedResults.length > 0) {
+                  alert(`북마크 저장 실패: ${failedResults.length}개 실패\n\n실패한 메시지 ID: ${failedResults.map(f => f.messageId).join(', ')}\n\n에러: ${failedResults[0]?.errorMessage || '알 수 없는 오류'}`)
+                }
+                
+                // 저장 완료 후 상태 초기화
+                setPendingBookmarks(new Set())
+              } catch (err) {
+                alert('북마크 저장 중 오류가 발생했습니다: ' + (err?.message || '알 수 없는 오류'))
+              } finally {
+                setSavingBookmarks(false)
+              }
+            }
+            
+            // 닫기 콜백 실행
+            onClose()
+          }}
+          disabled={savingBookmarks}
+          sx={{ mt: 2 }}
+        >
+          {savingBookmarks ? '저장 중...' : pendingBookmarks.size > 0 ? `닫기 (${pendingBookmarks.size}개 저장)` : '닫기'}
         </Button>
       </Stack>
     </Box>

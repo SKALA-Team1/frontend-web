@@ -58,7 +58,6 @@ export default function useScenarioData() {
         const userInfo = await getCurrentUser()
         setUserJobRole(userInfo.job_role || userInfo.jobRole || null)
       } catch (userError) {
-        console.warn('[useScenarioData] 사용자 정보 조회 실패:', userError)
         setUserJobRole(null)
       }
 
@@ -66,16 +65,9 @@ export default function useScenarioData() {
       let scenariosLoaded = []
       try {
         const result = await fetchUserScenarios()
-        console.log('[DEBUG] API 응답 원본:', result)
-        if (Array.isArray(result) && result.length > 0) {
-          console.log('[DEBUG] 첫 번째 시나리오:', result[0])
-          console.log('[DEBUG] creationType:', result[0].creationType)
-        }
         scenariosLoaded = Array.isArray(result) ? result.map(normalizeScenario) : []
-        console.log('[DEBUG] 정규화된 시나리오:', scenariosLoaded)
         setScenarios(scenariosLoaded)
       } catch (scenarioError) {
-        console.warn('[useScenarioData] 시나리오 로드 실패:', scenarioError)
         setScenarios([])
       }
 
@@ -87,7 +79,6 @@ export default function useScenarioData() {
       try {
         integrated = await checkSlackIntegration()
       } catch (integrationError) {
-        console.warn('[useScenarioData] Slack 연동 상태 확인 중 에러:', integrationError)
         // API 실패 시 SLACK 시나리오 존재 여부로 판단
         integrated = hasSlackScenarios
       }
@@ -97,11 +88,7 @@ export default function useScenarioData() {
     } catch (err) {
       // 로그인 관련 에러만 표시
       if (err.message && err.message.includes('로그인')) {
-        console.error('[useScenarioData] 로그인 필요:', err)
         setError(err.message)
-      } else {
-        // 기타 에러는 조용히 처리 (에러 메시지 표시 안 함)
-        console.warn('[useScenarioData] 시나리오 로드 중 에러 (무시):', err)
       }
       setScenarios([])
       setIsSlackIntegrated(false)

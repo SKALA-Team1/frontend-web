@@ -1,11 +1,14 @@
 import { useState, useMemo } from 'react'
 import useRoleplaySession from './useRoleplaySession'
-import useBookmarks from '../../../../hooks/useBookmarks'
 
 /**
  * 롤플레이 세션 제어를 위한 커스텀 훅
  * 
- * 롤플레이 세션, 탭, 캘린더, 북마크 등을 통합 관리
+ * 롤플레이 세션, 탭, 캘린더 등을 통합 관리
+ * 
+ * @param {Array} scenarios - 시나리오 목록
+ * @param {Object} options - 옵션 객체
+ * @param {Function} options.onSessionEnded - 세션이 자동으로 종료될 때 호출될 콜백 함수
  * 
  * @returns {Object} 롤플레이 세션 제어 관련 상태 및 핸들러
  *   - tab: string - 현재 탭 ('linked' | 'created')
@@ -20,11 +23,10 @@ import useBookmarks from '../../../../hooks/useBookmarks'
  *   - setOpenEnd: Function - 세션 종료 다이얼로그 열림 상태 변경 핸들러
  *   - currentQuestion: string - 현재 AI 질문 텍스트
  *   - session: Object - 롤플레이 세션 훅 반환값
- *   - bookmarked: Set - 북마크된 항목 ID Set
- *   - toggleBookmark: Function - 북마크 토글 핸들러
  *   - handleEndSession: Function - 세션 종료 핸들러
  */
-export default function useSessionControls(scenarios = []) {
+export default function useSessionControls(scenarios = [], options = {}) {
+  const { onSessionEnded } = options
   // 현재 탭 상태 ('linked': 연결된 시나리오, 'created': 생성한 시나리오)
   const [tab, setTab] = useState('linked')
   
@@ -41,11 +43,9 @@ export default function useSessionControls(scenarios = []) {
   const [openEnd, setOpenEnd] = useState(false)
 
   // 롤플레이 세션 관리 훅
-  const session = useRoleplaySession()
-  
-  // 롤플레이 필터 관리 훅 (현재 탭에 따라 필터링)
-  // 북마크 관리 훅
-  const { bookmarked, toggleBookmark } = useBookmarks()
+  const session = useRoleplaySession({
+    onSessionEnded
+  })
 
   /**
    * 현재 AI 질문 텍스트
@@ -84,8 +84,6 @@ export default function useSessionControls(scenarios = []) {
     
     // Hooks
     session,
-    bookmarked,
-    toggleBookmark,
     
     // Handlers
     handleEndSession

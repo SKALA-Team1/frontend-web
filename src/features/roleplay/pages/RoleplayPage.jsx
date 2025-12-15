@@ -112,6 +112,9 @@ export default function RoleplayPage() {
     }
   }, [pendingSlackGeneration, refresh])
 
+  // 롤플레잉 종료 확인 모달 상태
+  const [showSessionEndedModal, setShowSessionEndedModal] = useState(false)
+
   // 롤플레이 세션 관련 (먼저 초기화하여 session을 useCreateScenario에서 사용 가능하도록)
   const {
     tab,
@@ -126,10 +129,15 @@ export default function RoleplayPage() {
     setOpenEnd,
     currentQuestion,
     session,
-    bookmarked,
-    toggleBookmark,
+    // bookmarked,
+    // toggleBookmark,
     handleEndSession
-  } = useSessionControls(scenarios)
+  } = useSessionControls(scenarios, {
+    onSessionEnded: () => {
+      // 세션 종료 시 모달 표시
+      setShowSessionEndedModal(true)
+    }
+  })
 
   // 롤플레이 생성 다이얼로그 관련 (session이 초기화된 후 호출)
   const {
@@ -182,8 +190,8 @@ export default function RoleplayPage() {
     setFeedbackModalOpen(true)
   }
 
-  // 롤플레잉 세션 화면
-  if (session.view === 'session' && session.isSession) {
+  // 롤플레잉 세션 화면 (isSession이 false여도 view가 'session'이면 표시)
+  if (session.view === 'session') {
     return (
       <Suspense fallback={<LoadingSpinner message="세션 로딩 중..." />}>
         <SessionView
@@ -401,6 +409,71 @@ export default function RoleplayPage() {
             </Button>
             <Button 
               onClick={handleConfirmStartRoleplay}
+              variant="contained"
+              sx={{
+                textTransform: 'none',
+                fontWeight: 600,
+                px: 3,
+                background: 'linear-gradient(135deg, #7C6CFF 0%, #4B3CF8 100%)',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #6B5CE6 0%, #3B2CE8 100%)',
+                }
+              }}
+            >
+              예
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* 롤플레잉 종료 확인 모달 */}
+        <Dialog
+          open={showSessionEndedModal}
+          onClose={() => setShowSessionEndedModal(false)}
+          aria-labelledby="session-ended-dialog-title"
+          aria-describedby="session-ended-dialog-description"
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle 
+            id="session-ended-dialog-title"
+            sx={{ 
+              fontWeight: 700,
+              fontSize: '1.25rem',
+              pb: 1
+            }}
+          >
+            롤플레잉이 종료되었습니다
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText 
+              id="session-ended-dialog-description"
+              sx={{ 
+                fontSize: '0.9375rem',
+                color: 'text.primary',
+                mb: 1
+              }}
+            >
+              피드백을 보시겠습니까?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions sx={{ px: 3, pb: 2.5 }}>
+            <Button 
+              onClick={() => setShowSessionEndedModal(false)}
+              variant="outlined"
+              sx={{
+                textTransform: 'none',
+                fontWeight: 600,
+                px: 3
+              }}
+            >
+              아니오
+            </Button>
+            <Button 
+              onClick={() => {
+                setShowSessionEndedModal(false)
+                // 피드백 화면으로 이동 (SummaryView가 로딩 처리를 함)
+                session.handleFeedbackView(session.selectedTitle, session.selectedBody)
+              }}
               variant="contained"
               sx={{
                 textTransform: 'none',

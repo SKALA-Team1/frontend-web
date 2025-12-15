@@ -21,8 +21,15 @@ const TYPING_SPEED = 30
 const STREAMING_TYPING_SPEED = 15 // 스트리밍 중에는 더 빠른 타이핑
 
 function MessageBubble({ message, index, showTranslation, onToggleTranslation, onFetchKeywords }) {
-  const { who, text, isStreaming, translation, recommendedKeywords } = message || {}
+  const { who, text, isStreaming, translation, recommendedKeywords, feedbackSections } = message || {}
   const style = MESSAGE_STYLES[who] || MESSAGE_STYLES.AI
+  
+  // 피드백 타입별 소제목 매핑
+  const feedbackTypeLabels = {
+    pronunciation: '발음',
+    grammar: '문법',
+    relevance: '관련성'
+  }
   const [displayedText, setDisplayedText] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const [isTranslationVisible, setIsTranslationVisible] = useState(false)
@@ -65,6 +72,11 @@ function MessageBubble({ message, index, showTranslation, onToggleTranslation, o
 
   // AI 메시지 처리 (최적화: 불필요한 업데이트 방지)
   useEffect(() => {
+    // 피드백 섹션이 있으면 타이핑 효과 건너뛰기
+    if (feedbackSections && Array.isArray(feedbackSections) && feedbackSections.length > 0) {
+      return
+    }
+    
     if (who !== 'AI') {
       // 사용자 메시지: STT 중이면 타이핑 효과, 아니면 즉시 표시
       const isSTT = message?.isSTT || false
@@ -300,35 +312,86 @@ function MessageBubble({ message, index, showTranslation, onToggleTranslation, o
               {who}
             </Typography>
           )}
-          {!message.isKeywordsMessage && (
-            <Typography 
-              variant="body2"
-              sx={{
-                lineHeight: 1.6,
-                wordBreak: 'break-word',
-                minHeight: '1em', // 타이핑 중 깜빡임 방지
-                fontSize: '0.75rem'
-              }}
-            >
-              {displayedText || text}
-              {shouldShowCursor && (
-                <Box
-                  component="span"
-                  sx={{
-                    display: 'inline-block',
-                    width: '2px',
-                    height: '1em',
-                    bgcolor: '#212121',
-                    ml: 0.5,
-                    animation: 'blink 1s infinite',
-                    '@keyframes blink': {
-                      '0%, 50%': { opacity: 1 },
-                      '51%, 100%': { opacity: 0 }
-                    }
-                  }}
-                />
-              )}
-            </Typography>
+          {/* 피드백 섹션이 있는 경우 */}
+          {feedbackSections && Array.isArray(feedbackSections) && feedbackSections.length > 0 ? (
+            <Stack spacing={1.5} sx={{ mt: 0.5 }}>
+              {feedbackSections.map((section, idx) => (
+                <Box key={idx}>
+                  <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 0.5 }}>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontSize: '0.7rem',
+                        fontWeight: 600,
+                        color: '#7C6CFF'
+                      }}
+                    >
+                      {feedbackTypeLabels[section.type] || section.type}
+                    </Typography>
+                    {section.score !== undefined && section.score !== null && (
+                      <Chip
+                        label={`${section.score}점`}
+                        size="small"
+                        sx={{
+                          height: 20,
+                          fontSize: '0.65rem',
+                          bgcolor: 'rgba(124,108,255,0.1)',
+                          color: '#7C6CFF',
+                          fontWeight: 600,
+                          border: '1px solid rgba(124,108,255,0.2)',
+                          '& .MuiChip-label': {
+                            px: 0.75,
+                            py: 0
+                          }
+                        }}
+                      />
+                    )}
+                  </Stack>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      lineHeight: 1.6,
+                      wordBreak: 'break-word',
+                      fontSize: '0.75rem',
+                      color: '#212121'
+                    }}
+                  >
+                    {section.feedback_ko || section.feedback_en}
+                  </Typography>
+                </Box>
+              ))}
+            </Stack>
+          ) : (
+            !message.isKeywordsMessage && (
+              <Typography 
+                variant="body2"
+                sx={{
+                  lineHeight: 1.6,
+                  wordBreak: 'break-word',
+                  minHeight: '1em', // 타이핑 중 깜빡임 방지
+                  fontSize: '0.75rem'
+                }}
+              >
+                {displayedText || text}
+                {shouldShowCursor && (
+                  <Box
+                    component="span"
+                    sx={{
+                      display: 'inline-block',
+                      width: '2px',
+                      height: '1em',
+                      bgcolor: '#212121',
+                      ml: 0.5,
+                      animation: 'blink 1s infinite',
+                      '@keyframes blink': {
+                        '0%, 50%': { opacity: 1 },
+                        '51%, 100%': { opacity: 0 }
+                      }
+                    }}
+                  />
+                )}
+              </Typography>
+            )
           )}
           
           {hasTranslation && isTranslationVisible && (
@@ -453,6 +516,7 @@ export default React.memo(MessageBubble, (prevProps, nextProps) => {
     prevProps.message?.isStreaming === nextProps.message?.isStreaming &&
     prevProps.message?.translation === nextProps.message?.translation &&
     JSON.stringify(prevProps.message?.recommendedKeywords) === JSON.stringify(nextProps.message?.recommendedKeywords) &&
+    JSON.stringify(prevProps.message?.feedbackSections) === JSON.stringify(nextProps.message?.feedbackSections) &&
     prevProps.index === nextProps.index
   )
 })

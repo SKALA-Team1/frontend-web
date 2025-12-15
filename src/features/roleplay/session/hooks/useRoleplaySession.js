@@ -46,6 +46,9 @@ const FALLBACK_MESSAGE = "I'm having trouble generating a response. Could you pl
  * - 아바타 애니메이션 제어
  * - 세션 상태 관리 (list, session, summary)
  * 
+ * @param {Object} options - 옵션 객체
+ * @param {Function} options.onSessionEnded - 세션이 자동으로 종료될 때 호출될 콜백 함수
+ * 
  * @returns {Object} 롤플레이 세션 관련 상태 및 핸들러
  *   - isSession: boolean - 세션 활성화 여부
  *   - messages: Array - 대화 메시지 목록
@@ -69,7 +72,8 @@ const FALLBACK_MESSAGE = "I'm having trouble generating a response. Could you pl
  *   - handleFeedbackView: Function - 피드백 뷰로 전환 핸들러
  *   - handleAvatarLoad: Function - 아바타 로드 완료 핸들러
  */
-export default function useRoleplaySession() {
+export default function useRoleplaySession(options = {}) {
+  const { onSessionEnded } = options
   // ========================================
   // State 정의
   // ========================================
@@ -138,15 +142,14 @@ export default function useRoleplaySession() {
 
   /**
    * 피드백 섹션 필터링 및 정렬
-   * grammar와 relevance만 필터링하고 grammar를 먼저 정렬
+   * grammar, pronunciation, relevance를 필터링하고 grammar -> pronunciation -> relevance 순으로 정렬
    */
   const filterAndSortFeedbackSections = (sections) => {
     return sections
-      .filter(section => section.type === 'grammar' || section.type === 'relevance')
+      .filter(section => section.type === 'grammar' || section.type === 'pronunciation' || section.type === 'relevance')
       .sort((a, b) => {
-        if (a.type === 'grammar' && b.type === 'relevance') return -1
-        if (a.type === 'relevance' && b.type === 'grammar') return 1
-        return 0
+        const order = { 'grammar': 0, 'pronunciation': 1, 'relevance': 2 }
+        return (order[a.type] ?? 999) - (order[b.type] ?? 999)
       })
   }
 
@@ -335,12 +338,25 @@ export default function useRoleplaySession() {
   const displayFeedbackMessages = (sections) => {
     const feedbackToShow = filterAndSortFeedbackSections(sections)
     
-    feedbackToShow.forEach((section) => {
-      const translationText = section.feedback_ko
-      const feedbackText = parseFeedbackText(section.feedback_en)
-      
-      addAIMessage(feedbackText, translationText, false, false)
-    })
+    if (feedbackToShow.length === 0) return
+    
+    // 모든 피드백을 하나의 메시지로 합치기
+    const feedbackSections = feedbackToShow.map(section => ({
+      type: section.type,
+      feedback_en: parseFeedbackText(section.feedback_en),
+      feedback_ko: section.feedback_ko,
+      score: section.score
+    }))
+    
+    // 피드백 섹션을 포함한 하나의 메시지 추가 (타이핑 효과 없음)
+    setMessages(prev => [...prev, {
+      who: 'AI',
+      text: '', // 피드백은 feedbackSections로 표시
+      translation: '',
+      isFixedQuestion: false,
+      isStreaming: false,
+      feedbackSections: feedbackSections
+    }])
   }
 
   /**
@@ -603,7 +619,29 @@ export default function useRoleplaySession() {
       displayFeedbackMessages(pendingFeedbackSectionsRef.current)
       pendingFeedbackSectionsRef.current = []
     }
-    endSession('auto')
+    // 세션 종료만 수행하고, 피드백 화면 자동 이동은 콜백을 통해 처리
+    stopTTS()
+    
+    if (isRecording) {
+      stopRecording()
+    }
+    
+    if (wsConnection && wsConnection.readyState === WebSocket.OPEN) {
+      wsConnection.close()
+    }
+    setWsConnection(null)
+    setIsSession(false)
+    setIsInitialized(false)
+    setIsAvatarLoaded(false)
+    pendingFirstMessageRef.current = null
+    setEvaluating(false)
+    // view를 'session'으로 유지하여 롤플레잉 화면에 머무름 (모달에서 피드백 화면으로 이동하도록)
+    // setView('list') 제거
+    
+    // 콜백이 있으면 호출하여 모달 표시 등의 후처리 수행
+    if (onSessionEnded && typeof onSessionEnded === 'function') {
+      onSessionEnded()
+    }
   }
 
   /**
@@ -625,18 +663,36 @@ export default function useRoleplaySession() {
   const handleFeedbackSections = (message) => {
     storeFeedbackSections(message.sections)
     
-    if (needsCorrectionRef.current) {
-      const feedbackToShow = filterAndSortFeedbackSections(pendingFeedbackSectionsRef.current)
+    // 피드백 섹션이 있으면 항상 표시 (재시도 필요 여부와 관계없이)
+    const feedbackToShow = filterAndSortFeedbackSections(pendingFeedbackSectionsRef.current)
+    
+    if (feedbackToShow.length > 0) {
+      // 모든 피드백을 하나의 메시지로 합치기
+      const feedbackSections = feedbackToShow.map(section => ({
+        type: section.type,
+        feedback_en: parseFeedbackText(section.feedback_en),
+        feedback_ko: section.feedback_ko,
+        score: section.score
+      }))
       
-      feedbackToShow.forEach((section) => {
-        const translationText = section.feedback_ko
-        const feedbackText = parseFeedbackText(section.feedback_en)
-        addAIMessage(feedbackText, translationText, false, false)
-      })
+      // 피드백 섹션을 포함한 하나의 메시지 추가 (타이핑 효과 없음)
+      setMessages(prev => [...prev, {
+        who: 'AI',
+        text: '', // 피드백은 feedbackSections로 표시
+        translation: '',
+        isFixedQuestion: false,
+        isStreaming: false,
+        feedbackSections: feedbackSections
+      }])
       
+      // 표시한 피드백 섹션은 pending에서 제거
       pendingFeedbackSectionsRef.current = pendingFeedbackSectionsRef.current.filter(
-        section => section.type !== 'grammar' && section.type !== 'relevance'
+        section => section.type !== 'grammar' && section.type !== 'pronunciation' && section.type !== 'relevance'
       )
+    }
+    
+    // 재시도가 필요한 경우에만 needsCorrectionRef 초기화 (재시도 플로우 유지)
+    if (needsCorrectionRef.current) {
       needsCorrectionRef.current = false
     }
   }

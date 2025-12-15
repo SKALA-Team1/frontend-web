@@ -30,7 +30,17 @@ export default function useBookmarks() {
     setError(null)
     try {
       const data = await getMyBookmarks()
-      setBookmarks(data)
+      // 응답이 배열인지 확인하고, 배열이 아니면 빈 배열로 설정
+      // 만약 응답이 객체로 감싸져 있다면 (예: { bookmarks: [...] }), 적절히 추출
+      let bookmarksArray = []
+      if (Array.isArray(data)) {
+        bookmarksArray = data
+      } else if (data && Array.isArray(data.data)) {
+        bookmarksArray = data.data
+      } else if (data && Array.isArray(data.bookmarks)) {
+        bookmarksArray = data.bookmarks
+      }
+      setBookmarks(bookmarksArray)
     } catch (err) {
       console.error('Failed to fetch bookmarks:', err)
       setError(err.message || '북마크를 불러오는데 실패했습니다.')
@@ -73,10 +83,11 @@ export default function useBookmarks() {
     }
   }, [refreshBookmarks])
 
-  // 컴포넌트 마운트 시 북마크 목록 로드
-  useEffect(() => {
-    refreshBookmarks()
-  }, [refreshBookmarks])
+  // 컴포넌트 마운트 시 북마크 목록 로드 (자동 로드 비활성화)
+  // 필요 시 수동으로 refreshBookmarks() 호출
+  // useEffect(() => {
+  //   refreshBookmarks()
+  // }, [refreshBookmarks])
 
   return {
     bookmarks,

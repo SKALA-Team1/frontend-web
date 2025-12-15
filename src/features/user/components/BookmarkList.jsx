@@ -1,23 +1,8 @@
-import { useState } from 'react'
-import { Typography, Stack, Box, Chip, CircularProgress, Alert, IconButton, Collapse } from '@mui/material'
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import { Typography, Stack, Box, Chip, CircularProgress, Alert } from '@mui/material'
 import useBookmarks from '../../../hooks/useBookmarks'
 
 export default function BookmarkList() {
   const { bookmarks, loading, error } = useBookmarks()
-  const [expandedIds, setExpandedIds] = useState(new Set())
-
-  const toggleExpand = (bookmarkId) => {
-    setExpandedIds(prev => {
-      const newSet = new Set(prev)
-      if (newSet.has(bookmarkId)) {
-        newSet.delete(bookmarkId)
-      } else {
-        newSet.add(bookmarkId)
-      }
-      return newSet
-    })
-  }
 
   if (loading) {
     return (
@@ -48,8 +33,6 @@ export default function BookmarkList() {
   return (
     <Stack spacing={2}>
       {bookmarks.map((bookmark, idx) => {
-        const isExpanded = expandedIds.has(bookmark.bookmarkId)
-
         return (
           <Box
             key={bookmark.bookmarkId}
@@ -133,26 +116,10 @@ export default function BookmarkList() {
                 </Stack>
               )}
 
-              {/* 상세보기 버튼 */}
+              {/* 피드백 상세 내용 (항상 표시) */}
               {bookmark.feedbackSections && bookmark.feedbackSections.length > 0 && (
-                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
-                  <IconButton
-                    onClick={() => toggleExpand(bookmark.bookmarkId)}
-                    size="small"
-                    sx={{
-                      transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                      transition: 'transform 0.3s'
-                    }}
-                  >
-                    <ExpandMoreIcon />
-                  </IconButton>
-                </Box>
-              )}
-
-              {/* 피드백 상세 내용 (접기/펼치기) */}
-              <Collapse in={isExpanded} timeout="auto" unmountOnExit>
                 <Stack spacing={1.5} sx={{ mt: 1 }}>
-                  {bookmark.feedbackSections?.map((section) => {
+                  {bookmark.feedbackSections.map((section) => {
                     const typeLabel = section.type === 'pronunciation' ? '발음 피드백' :
                                      section.type === 'grammar' ? '문법 피드백' : '문맥 피드백'
 
@@ -183,7 +150,7 @@ export default function BookmarkList() {
                     )
                   })}
                 </Stack>
-              </Collapse>
+              )}
             </Stack>
           </Box>
         )
