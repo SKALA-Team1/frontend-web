@@ -235,70 +235,69 @@ function ScenarioList({
             >
               <CardContent sx={{ p: 1.5 }}>
                 <Stack spacing={1}>
-                  {/* 제목 + Overview 배지 */}
-                  <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 1 }}>
+                  {/* 제목 */}
                   <Typography 
                     variant="h6" 
                     fontWeight={700} 
                     sx={{ 
                       fontSize: '1.0625rem',
                       lineHeight: 1.4,
-                        color: '#212121',
-                        flex: 1
+                      color: '#212121'
                     }}
                   >
                     {item.title}
                   </Typography>
-                    {item.isGrouped && item.groupType === 'overview' && (
-                      <Chip
-                        label="Overview"
-                        size="small"
-                        sx={{
-                          height: 24,
-                          fontSize: '0.75rem',
-                          fontWeight: 600,
-                          background: 'linear-gradient(135deg, rgba(124,108,255,0.15) 0%, rgba(75,60,248,0.1) 100%)',
-                          color: 'primary.main',
-                          border: '1px solid rgba(124,108,255,0.3)',
-                          '& .MuiChip-label': {
-                            px: 1.5
-                          }
-                        }}
-                      />
-                    )}
-                    {item.isGrouped && item.groupType === 'detail' && (
-                      <Chip
-                        label="Detail"
-                        size="small"
-                        sx={{
-                          height: 24,
-                          fontSize: '0.75rem',
-                          fontWeight: 600,
-                          background: 'linear-gradient(135deg, rgba(76,175,80,0.15) 0%, rgba(56,142,60,0.1) 100%)',
-                          color: '#4caf50',
-                          border: '1px solid rgba(76,175,80,0.3)',
-                          '& .MuiChip-label': {
-                            px: 1.5
-                          }
-                        }}
-                      />
-                    )}
-                  </Box>
 
                   {/* 역할 정보 그리드 */}
                   <Stack spacing={1.5}>
                     {/* 나의 역할 */}
                     {item.myRole && (
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <PersonIcon sx={{ fontSize: 18, color: 'primary.main', opacity: 0.8 }} />
-                        <Box>
-                          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.125 }}>
-                            나의 역할
-                          </Typography>
-                          <Typography variant="body2" fontWeight={600} color="text.primary">
-                            {item.myRole}
-                          </Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
+                          <PersonIcon sx={{ fontSize: 18, color: 'primary.main', opacity: 0.8 }} />
+                          <Box>
+                            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.125 }}>
+                              나의 역할
+                            </Typography>
+                            <Typography variant="body2" fontWeight={600} color="text.primary">
+                              {item.myRole}
+                            </Typography>
+                          </Box>
                         </Box>
+                        {item.isGrouped && item.groupType === 'overview' && (
+                          <Chip
+                            label="Overview"
+                            size="small"
+                            sx={{
+                              height: 24,
+                              fontSize: '0.75rem',
+                              fontWeight: 600,
+                              background: 'linear-gradient(135deg, rgba(124,108,255,0.15) 0%, rgba(75,60,248,0.1) 100%)',
+                              color: 'primary.main',
+                              border: '1px solid rgba(124,108,255,0.3)',
+                              '& .MuiChip-label': {
+                                px: 1.5
+                              }
+                            }}
+                          />
+                        )}
+                        {item.isGrouped && item.groupType === 'detail' && (
+                          <Chip
+                            label="Detail"
+                            size="small"
+                            sx={{
+                              height: 24,
+                              fontSize: '0.75rem',
+                              fontWeight: 600,
+                              background: 'linear-gradient(135deg, rgba(76,175,80,0.15) 0%, rgba(56,142,60,0.1) 100%)',
+                              color: '#4caf50',
+                              border: '1px solid rgba(76,175,80,0.3)',
+                              '& .MuiChip-label': {
+                                px: 1.5
+                              }
+                            }}
+                          />
+                        )}
                       </Box>
                     )}
 

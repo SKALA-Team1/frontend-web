@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { 
   Typography, 
   Stack, 
@@ -9,13 +9,17 @@ import {
   IconButton,
   Divider,
   CircularProgress,
-  Alert
+  Alert,
+  Button
 } from '@mui/material'
 import BookmarkIcon from '@mui/icons-material/Bookmark'
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder'
 import useBookmarks from '../../../hooks/useBookmarks'
 
 export default function UserPage() {
   const { bookmarks, loading, error, removeBookmark, refreshBookmarks } = useBookmarks()
+  const [selectedBookmarks, setSelectedBookmarks] = useState(new Set()) // 선택된 북마크 ID들
+  const [isSaving, setIsSaving] = useState(false)
 
   // UserPage 마운트 시 북마크 목록 로드 (한 번만 실행)
   useEffect(() => {
@@ -23,9 +27,66 @@ export default function UserPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const handleDeleteBookmark = async (bookmarkId) => {
-    if (window.confirm('북마크를 삭제하시겠습니까?')) {
-      await removeBookmark(bookmarkId)
+  // 북마크 목록이 변경되면 모든 북마크를 선택 상태로 초기화
+  useEffect(() => {
+    if (bookmarks && bookmarks.length > 0) {
+      const allBookmarkIds = new Set(bookmarks.map(b => b.bookmarkId))
+      setSelectedBookmarks(allBookmarkIds)
+    }
+  }, [bookmarks])
+
+  // 북마크 토글 (선택/해제)
+  const handleToggleBookmark = (bookmarkId) => {
+    setSelectedBookmarks(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(bookmarkId)) {
+        newSet.delete(bookmarkId)
+      } else {
+        newSet.add(bookmarkId)
+      }
+      return newSet
+    })
+  }
+
+  // 저장 버튼 클릭 - 선택 해제된 북마크 삭제
+  const handleSaveBookmarks = async () => {
+    if (!bookmarks || bookmarks.length === 0) return
+
+    // 선택 해제된 북마크 찾기 (모든 북마크 중 선택되지 않은 것들)
+    const unselectedBookmarks = bookmarks.filter(
+      bookmark => !selectedBookmarks.has(bookmark.bookmarkId)
+    )
+
+    if (unselectedBookmarks.length === 0) {
+      // 변경사항 없음
+      return
+    }
+
+    setIsSaving(true)
+    try {
+      // 선택 해제된 북마크들을 모두 삭제
+      const deletePromises = unselectedBookmarks.map(bookmark =>
+        removeBookmark(bookmark.bookmarkId).catch(err => {
+          console.error(`Failed to delete bookmark ${bookmark.bookmarkId}:`, err)
+          return { error: true, bookmarkId: bookmark.bookmarkId }
+        })
+      )
+
+      await Promise.all(deletePromises)
+      
+      // 성공 후 선택 상태 초기화 (남은 북마크만 선택 상태로)
+      const remainingBookmarks = bookmarks.filter(
+        bookmark => selectedBookmarks.has(bookmark.bookmarkId)
+      )
+      setSelectedBookmarks(new Set(remainingBookmarks.map(b => b.bookmarkId)))
+      
+      // 북마크 목록 새로고침
+      await refreshBookmarks()
+    } catch (err) {
+      console.error('Failed to save bookmarks:', err)
+      alert('북마크 저장 중 오류가 발생했습니다.')
+    } finally {
+      setIsSaving(false)
     }
   }
 
@@ -39,14 +100,32 @@ export default function UserPage() {
   return (
     <Stack spacing={3}>
       {/* 헤더 */}
-      <Stack spacing={0.5} alignItems="center" textAlign="center">
-        <Typography variant="h4" sx={{ fontWeight: 700 }}>
-          북마크
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ opacity: 0.75 }}>
-          북마크한 채팅을 확인하세요
-        </Typography>
-      </Stack>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative' }}>
+        <Stack spacing={0.5} sx={{ flex: 1, alignItems: 'center', textAlign: 'center' }}>
+          <Typography variant="h4" sx={{ fontWeight: 700 }}>
+            북마크
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ opacity: 0.75 }}>
+            북마크한 채팅을 확인하세요
+          </Typography>
+        </Stack>
+        <Button
+          variant="contained"
+          onClick={handleSaveBookmarks}
+          disabled={isSaving || loading || !bookmarks || bookmarks.length === 0}
+          sx={{
+            position: 'absolute',
+            right: 0,
+            minWidth: 'auto',
+            px: 2,
+            py: 1,
+            textTransform: 'none',
+            fontWeight: 600
+          }}
+        >
+          {isSaving ? '저장 중...' : '저장'}
+        </Button>
+      </Box>
 
       {/* 북마크 채팅 리스트 */}
       {loading && (
@@ -74,50 +153,32 @@ export default function UserPage() {
             sx={{
               borderRadius: 3,
               border: '1px solid rgba(0,0,0,0.08)',
-              background: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.95) 100%)',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              overflow: 'hidden',
-              position: 'relative',
-              '&::before': {
-                content: '""',
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '4px',
-                height: '100%',
-                background: 'linear-gradient(180deg, #FFA500 0%, #FF8C00 100%)',
-                opacity: 0,
-                transition: 'opacity 0.3s ease'
-              },
-              '&:hover': {
-                boxShadow: '0 8px 24px rgba(255,165,0,0.2)',
-                borderColor: 'rgba(255,165,0,0.3)',
-                transform: 'translateY(-4px)',
-                '&::before': {
-                  opacity: 1
-                }
-              }
+              background: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.95) 100%)'
             }}
           >
             <CardContent sx={{ p: 3, position: 'relative' }}>
-              {/* 북마크 아이콘 - 카드 오른쪽 위 */}
+              {/* 북마크 토글 아이콘 - 카드 오른쪽 위 */}
               <IconButton
-                onClick={() => handleDeleteBookmark(bookmark.bookmarkId)}
+                onClick={() => handleToggleBookmark(bookmark.bookmarkId)}
                 size="small"
                 sx={{
                   position: 'absolute',
                   top: 16,
                   right: 16,
-                  color: '#FFA500',
+                  color: selectedBookmarks.has(bookmark.bookmarkId) ? '#FFA500' : 'rgba(0,0,0,0.3)',
                   '&:hover': {
                     bgcolor: 'rgba(0,0,0,0.05)',
-                    color: '#FF8C00'
+                    color: selectedBookmarks.has(bookmark.bookmarkId) ? '#FF8C00' : 'rgba(0,0,0,0.5)'
                   },
                   transition: 'color 0.2s ease',
                   zIndex: 1
                 }}
               >
-                <BookmarkIcon sx={{ fontSize: 20 }} />
+                {selectedBookmarks.has(bookmark.bookmarkId) ? (
+                  <BookmarkIcon sx={{ fontSize: 20 }} />
+                ) : (
+                  <BookmarkBorderIcon sx={{ fontSize: 20 }} />
+                )}
               </IconButton>
 
               <Stack spacing={2}>
