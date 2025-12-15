@@ -81,37 +81,37 @@ export default function ProfileSummary() {
     >
       <CardContent sx={{ p: 3 }}>
         <Stack spacing={2}>
-          <Stack direction="row" spacing={2.5} alignItems="flex-start">
-            <Avatar 
-              variant="rounded"
+        <Stack direction="row" spacing={2.5} alignItems="flex-start">
+          <Avatar 
+            variant="rounded"
+            sx={{ 
+              width: 80, 
+              height: 80, 
+              background: 'linear-gradient(135deg, #7C6CFF 0%, #4B3CF8 100%)',
+              border: '3px solid rgba(255,255,255,0.9)',
+              fontSize: '1.75rem',
+              fontWeight: 700,
+              boxShadow: '0 4px 12px rgba(124,108,255,0.3)',
+              borderRadius: 1
+            }}
+          >
+            {userInitials}
+          </Avatar>
+          <Box sx={{ flex: 1, pt: 0.5 }}>
+            <Typography 
+              variant="h5" 
+              fontWeight={700} 
               sx={{ 
-                width: 80, 
-                height: 80, 
-                background: 'linear-gradient(135deg, #7C6CFF 0%, #4B3CF8 100%)',
-                border: '3px solid rgba(255,255,255,0.9)',
-                fontSize: '1.75rem',
-                fontWeight: 700,
-                boxShadow: '0 4px 12px rgba(124,108,255,0.3)',
-                borderRadius: 1
+                mb: 1.5,
+                background: 'linear-gradient(135deg, #212121 0%, #424242 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text'
               }}
             >
-              {userInitials}
-            </Avatar>
-            <Box sx={{ flex: 1, pt: 0.5 }}>
-              <Typography 
-                variant="h5" 
-                fontWeight={700} 
-                sx={{ 
-                  mb: 1.5,
-                  background: 'linear-gradient(135deg, #212121 0%, #424242 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text'
-                }}
-              >
-                {userName || '사용자'} 님
-              </Typography>
-              
+              {userName || '사용자'} 님
+            </Typography>
+            
               {/* 연속 학습 */}
               <Chip
                 icon={<LocalFireDepartmentIcon sx={{ fontSize: 18 }} />}
@@ -131,9 +131,9 @@ export default function ProfileSummary() {
               />
             </Box>
           </Stack>
-          
-          {/* 완료한 롤플레잉 % 게이지 */}
-          <Box>
+              
+              {/* 완료한 롤플레잉 % 게이지 */}
+              <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                     <CheckCircleOutlineIcon sx={{ fontSize: 16, color: 'primary.main' }} />

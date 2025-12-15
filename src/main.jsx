@@ -145,7 +145,7 @@ const theme = createTheme({
             color: '#212121 !important',
             WebkitTextFillColor: '#212121 !important',
             fontFamily: 'text-security-disc !important',
-            WebkitTextSecurity: 'disc !important'
+            '-webkit-text-security': 'disc !important'
           },
     
           '&:-webkit-autofill': {

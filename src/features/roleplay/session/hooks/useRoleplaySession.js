@@ -666,8 +666,8 @@ export default function useRoleplaySession(options = {}) {
     storeFeedbackSections(message.sections)
     
     // 현재 저장된 피드백 섹션 확인
-    const feedbackToShow = filterAndSortFeedbackSections(pendingFeedbackSectionsRef.current)
-    
+      const feedbackToShow = filterAndSortFeedbackSections(pendingFeedbackSectionsRef.current)
+      
     // 발음, 문법, 문맥 피드백이 모두 있는지 확인
     const hasPronunciation = feedbackToShow.some(s => s.type === 'pronunciation')
     const hasGrammar = feedbackToShow.some(s => s.type === 'grammar')
@@ -675,23 +675,23 @@ export default function useRoleplaySession(options = {}) {
     
     // 세 가지 피드백이 모두 생성되었을 때만 표시
     if (hasPronunciation && hasGrammar && hasRelevance && feedbackToShow.length >= 3) {
-      // 모든 피드백을 하나의 메시지로 합치기
-      const feedbackSections = feedbackToShow.map(section => ({
-        type: section.type,
-        feedback_en: parseFeedbackText(section.feedback_en),
-        feedback_ko: section.feedback_ko,
-        score: section.score
-      }))
-      
-      // 피드백 섹션을 포함한 하나의 메시지 추가 (타이핑 효과 없음)
-      setMessages(prev => [...prev, {
-        who: 'AI',
-        text: '', // 피드백은 feedbackSections로 표시
-        translation: '',
-        isFixedQuestion: false,
-        isStreaming: false,
-        feedbackSections: feedbackSections
-      }])
+        // 모든 피드백을 하나의 메시지로 합치기
+        const feedbackSections = feedbackToShow.map(section => ({
+          type: section.type,
+          feedback_en: parseFeedbackText(section.feedback_en),
+          feedback_ko: section.feedback_ko,
+          score: section.score
+        }))
+        
+        // 피드백 섹션을 포함한 하나의 메시지 추가 (타이핑 효과 없음)
+        setMessages(prev => [...prev, {
+          who: 'AI',
+          text: '', // 피드백은 feedbackSections로 표시
+          translation: '',
+          isFixedQuestion: false,
+          isStreaming: false,
+          feedbackSections: feedbackSections
+        }])
       
       // 표시한 피드백 섹션은 pending에서 제거
       pendingFeedbackSectionsRef.current = pendingFeedbackSectionsRef.current.filter(
