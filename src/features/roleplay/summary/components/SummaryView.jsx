@@ -278,7 +278,7 @@ export default function SummaryView({
                       )}
                       {avgRelevance !== null && (
                         <Chip
-                          label={`관련성: ${avgRelevance}점`}
+                          label={`문맥: ${avgRelevance}점`}
                           size="small"
                           sx={{
                             bgcolor: 'rgba(124,108,255,0.1)',
@@ -504,7 +504,7 @@ export default function SummaryView({
                             )}
                             {userUtterance.relevance_score !== null && (
                               <Chip
-                                label={`관련성: ${userUtterance.relevance_score}점`}
+                                label={`문맥: ${userUtterance.relevance_score}점`}
                                 size="small"
                                 sx={{
                                   bgcolor: 'rgba(124,108,255,0.1)',
@@ -576,7 +576,7 @@ export default function SummaryView({
                                       const feedbackTypeLabels = {
                                         pronunciation: '발음',
                                         grammar: '문법',
-                                        relevance: '관련성'
+                                        relevance: '문맥'
                                       }
                                       
                                       return (

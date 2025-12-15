@@ -148,7 +148,8 @@ export default function useRoleplaySession(options = {}) {
     return sections
       .filter(section => section.type === 'grammar' || section.type === 'pronunciation' || section.type === 'relevance')
       .sort((a, b) => {
-        const order = { 'grammar': 0, 'pronunciation': 1, 'relevance': 2 }
+        // 발음 -> 문법 -> 문맥 순서로 정렬
+        const order = { 'pronunciation': 0, 'grammar': 1, 'relevance': 2 }
         return (order[a.type] ?? 999) - (order[b.type] ?? 999)
       })
   }
@@ -659,14 +660,21 @@ export default function useRoleplaySession(options = {}) {
 
   /**
    * FEEDBACK_SECTIONS 메시지 처리
+   * 발음, 문법, 문맥 피드백이 모두 생성되면 하나의 메시지 버블에 한번에 표시
    */
   const handleFeedbackSections = (message) => {
     storeFeedbackSections(message.sections)
     
-    // 피드백 섹션이 있으면 항상 표시 (재시도 필요 여부와 관계없이)
+    // 현재 저장된 피드백 섹션 확인
     const feedbackToShow = filterAndSortFeedbackSections(pendingFeedbackSectionsRef.current)
     
-    if (feedbackToShow.length > 0) {
+    // 발음, 문법, 문맥 피드백이 모두 있는지 확인
+    const hasPronunciation = feedbackToShow.some(s => s.type === 'pronunciation')
+    const hasGrammar = feedbackToShow.some(s => s.type === 'grammar')
+    const hasRelevance = feedbackToShow.some(s => s.type === 'relevance')
+    
+    // 세 가지 피드백이 모두 생성되었을 때만 표시
+    if (hasPronunciation && hasGrammar && hasRelevance && feedbackToShow.length >= 3) {
       // 모든 피드백을 하나의 메시지로 합치기
       const feedbackSections = feedbackToShow.map(section => ({
         type: section.type,

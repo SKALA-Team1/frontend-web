@@ -21,14 +21,14 @@ const TYPING_SPEED = 30
 const STREAMING_TYPING_SPEED = 15 // 스트리밍 중에는 더 빠른 타이핑
 
 function MessageBubble({ message, index, showTranslation, onToggleTranslation, onFetchKeywords }) {
-  const { who, text, isStreaming, translation, recommendedKeywords, feedbackSections } = message || {}
+  const { who, text, isStreaming, translation, recommendedKeywords, feedbackSections, isFeedbackGenerating } = message || {}
   const style = MESSAGE_STYLES[who] || MESSAGE_STYLES.AI
   
   // 피드백 타입별 소제목 매핑
   const feedbackTypeLabels = {
     pronunciation: '발음',
     grammar: '문법',
-    relevance: '관련성'
+    relevance: '문맥'
   }
   const [displayedText, setDisplayedText] = useState('')
   const [isTyping, setIsTyping] = useState(false)
@@ -299,7 +299,7 @@ function MessageBubble({ message, index, showTranslation, onToggleTranslation, o
             pb: hasTranslation && isTranslationVisible ? 0 : (isKeywordsMsg ? 1 : 1.5)
           }}
         >
-          {!message.isKeywordsMessage && (
+          {!message.isKeywordsMessage && !(feedbackSections && Array.isArray(feedbackSections) && feedbackSections.length > 0) && !isFeedbackGenerating && (
             <Typography 
               variant="caption" 
               sx={{ 
@@ -369,7 +369,9 @@ function MessageBubble({ message, index, showTranslation, onToggleTranslation, o
                   lineHeight: 1.6,
                   wordBreak: 'break-word',
                   minHeight: '1em', // 타이핑 중 깜빡임 방지
-                  fontSize: '0.75rem'
+                  fontSize: '0.75rem',
+                  color: isFeedbackGenerating ? 'rgba(0,0,0,0.6)' : undefined,
+                  fontStyle: isFeedbackGenerating ? 'italic' : undefined
                 }}
               >
                 {displayedText || text}
@@ -408,7 +410,7 @@ function MessageBubble({ message, index, showTranslation, onToggleTranslation, o
                   lineHeight: 1.6,
                   wordBreak: 'break-word',
                   color: '#424242',
-                  fontSize: '0.5rem',
+                  fontSize: '0.75rem',
                   pb: 0.5
                 }}
               >

@@ -33,7 +33,7 @@ export default function UserPage() {
   const feedbackTypeLabels = {
     pronunciation: '발음',
     grammar: '문법',
-    relevance: '관련성'
+    relevance: '문맥'
   }
 
   return (
