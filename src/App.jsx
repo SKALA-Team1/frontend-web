@@ -18,6 +18,7 @@ import { ROUTES } from './config/constants'
 // Lazy Loading으로 페이지 컴포넌트 로드
 const LoginPage = lazy(() => import('./features/auth/pages/LoginPage'))
 const SignUpPage = lazy(() => import('./features/auth/pages/SignUpPage'))
+const GoogleCallbackPage = lazy(() => import('./features/auth/pages/GoogleCallbackPage'))
 const RoleplayPage = lazy(() => import('./features/roleplay/pages/RoleplayPage'))
 const LearnPage = lazy(() => import('./features/learn/pages/LearnPage'))
 const FeedbackPage = lazy(() => import('./features/feedback/pages/FeedbackPage'))
@@ -27,6 +28,7 @@ const UserPage = lazy(() => import('./features/user/pages/UserPage'))
 const routes = [
   { path: ROUTES.LOGIN, element: <LoginPage />, public: true },
   { path: ROUTES.SIGNUP, element: <SignUpPage />, public: true },
+  { path: '/auth/google/callback', element: <GoogleCallbackPage />, public: true },
   { path: ROUTES.ROLEPLAYING, element: <RoleplayPage />, protected: true },
   { path: ROUTES.LEARN, element: <LearnPage />, protected: true },
   { path: ROUTES.FEEDBACK, element: <FeedbackPage />, protected: true },

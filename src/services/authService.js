@@ -109,6 +109,16 @@ export async function refreshToken(refreshToken) {
 }
 
 /**
+ * Google OAuth 로그인 URL 조회
+ * @returns {Promise<string>} Google 로그인 URL
+ */
+export async function getGoogleLoginUrl() {
+  const url = `${API_ENDPOINTS.GATEWAY}/auth/google/login`
+  const response = await httpClient.get(url, { skipAuth: true })
+  return response.login_url || response.loginUrl
+}
+
+/**
  * 로그아웃
  * 백엔드에 로그아웃 요청을 보내고, 성공/실패 여부와 관계없이 로컬 토큰을 제거합니다.
  * @returns {Promise<void>}

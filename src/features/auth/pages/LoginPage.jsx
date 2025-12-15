@@ -26,9 +26,17 @@ export default function LoginPage() {
     }
   }
 
-  const handleGoogleLogin = () => {
-    // Google 로그인은 추후 구현
-    notification.showInfo('Google 로그인은 아직 지원되지 않습니다.')
+  const handleGoogleLogin = async () => {
+    try {
+      const { getGoogleLoginUrl } = await import('../../../services/authService')
+      const googleLoginUrl = await getGoogleLoginUrl()
+      
+      // Google 로그인 페이지로 리다이렉트
+      window.location.href = googleLoginUrl
+    } catch (error) {
+      console.error('Google 로그인 URL 조회 실패:', error)
+      notification.showError('Google 로그인을 시작할 수 없습니다.')
+    }
   }
 
   return (
