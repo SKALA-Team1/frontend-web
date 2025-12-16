@@ -113,6 +113,7 @@ export default function useRoleplaySession(options = {}) {
   const isRecordingRef = useRef(false)
   const lipSyncDelayTimeoutRef = useRef(null)
   const lipSyncEndTimeoutRef = useRef(null)
+  const isFirstTTSAudioRef = useRef(true) // 첫 TTS 오디오인지 추적
 
   // ========================================
   // 유틸리티 함수
@@ -157,21 +158,39 @@ export default function useRoleplaySession(options = {}) {
   /**
    * AI 메시지 추가
    * 타이핑 효과 후 TTS 재생까지 처리
+   * 첫 질문(isFixedQuestion=true)인 경우 타이핑 효과 없이 즉시 표시하고 TTS 재생
    */
   const addAIMessage = (text, translation, isFixedQuestion = false, isStreaming = false) => {
-    setMessages(prev => [...prev, {
-      who: 'AI',
-      text,
-      translation,
-      isFixedQuestion,
-      isStreaming
-    }])
+    let skipTyping = false
+    
+    setMessages(prev => {
+      const isFirstMessage = prev.length === 0
+      skipTyping = isFirstMessage && isFixedQuestion
+      
+      return [...prev, {
+        who: 'AI',
+        text,
+        translation,
+        isFixedQuestion,
+        isStreaming,
+        skipTyping // 타이핑 효과 스킵 플래그
+      }]
+    })
 
     if (!isStreaming) {
-      const typingDuration = text.length * TYPING_SPEED_MS_PER_CHAR + TYPING_DELAY_MS
-      setTimeout(() => {
-        speakText(text)
-      }, typingDuration)
+      // 첫 질문인 경우 타이핑 효과 없이 2초 후 TTS 재생
+      if (skipTyping) {
+        // 타이핑 효과 없이 2초 후 TTS 재생
+        setTimeout(() => {
+          speakText(text)
+        }, 2000) // 2초 딜레이
+      } else {
+        // 일반 메시지는 타이핑 효과 후 TTS 재생
+        const typingDuration = text.length * TYPING_SPEED_MS_PER_CHAR + TYPING_DELAY_MS
+        setTimeout(() => {
+          speakText(text)
+        }, typingDuration)
+      }
     }
   }
 
@@ -265,51 +284,72 @@ export default function useRoleplaySession(options = {}) {
 
   /**
    * TTS 오디오 재생 (ElevenLabs)
+   * 첫 질문인 경우 2초 딜레이 후 재생
    */
   const handleTTSAudio = (audioBase64) => {
     try {
-      // 이전 오디오 중지 및 정리
-      if (audioRef.current) {
-        audioRef.current.pause()
-        audioRef.current = null
-      }
-      visemeQueue.current = [] // Viseme 큐 초기화
-      setIsTTSPlaying(false)
-
-      // Base64 디코딩
+      // TTS_AUDIO 메시지가 도착한 시점에 이전 viseme 데이터 초기화
+      // 새로운 오디오에 대한 TTS_VISEME 메시지들은 TTS_AUDIO 이후에 도착하므로
+      // 이 시점에 초기화해도 새로운 viseme 데이터는 이후에 큐에 추가됨
+      visemeQueue.current = []
+      
+      // Base64 디코딩 및 오디오 준비
       const audioData = Uint8Array.from(atob(audioBase64), c => c.charCodeAt(0))
       const blob = new Blob([audioData], { type: 'audio/mpeg' })
       const audioUrl = URL.createObjectURL(blob)
       
-      // 오디오 재생
-      const audio = new Audio(audioUrl)
-      audioRef.current = audio
-      
-      audio.onplay = () => {
-        setIsTTSPlaying(true)
+      // 재생 함수
+      const playAudio = () => {
+        // 이전 오디오 중지 및 정리
+        if (audioRef.current) {
+          audioRef.current.pause()
+          audioRef.current.currentTime = 0
+          audioRef.current = null
+        }
+        
+        setIsTTSPlaying(false)
+        
+        // 오디오 재생
+        const audio = new Audio(audioUrl)
+        audioRef.current = audio
+        audio.volume = 1.0 // 볼륨을 1.0으로 명시적 설정
+        
+        audio.onplay = () => {
+          setIsTTSPlaying(true)
+        }
+        
+        audio.onended = () => {
+          setIsTTSPlaying(false)
+          URL.revokeObjectURL(audioUrl)
+          visemeQueue.current = [] // Viseme 큐 초기화
+          audioRef.current = null
+        }
+        
+        audio.onerror = (error) => {
+          console.error('[TTS] 오디오 재생 실패:', error)
+          setIsTTSPlaying(false)
+          URL.revokeObjectURL(audioUrl)
+          visemeQueue.current = []
+          audioRef.current = null
+        }
+        
+        audio.play().catch(error => {
+          console.error('[TTS] 오디오 재생 시작 실패:', error)
+          setIsTTSPlaying(false)
+          URL.revokeObjectURL(audioUrl)
+          audioRef.current = null
+        })
       }
       
-      audio.onended = () => {
-        setIsTTSPlaying(false)
-        URL.revokeObjectURL(audioUrl)
-        visemeQueue.current = [] // Viseme 큐 초기화
-        audioRef.current = null
+      // 첫 TTS 오디오인 경우 2초 딜레이, 아니면 즉시 재생
+      if (isFirstTTSAudioRef.current) {
+        isFirstTTSAudioRef.current = false // 다음부터는 즉시 재생
+        setTimeout(() => {
+          playAudio()
+        }, 2000) // 2초 딜레이
+      } else {
+        playAudio()
       }
-      
-      audio.onerror = (error) => {
-        console.error('[TTS] 오디오 재생 실패:', error)
-        setIsTTSPlaying(false)
-        URL.revokeObjectURL(audioUrl)
-        visemeQueue.current = []
-        audioRef.current = null
-      }
-      
-      audio.play().catch(error => {
-        console.error('[TTS] 오디오 재생 시작 실패:', error)
-        setIsTTSPlaying(false)
-        URL.revokeObjectURL(audioUrl)
-        audioRef.current = null
-      })
     } catch (error) {
       console.error('[TTS] 오디오 처리 실패:', error)
       setIsTTSPlaying(false)
@@ -396,14 +436,16 @@ export default function useRoleplaySession(options = {}) {
    */
   const handleAIText = (message) => {
     const translationText = extractTranslation(message)
+    const isFixedQuestion = message.is_fixed_question || false
     
     if (!isAvatarLoaded && messages.length === 0) {
       pendingFirstMessageRef.current = {
         who: 'AI',
         text: message.text,
         translation: translationText,
-        isFixedQuestion: message.is_fixed_question || false,
-        isStreaming: false
+        isFixedQuestion: isFixedQuestion,
+        isStreaming: false,
+        skipTyping: isFixedQuestion // 첫 질문인 경우 타이핑 효과 스킵
       }
       
       clearTimeoutRef(pendingFirstMessageTimeoutRef)
@@ -412,16 +454,25 @@ export default function useRoleplaySession(options = {}) {
           const pendingMessage = pendingFirstMessageRef.current
           pendingFirstMessageRef.current = null
           setMessages(prev => [...prev, pendingMessage])
-          const typingDuration = pendingMessage.text.length * TYPING_SPEED_MS_PER_CHAR + TYPING_DELAY_MS
-          setTimeout(() => {
-            speakText(pendingMessage.text)
-          }, typingDuration)
+          
+          // 첫 질문인 경우 타이핑 효과 없이 2초 후 TTS 재생
+          if (pendingMessage.isFixedQuestion) {
+            setTimeout(() => {
+              speakText(pendingMessage.text)
+            }, 2000) // 2초 딜레이
+          } else {
+            // 일반 메시지는 타이핑 효과 후 TTS 재생
+            const typingDuration = pendingMessage.text.length * TYPING_SPEED_MS_PER_CHAR + TYPING_DELAY_MS
+            setTimeout(() => {
+              speakText(pendingMessage.text)
+            }, typingDuration)
+          }
         }
       }, AVATAR_LOAD_TIMEOUT_MS)
       return
     }
     
-    addAIMessage(message.text, translationText, message.is_fixed_question || false, false)
+    addAIMessage(message.text, translationText, isFixedQuestion, false)
   }
 
   /**
@@ -889,10 +940,18 @@ export default function useRoleplaySession(options = {}) {
       
       setMessages(prev => [...prev, pendingMessage])
       
-      const typingDuration = pendingMessage.text.length * TYPING_SPEED_MS_PER_CHAR + TYPING_DELAY_MS
-      setTimeout(() => {
-        speakText(pendingMessage.text)
-      }, typingDuration)
+      // 첫 질문인 경우 타이핑 효과 없이 2초 후 TTS 재생
+      if (pendingMessage.isFixedQuestion) {
+        setTimeout(() => {
+          speakText(pendingMessage.text)
+        }, 2000) // 2초 딜레이
+      } else {
+        // 일반 메시지는 타이핑 효과 후 TTS 재생
+        const typingDuration = pendingMessage.text.length * TYPING_SPEED_MS_PER_CHAR + TYPING_DELAY_MS
+        setTimeout(() => {
+          speakText(pendingMessage.text)
+        }, typingDuration)
+      }
     }
   }
 
@@ -912,6 +971,7 @@ export default function useRoleplaySession(options = {}) {
       setIsInitialized(false)
       setIsAvatarLoaded(false)
       pendingFirstMessageRef.current = null
+      isFirstTTSAudioRef.current = true // 첫 TTS 오디오 플래그 리셋
 
       const sessionData = await startSession(scenarioId)
       setSessionInfo(sessionData)
@@ -970,6 +1030,7 @@ export default function useRoleplaySession(options = {}) {
     setIsInitialized(false)
     setIsAvatarLoaded(false)
     pendingFirstMessageRef.current = null
+    isFirstTTSAudioRef.current = true // 첫 TTS 오디오 플래그 리셋
     setEvaluating(false)
     setView(reason === 'auto' ? 'summary' : 'list')
   }

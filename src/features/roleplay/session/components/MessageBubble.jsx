@@ -21,7 +21,7 @@ const TYPING_SPEED = 30
 const STREAMING_TYPING_SPEED = 15 // 스트리밍 중에는 더 빠른 타이핑
 
 function MessageBubble({ message, index, showTranslation, onToggleTranslation, onFetchKeywords }) {
-  const { who, text, isStreaming, translation, recommendedKeywords, feedbackSections } = message || {}
+  const { who, text, isStreaming, translation, recommendedKeywords, feedbackSections, isFixedQuestion, skipTyping } = message || {}
   const style = MESSAGE_STYLES[who] || MESSAGE_STYLES.AI
   
   // 피드백 타입별 소제목 매핑
@@ -227,9 +227,22 @@ function MessageBubble({ message, index, showTranslation, onToggleTranslation, o
           prevTextRef.current = text
         } else {
           // ✅ 이미 생성된 텍스트 (고정 질문 등): 타이핑 효과로 표시
+          // 단, skipTyping이 true인 경우(첫 질문) 타이핑 효과 없이 즉시 표시
           if (text && text.length > 0) {
-            // displayedText가 비어있거나 텍스트와 다른 경우에만 타이핑 시작
-            if (!displayedText || displayedText.length === 0 || displayedText !== text) {
+            if (skipTyping || (isFixedQuestion && index === 0)) {
+              // 첫 질문인 경우 타이핑 효과 없이 즉시 전체 텍스트 표시
+              if (displayedText !== text) {
+                setDisplayedText(text)
+                displayedTextRef.current = text
+                targetTextRef.current = text
+                prevTextLengthRef.current = text.length
+                isCompletedRef.current = true
+                prevTextRef.current = text
+                setIsTyping(false)
+                hasTypedRef.current = false
+              }
+            } else if (!displayedText || displayedText.length === 0 || displayedText !== text) {
+              // 일반 메시지는 타이핑 효과 적용
               setIsTyping(true)
               setDisplayedText('')
               displayedTextRef.current = ''
