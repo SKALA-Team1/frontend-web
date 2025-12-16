@@ -172,7 +172,7 @@ export default function AppDrawer({
                 selected={isSelected}
                 onClick={() => onNavigate(item.path)}
                 sx={{
-                  borderRadius: 2.5,
+                  borderRadius: 1.25,
                   mb: 1,
                   py: 1.25,
                   px: 2,
@@ -188,7 +188,7 @@ export default function AppDrawer({
                     width: isSelected ? '4px' : '0px',
                     height: isSelected ? '60%' : '0%',
                     background: 'linear-gradient(180deg, #7C6CFF 0%, #4B3CF8 100%)',
-                    borderRadius: '0 2px 2px 0',
+                    borderRadius: '0 1px 1px 0',
                     transition: 'all 0.3s ease'
                   },
                   '&.Mui-selected': {
@@ -244,7 +244,7 @@ export default function AppDrawer({
               color: '#FF6B6B',
               borderColor: 'rgba(255,107,107,0.3)',
               borderWidth: 2,
-              borderRadius: 2.5,
+              borderRadius: 1.25,
               py: 1.25,
               justifyContent: 'center',
               fontWeight: 600,

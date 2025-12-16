@@ -283,7 +283,7 @@ export default function AvatarWindow({ avatarUrl, aiRoleName = 'AI', isTTSPlayin
           position: 'relative',
           width: '100%',
           aspectRatio: '16 / 9',
-          borderRadius: 1,
+          borderRadius: 0.5,
           overflow: 'hidden',
           border: '1px solid rgba(0,0,0,0.23)',
           backgroundColor: 'rgba(0,0,0,0.02)',

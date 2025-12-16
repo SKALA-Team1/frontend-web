@@ -387,7 +387,7 @@ export default function RoleplayPage() {
               시나리오가 성공적으로 생성되었습니다.
             </DialogContentText>
             {createdScenario && (
-              <Box sx={{ mt: 2, p: 2, bgcolor: 'rgba(124,108,255,0.05)', borderRadius: 2 }}>
+              <Box sx={{ mt: 2, p: 2, bgcolor: 'rgba(124,108,255,0.05)', borderRadius: 1 }}>
                 <Typography variant="body2" fontWeight={600} sx={{ mb: 1, color: 'text.primary' }}>
                   {createdScenario.title}
                 </Typography>

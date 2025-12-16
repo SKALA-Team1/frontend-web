@@ -52,7 +52,7 @@ export default function TextInputArea({
           sx={{
             '& .MuiOutlinedInput-root': {
               backgroundColor: '#ffffff',
-              borderRadius: 2,
+              borderRadius: 1,
               color: '#212121',
               '& fieldset': {
                 borderColor: 'rgba(0,0,0,0.23)'

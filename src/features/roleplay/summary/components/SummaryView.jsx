@@ -239,7 +239,7 @@ export default function SummaryView({
         <Card
             variant="outlined"
             sx={{
-              borderRadius: 3,
+              borderRadius: 1.5,
               border: '1px solid rgba(124,108,255,0.2)',
               background: 'linear-gradient(135deg, rgba(124,108,255,0.04) 0%, rgba(75,60,248,0.02) 100%)',
               boxShadow: '0 8px 24px rgba(124,108,255,0.12)'
@@ -338,7 +338,7 @@ export default function SummaryView({
               mb: 1,
               cursor: 'pointer',
               p: 0.5,
-              borderRadius: 1,
+              borderRadius: 0.5,
               transition: 'background-color 0.2s ease',
               '&:hover': {
                 bgcolor: 'rgba(0,0,0,0.03)'
@@ -456,7 +456,7 @@ export default function SummaryView({
                         maxWidth: '88%',
                         bgcolor: isUser ? 'rgba(124,108,255,0.08)' : 'rgba(0,0,0,0.03)',
                         border: isUser ? '1px solid rgba(124,108,255,0.25)' : '1px solid rgba(0,0,0,0.1)',
-                        borderRadius: 2,
+                        borderRadius: 1,
                         boxShadow: '0 6px 16px rgba(0,0,0,0.08)'
                       }}
                     >
@@ -567,7 +567,7 @@ export default function SummaryView({
                                     mt: 0.5,
                                     bgcolor: 'rgba(124,108,255,0.04)',
                                     border: '1px solid rgba(124,108,255,0.15)',
-                                    borderRadius: 2
+                                    borderRadius: 1
                                   }}
                                 >
                                   <CardContent sx={{ py: 0.75, px: 1 }}>

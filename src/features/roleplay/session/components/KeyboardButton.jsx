@@ -14,7 +14,7 @@ export default function KeyboardButton({ onClick, isActive = false }) {
           ? '#FFFFFF' 
           : '#FFFFFF',
         color: '#7C6CFF',
-        borderRadius: 2.5,
+        borderRadius: 1.25,
         boxShadow: 'none',
         transition: 'all 0.2s ease',
         '&:hover': {

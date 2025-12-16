@@ -14,7 +14,8 @@ import {
   Chip,
   Select,
   MenuItem,
-  FormControl
+  FormControl,
+  Divider
 } from '@mui/material'
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
@@ -118,7 +119,7 @@ function ScenarioList({
           mb: 1.5,
           '& .MuiTabs-indicator': {
             height: 3,
-            borderRadius: '3px 3px 0 0',
+            borderRadius: '1.5px 1.5px 0 0',
             background: 'linear-gradient(90deg, #7C6CFF 0%, #4B3CF8 100%)'
           },
           '& .MuiTab-root': {
@@ -203,7 +204,7 @@ function ScenarioList({
               key={`${tab}-${item.idx ?? item.scenarioId}`} 
               onClick={() => handleStart(item)}
               sx={{
-                borderRadius: 3,
+                borderRadius: 1.5,
                 border: '1px solid rgba(0,0,0,0.08)',
                 background: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.95) 100%)',
                 cursor: 'pointer',
@@ -249,6 +250,9 @@ function ScenarioList({
                   >
                     {item.title}
                   </Typography>
+
+                  {/* 구분선 */}
+                  <Divider sx={{ borderColor: 'rgba(0,0,0,0.08)' }} />
 
                   {/* 역할 정보 그리드 */}
                   <Stack spacing={1.5}>
@@ -394,7 +398,7 @@ function ScenarioList({
             <Card 
               variant="outlined"
               sx={{
-                borderRadius: 3,
+                borderRadius: 1.5,
                 border: '1px dashed rgba(124,108,255,0.25)',
                 background: 'linear-gradient(135deg, rgba(124,108,255,0.04) 0%, rgba(75,60,248,0.02) 100%)',
                 boxShadow: '0 6px 18px rgba(124,108,255,0.12)'

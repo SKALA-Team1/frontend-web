@@ -64,7 +64,7 @@ export default function ProfileSummary() {
       sx={{
         background: 'linear-gradient(135deg, rgba(124,108,255,0.1) 0%, rgba(75,60,248,0.05) 100%)',
         border: '1px solid rgba(124,108,255,0.2)',
-        borderRadius: 3,
+        borderRadius: 1.5,
         boxShadow: '0 4px 20px rgba(124,108,255,0.15)',
         overflow: 'hidden',
         position: 'relative',
@@ -92,7 +92,7 @@ export default function ProfileSummary() {
               fontSize: '1.75rem',
               fontWeight: 700,
               boxShadow: '0 4px 12px rgba(124,108,255,0.3)',
-              borderRadius: 1
+              borderRadius: 0.5
             }}
           >
             {userInitials}
@@ -156,11 +156,11 @@ export default function ProfileSummary() {
                   sx={{
                     width: '100%',
                     height: 10,
-                    borderRadius: 2,
+                    borderRadius: 1,
                     backgroundColor: 'rgba(0,0,0,0.06)',
                     overflow: 'hidden',
                     '& .MuiLinearProgress-bar': {
-                      borderRadius: 2,
+                      borderRadius: 1,
                       background: 'linear-gradient(90deg, #7C6CFF 0%, #4B3CF8 100%)',
                       boxShadow: '0 2px 8px rgba(124,108,255,0.4)'
                     }

@@ -151,7 +151,7 @@ export default function UserPage() {
           <Card
             key={bookmark.bookmarkId || bookmark.id}
             sx={{
-              borderRadius: 3,
+              borderRadius: 1.5,
               border: '1px solid rgba(0,0,0,0.08)',
               background: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.95) 100%)'
             }}
@@ -198,7 +198,7 @@ export default function UserPage() {
                     <Box
                       sx={{
                         p: 1.5,
-                        borderRadius: 2,
+                        borderRadius: 1,
                         bgcolor: 'rgba(0,0,0,0.05)',
                         border: '1px solid rgba(0,0,0,0.1)'
                       }}
@@ -231,7 +231,7 @@ export default function UserPage() {
                     <Box
                       sx={{
                         p: 1.5,
-                        borderRadius: 2,
+                        borderRadius: 1,
                         bgcolor: 'rgba(124,108,255,0.08)',
                         border: '1px solid rgba(124,108,255,0.2)'
                       }}
@@ -299,7 +299,7 @@ export default function UserPage() {
                             <Box
                               sx={{
                                 p: 1.5,
-                                borderRadius: 2,
+                                borderRadius: 1,
                                 bgcolor: colors.bg,
                                 border: `1px solid ${colors.border}`
                               }}

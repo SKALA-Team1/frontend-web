@@ -44,17 +44,9 @@ export default function GoogleCallbackPage() {
       try {
         // 사용자 정보 조회 (토큰이 저장된 후 호출)
         setStatus('사용자 정보 확인 중...')
-        const userInfo = await getCurrentUser()
+        await getCurrentUser()
         
-        // job_role이 없으면 직무 입력 페이지로 이동
-        const jobRole = userInfo.job_role || userInfo.jobRole
-        if (!jobRole || jobRole.trim() === '') {
-          console.log('직무가 없어 직무 입력 페이지로 이동합니다.')
-          navigate('/auth/job-role-input', { replace: true })
-          return
-        }
-
-        // job_role이 있으면 롤플레잉 페이지로 이동
+        // 롤플레잉 페이지로 이동
         navigate(ROUTES.ROLEPLAYING, { replace: true })
       } catch (err) {
         console.error('사용자 정보 조회 실패:', err)

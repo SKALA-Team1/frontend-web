@@ -38,7 +38,7 @@ export default function BookmarkList() {
             key={bookmark.bookmarkId}
             sx={{
               p: 1,
-              borderRadius: 2,
+              borderRadius: 1,
               border: '1px solid rgba(0,0,0,0.1)',
               backgroundColor: 'rgba(0,0,0,0.03)',
               backdropFilter: 'blur(6px)',
@@ -57,7 +57,7 @@ export default function BookmarkList() {
                 label={`#${idx + 1}`}
                 size="small"
                 sx={{
-                  borderRadius: 1,
+                  borderRadius: 0.5,
                   backgroundColor: 'rgba(124,108,255,0.2)',
                   color: '#6C63FF',
                   fontWeight: 600,
@@ -128,7 +128,7 @@ export default function BookmarkList() {
                         key={section.type}
                         sx={{
                           p: 0.75,
-                          borderRadius: 1.5,
+                          borderRadius: 0.75,
                           bgcolor: 'rgba(124,108,255,0.1)',
                           border: '1px dashed rgba(124,108,255,0.3)'
                         }}

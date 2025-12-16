@@ -23,10 +23,10 @@ export default function ResultView({ result, onTryAgain }) {
         value={score}
         sx={{
           height: 8,
-          borderRadius: 1,
+          borderRadius: 0.5,
           backgroundColor: 'rgba(0, 0, 0, 0.1)',
           '& .MuiLinearProgress-bar': {
-            borderRadius: 1,
+            borderRadius: 0.5,
             backgroundColor: score >= 80 ? '#4caf50' : score >= 60 ? '#ff9800' : '#f44336'
           }
         }}

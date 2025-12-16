@@ -27,7 +27,7 @@ const theme = createTheme({
     },
     divider: 'rgba(0,0,0,0.12)'
   },
-  shape: { borderRadius: 12 },
+  shape: { borderRadius: 6 },
   typography: {
     fontFamily:
       "'NanumSquare', 'NanumSquareR', 'NanumSquareB', 'NanumSquareEB', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
@@ -47,7 +47,7 @@ const theme = createTheme({
       defaultProps: { disableElevation: true },
       styleOverrides: {
         root: {
-          borderRadius: 12,
+          borderRadius: 6,
           paddingInline: 18,
           fontWeight: 600
         },
@@ -72,7 +72,7 @@ const theme = createTheme({
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: 12,
+          borderRadius: 6,
           backgroundColor: '#FFFFFF',
           border: '1px solid rgba(0,0,0,0.12)',
           boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
@@ -106,7 +106,7 @@ const theme = createTheme({
     MuiChip: {
       styleOverrides: {
         root: {
-          borderRadius: 999,
+          borderRadius: 499.5,
           backgroundColor: 'rgba(0,0,0,0.08)',
           color: '#212121'
         },
@@ -169,7 +169,7 @@ const theme = createTheme({
     MuiListItemButton: {
       styleOverrides: {
         root: {
-          borderRadius: 12,
+          borderRadius: 6,
           '&.Mui-selected': {
             backgroundColor: 'rgba(108,99,255,0.12)',
             color: '#6C63FF'

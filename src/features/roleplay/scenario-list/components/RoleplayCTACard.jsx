@@ -13,7 +13,7 @@ export default function RoleplayCTACard({ onClick }) {
         border: 'none',
         color: 'white',
         cursor: 'pointer',
-        borderRadius: 3,
+        borderRadius: 1.5,
         boxShadow: '0 8px 32px rgba(124,108,255,0.4)',
         height: { xs: '88px', sm: '108px' },
         minHeight: { xs: '88px', sm: '108px' },

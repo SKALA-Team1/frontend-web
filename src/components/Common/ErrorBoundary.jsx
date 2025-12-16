@@ -74,7 +74,7 @@ class ErrorBoundary extends React.Component {
                   textAlign: 'left',
                   bgcolor: 'grey.100',
                   p: 2,
-                  borderRadius: 1,
+                  borderRadius: 0.5,
                   overflow: 'auto',
                   mb: 2,
                 }}

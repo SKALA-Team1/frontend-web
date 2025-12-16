@@ -6,7 +6,8 @@ import {
   Typography, 
   Box,
   CircularProgress,
-  Alert
+  Alert,
+  Divider
 } from '@mui/material'
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth'
 import SmartToyIcon from '@mui/icons-material/SmartToy'
@@ -149,7 +150,7 @@ export default function FeedbackPage() {
                 key={session.sessionId}
                 onClick={() => handleSessionClick(session)}
                 sx={{ 
-                  borderRadius: 3,
+                  borderRadius: 1.5,
                   border: '1px solid rgba(0,0,0,0.08)',
                   background: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.95) 100%)',
                   cursor: 'pointer',
@@ -192,6 +193,9 @@ export default function FeedbackPage() {
                     >
                       {session.scenarioTitle}
                     </Typography>
+
+                    {/* 구분선 */}
+                    <Divider sx={{ borderColor: 'rgba(0,0,0,0.08)' }} />
 
                 {/* 정보 섹션 */}
                 <Stack spacing={0.75}>

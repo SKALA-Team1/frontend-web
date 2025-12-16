@@ -23,7 +23,7 @@ export default function CreateRoleplayDialog({
       PaperProps={{
         sx: {
           background: '#FFFFFF',
-          borderRadius: 4,
+          borderRadius: 2,
           border: '2px solid rgba(124,108,255,0.3)',
           boxShadow: '0 24px 64px rgba(0,0,0,0.2)',
           overflow: 'hidden',
@@ -87,7 +87,7 @@ export default function CreateRoleplayDialog({
               sx={{
                 '& .MuiOutlinedInput-root': {
                   backgroundColor: '#FFFFFF',
-                  borderRadius: 2.5,
+                  borderRadius: 1.25,
                   transition: 'all 0.3s ease',
                   '& fieldset': {
                     borderColor: 'rgba(124,108,255,0.3)',
@@ -139,7 +139,7 @@ export default function CreateRoleplayDialog({
               sx={{
                 '& .MuiOutlinedInput-root': {
                   backgroundColor: '#FFFFFF',
-                  borderRadius: 2.5,
+                  borderRadius: 1.25,
                   transition: 'all 0.3s ease',
                   '& fieldset': {
                     borderColor: 'rgba(124,108,255,0.3)',
@@ -193,7 +193,7 @@ export default function CreateRoleplayDialog({
               sx={{
                 '& .MuiOutlinedInput-root': {
                   backgroundColor: '#FFFFFF',
-                  borderRadius: 2.5,
+                  borderRadius: 1.25,
                   transition: 'all 0.3s ease',
                   '& fieldset': {
                     borderColor: 'rgba(124,108,255,0.3)',
@@ -236,7 +236,7 @@ export default function CreateRoleplayDialog({
           sx={{
             flex: 1,
             py: 1.25,
-            borderRadius: 2.5,
+            borderRadius: 1.25,
             borderColor: 'rgba(124,108,255,0.3)',
             borderWidth: 2,
             color: '#7C6CFF',
@@ -263,7 +263,7 @@ export default function CreateRoleplayDialog({
           sx={{
             flex: 1,
             py: 1.25,
-            borderRadius: 2.5,
+            borderRadius: 1.25,
             background: 'linear-gradient(135deg, #7C6CFF 0%, #4B3CF8 100%)',
             boxShadow: '0 4px 16px rgba(124,108,255,0.3)',
             color: '#fff',

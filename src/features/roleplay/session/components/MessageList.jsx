@@ -18,11 +18,11 @@ export default function MessageList({ messages, bottomRef, onFetchKeywords }) {
         },
         '&::-webkit-scrollbar-track': {
           backgroundColor: 'transparent',
-          borderRadius: '3px'
+          borderRadius: '1.5px'
         },
         '&::-webkit-scrollbar-thumb': {
           backgroundColor: 'rgba(0,0,0,0.2)',
-          borderRadius: '3px',
+          borderRadius: '1.5px',
           '&:hover': {
             backgroundColor: 'rgba(0,0,0,0.3)'
           }
