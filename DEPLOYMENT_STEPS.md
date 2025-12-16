@@ -110,3 +110,4 @@ Vercel 환경 변수를 설정한 후:
 - Gateway 서버의 JWT_SECRET 환경 변수 확인
 - Network 탭에서 Authorization 헤더 확인
 
+
