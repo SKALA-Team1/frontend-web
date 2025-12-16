@@ -160,7 +160,7 @@ export default function useRoleplaySession(options = {}) {
    * 타이핑 효과 후 TTS 재생까지 처리
    * 첫 질문(isFixedQuestion=true)인 경우 타이핑 효과 없이 즉시 표시하고 TTS 재생
    */
-  const addAIMessage = (text, translation, isFixedQuestion = false, isStreaming = false) => {
+  const addAIMessage = (text, translation, isFixedQuestion = false, isStreaming = false, recommendedKeywords = null) => {
     let skipTyping = false
     
     setMessages(prev => {
@@ -173,7 +173,8 @@ export default function useRoleplaySession(options = {}) {
         translation,
         isFixedQuestion,
         isStreaming,
-        skipTyping // 타이핑 효과 스킵 플래그
+        skipTyping, // 타이핑 효과 스킵 플래그
+        recommendedKeywords // 추천 키워드 (scenario_message 테이블에서 가져옴)
       }]
     })
 
@@ -437,6 +438,7 @@ export default function useRoleplaySession(options = {}) {
   const handleAIText = (message) => {
     const translationText = extractTranslation(message)
     const isFixedQuestion = message.is_fixed_question || false
+    const recommendedKeywords = message.recommended_keywords || message.recommendedKeywords || null
     
     if (!isAvatarLoaded && messages.length === 0) {
       pendingFirstMessageRef.current = {
@@ -445,7 +447,8 @@ export default function useRoleplaySession(options = {}) {
         translation: translationText,
         isFixedQuestion: isFixedQuestion,
         isStreaming: false,
-        skipTyping: isFixedQuestion // 첫 질문인 경우 타이핑 효과 스킵
+        skipTyping: isFixedQuestion, // 첫 질문인 경우 타이핑 효과 스킵
+        recommendedKeywords // 추천 키워드 포함
       }
       
       clearTimeoutRef(pendingFirstMessageTimeoutRef)
@@ -472,7 +475,7 @@ export default function useRoleplaySession(options = {}) {
       return
     }
     
-    addAIMessage(message.text, translationText, isFixedQuestion, false)
+    addAIMessage(message.text, translationText, isFixedQuestion, false, recommendedKeywords)
   }
 
   /**
@@ -1067,21 +1070,9 @@ export default function useRoleplaySession(options = {}) {
         return
       }
 
-      // 이미 키워드 메시지가 있는지 확인 (토글용)
-      const existingKeywordsIndex = messages.findIndex((msg, idx) => 
-        idx > messageIndex && 
-        msg.isKeywordsMessage && 
-        msg.keywordsMessageIndex === messageIndex
-      )
-
-      if (existingKeywordsIndex !== -1) {
-        // 이미 있으면 제거 (토글 - 숨김)
-        setMessages(prev => prev.filter((msg, idx) => idx !== existingKeywordsIndex))
-        return
-      }
-
       // messageId가 없으면 세션 발화 목록에서 찾기
       let messageId = aiMessage.messageId
+      let foundKeywords = null
       
       if (!messageId && sessionInfo?.sessionId) {
         try {
@@ -1096,14 +1087,37 @@ export default function useRoleplaySession(options = {}) {
 
           if (matchingUtterance && matchingUtterance.id) {
             messageId = matchingUtterance.id
-            // messageId를 메시지에 저장
+            // utterances에서 키워드 확인
+            foundKeywords = matchingUtterance.recommended_keywords || matchingUtterance.recommendedKeywords || null
+            
+            // messageId 저장
             setMessages(prev => prev.map((msg, idx) => 
-              idx === messageIndex ? { ...msg, messageId: matchingUtterance.id } : msg
+              idx === messageIndex ? { 
+                ...msg, 
+                messageId: matchingUtterance.id
+              } : msg
             ))
+          } else {
+            console.warn('Could not find matching utterance for AI message:', {
+              aiText: aiText.substring(0, 50),
+              translation: aiMessage.translation?.substring(0, 30),
+              utteranceCount: utterances.length
+            })
           }
         } catch (err) {
           console.error('Failed to fetch utterances:', err)
         }
+      }
+
+      // utterances에서 키워드를 찾았으면 바로 메시지에 추가하고 종료
+      if (foundKeywords && Array.isArray(foundKeywords) && foundKeywords.length > 0) {
+        setMessages(prev => prev.map((msg, idx) => 
+          idx === messageIndex ? { 
+            ...msg, 
+            recommendedKeywords: foundKeywords
+          } : msg
+        ))
+        return
       }
 
       if (!messageId) {
@@ -1111,27 +1125,20 @@ export default function useRoleplaySession(options = {}) {
         return
       }
 
-      // 키워드 조회
+      // utterances에서 키워드를 찾지 못했으면 API로 조회
       const keywords = await fetchRecommendedKeywords(messageId)
       
       if (keywords && Array.isArray(keywords) && keywords.length > 0) {
-        // 키워드를 사용자 메시지로 추가 (사용자 쪽에 표시)
-        // AI 질문 다음 위치에 삽입
-        setMessages(prev => {
-          const insertIndex = messageIndex + 1
-          const newMessage = {
-            who: 'You',
-            text: '',
-            isKeywordsMessage: true,
-            recommendedKeywords: keywords,
-            keywordsMessageIndex: messageIndex
+        // 키워드를 AI 메시지에 직접 추가 (토글로 표시)
+        setMessages(prev => prev.map((msg, idx) => {
+          if (idx === messageIndex) {
+            return {
+              ...msg,
+              recommendedKeywords: keywords
+            }
           }
-          return [
-            ...prev.slice(0, insertIndex),
-            newMessage,
-            ...prev.slice(insertIndex)
-          ]
-        })
+          return msg
+        }))
       }
     } catch (error) {
       console.error('Failed to fetch recommended keywords:', error)

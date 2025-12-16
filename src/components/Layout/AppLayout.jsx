@@ -72,7 +72,7 @@ export default function AppLayout({ children }) {
           maxWidth="sm"
           disableGutters
           sx={{
-            py: { xs: 3, sm: 4 },
+            pt: 2,
             px: { xs: 2.5, sm: 3 },
             width: '100%',
             maxWidth: { xs: '100%', sm: `${UI.MAX_CONTAINER_WIDTH}px` },

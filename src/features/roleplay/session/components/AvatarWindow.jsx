@@ -276,7 +276,7 @@ export default function AvatarWindow({ avatarUrl, aiRoleName = 'AI', isTTSPlayin
 
 
   return (
-    <Box sx={{ width: '100%', mb: 2, px: 1 }}>
+    <Box sx={{ width: '100%', mb: 1, px: 1 }}>
       <Box
         ref={containerRef}
         sx={{

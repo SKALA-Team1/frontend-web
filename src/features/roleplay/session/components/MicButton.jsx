@@ -25,23 +25,28 @@ export default function MicButton({
           left: '50%',
           transform: 'translateX(-50%)',
           display: 'flex',
-          flexDirection: 'column',
           alignItems: 'center',
-          gap: 0.5
+          justifyContent: 'center'
         }}
       >
+        {/* 녹음 중 텍스트 - 버튼 위쪽에 고정 */}
         {isRecording && (
           <Typography 
             variant="caption" 
             sx={{ 
+              position: 'absolute',
+              bottom: '100%',
+              mb: 0.75,
               fontWeight: 600,
               fontSize: '0.75rem',
-              color: 'rgba(0,0,0,0.85)'
+              color: 'rgba(0,0,0,0.85)',
+              whiteSpace: 'nowrap'
             }}
           >
             녹음 중
           </Typography>
         )}
+        {/* 마이크 버튼 - 위치 고정 */}
         <IconButton
           color="primary"
           onClick={onClick}

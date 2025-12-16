@@ -297,7 +297,7 @@ function MessageBubble({ message, index, showTranslation, onToggleTranslation, o
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: messageStyle.justifyContent, width: '100%', alignItems: messageStyle.justifyContent === 'flex-start' ? 'flex-start' : 'flex-end' }}>
-      <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5, maxWidth: '85%', position: 'relative' }}>
+      <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5, maxWidth: '93%', position: 'relative' }}>
         <Box
           sx={{
             bgcolor: messageStyle.bgcolor,
@@ -430,7 +430,7 @@ function MessageBubble({ message, index, showTranslation, onToggleTranslation, o
             </>
           )}
           
-          {/* 키워드 메시지 표시 (사용자 메시지 영역에 표시) */}
+          {/* 키워드 메시지 표시 (사용자 메시지 영역에 표시) - 레거시 */}
           {message.isKeywordsMessage && recommendedKeywords && Array.isArray(recommendedKeywords) && recommendedKeywords.length > 0 && (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mt: 0.75 }}>
               <Stack direction="row" spacing={0.5} flexWrap="wrap" gap={0.5}>
@@ -481,10 +481,13 @@ function MessageBubble({ message, index, showTranslation, onToggleTranslation, o
               <TranslateIcon sx={{ fontSize: '0.75rem' }} />
             </IconButton>
           )}
+          {/* 전구 버튼 */}
           {isAIQuestion && onFetchKeywords && (
             <IconButton
               size="small"
-              onClick={() => onFetchKeywords(text, index)}
+              onClick={() => {
+                onFetchKeywords(text, index)
+              }}
               sx={{
                 bgcolor: 'white',
                 boxShadow: '0 2px 8px rgba(0,0,0,0.15)',

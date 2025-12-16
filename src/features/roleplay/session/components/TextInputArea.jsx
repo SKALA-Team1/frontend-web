@@ -35,7 +35,7 @@ export default function TextInputArea({
       <Box
         sx={{
           display: 'flex',
-          alignItems: 'flex-end',
+          alignItems: 'center',
           gap: 1
         }}
       >
