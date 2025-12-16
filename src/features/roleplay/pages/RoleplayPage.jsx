@@ -487,28 +487,31 @@ export default function RoleplayPage() {
     </Stack>
 
       {/* 고정 버튼: 스크롤이 맨 위에 있을 때만 표시 */}
-      <Box
-        sx={{
-          position: 'fixed',
-          bottom: 0,
-          left: isDesktop ? `${drawerWidth}px` : 0,
-          right: 0,
-          zIndex: 1000,
-          px: { xs: 2.5, sm: 3 },
-          pb: 4,
-          pt: 1,
-          pointerEvents: isAtTop ? 'auto' : 'none',
-          opacity: isAtTop ? 1 : 0,
-          transform: isAtTop ? 'translateY(0)' : 'translateY(100%)',
-          transition: 'opacity 0.3s ease, transform 0.3s ease',
-          maxWidth: { xs: '100%', sm: '600px' },
-          mx: 'auto',
-          display: 'flex',
-          justifyContent: 'center'
-        }}
-      >
-        <RoleplayCTACard onClick={handleOpenCreate} />
-      </Box>
+      {/* Slack 시나리오가 있을 때는 CTA 카드 숨기기 */}
+      {!filteredItems.some(item => item.creationType === 'SLACK') && (
+        <Box
+          sx={{
+            position: 'fixed',
+            bottom: 0,
+            left: isDesktop ? `${drawerWidth}px` : 0,
+            right: 0,
+            zIndex: 1000,
+            px: { xs: 2.5, sm: 3 },
+            pb: 4,
+            pt: 1,
+            pointerEvents: isAtTop ? 'auto' : 'none',
+            opacity: isAtTop ? 1 : 0,
+            transform: isAtTop ? 'translateY(0)' : 'translateY(100%)',
+            transition: 'opacity 0.3s ease, transform 0.3s ease',
+            maxWidth: { xs: '100%', sm: '600px' },
+            mx: 'auto',
+            display: 'flex',
+            justifyContent: 'center'
+          }}
+        >
+          <RoleplayCTACard onClick={handleOpenCreate} />
+        </Box>
+      )}
     </>
   )
 }
