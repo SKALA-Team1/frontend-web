@@ -44,7 +44,7 @@ export default function SummaryView({
   const [isConversationOpen, setIsConversationOpen] = React.useState(true)
   const [isLongOpen, setIsLongOpen] = React.useState(false)
   const [feedback, setFeedback] = useState(null)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true) // 초기 로딩 상태를 true로 설정하여 피드백 조회 전부터 LoadingSpinner 표시
   const [error, setError] = useState(null)
   const [bookmarkedMessages, setBookmarkedMessages] = useState({})
   const [messageIdMap, setMessageIdMap] = useState({}) // utterance_index -> messageId 매핑

@@ -614,13 +614,22 @@ export default function useRoleplaySession(options = {}) {
 
   /**
    * SESSION_ENDED 메시지 처리
+   * 백엔드에서 next_ai_turn > 7일 때 전송됨
+   * 이 시점에 종합 피드백 생성 Hook이 호출되므로 피드백 화면으로 이동
    */
   const handleSessionEnded = () => {
+    console.log('[handleSessionEnded] 세션 종료 처리 시작', {
+      selectedTitle,
+      selectedBody,
+      sessionId: sessionInfo?.sessionId || sessionInfo?.session_id
+    })
+    
     if (pendingFeedbackSectionsRef.current.length > 0) {
       displayFeedbackMessages(pendingFeedbackSectionsRef.current)
       pendingFeedbackSectionsRef.current = []
     }
-    // 세션 종료만 수행하고, 피드백 화면 자동 이동은 콜백을 통해 처리
+    
+    // 세션 종료 처리
     stopTTS()
     
     if (isRecording) {
@@ -631,18 +640,22 @@ export default function useRoleplaySession(options = {}) {
       wsConnection.close()
     }
     setWsConnection(null)
-    setIsSession(false)
-    setIsInitialized(false)
-    setIsAvatarLoaded(false)
-    pendingFirstMessageRef.current = null
-    setEvaluating(false)
-    // view를 'session'으로 유지하여 롤플레잉 화면에 머무름 (모달에서 피드백 화면으로 이동하도록)
-    // setView('list') 제거
     
-    // 콜백이 있으면 호출하여 모달 표시 등의 후처리 수행
-    if (onSessionEnded && typeof onSessionEnded === 'function') {
-      onSessionEnded()
-    }
+    // 피드백 화면으로 이동하기 전에 세션 상태는 유지
+    // setIsSession(false) 제거 - handleFeedbackView에서 처리
+    
+    // SESSION_ENDED 수신 시 바로 피드백 화면으로 이동 (백엔드에서 종합 피드백 생성 시작)
+    // selectedTitle이나 selectedBody가 없어도 이동하도록 처리
+    const titleToUse = selectedTitle || '롤플레잉 시나리오'
+    const bodyToUse = selectedBody || ''
+    
+    console.log('[handleSessionEnded] 피드백 화면으로 이동 예정', { titleToUse, bodyToUse })
+    
+    // 약간의 딜레이를 주어 피드백 메시지가 화면에 표시된 후 이동
+    setTimeout(() => {
+      console.log('[handleSessionEnded] handleFeedbackView 호출')
+      handleFeedbackView(titleToUse, bodyToUse)
+    }, 3000)
   }
 
   /**
@@ -965,12 +978,17 @@ export default function useRoleplaySession(options = {}) {
    * 피드백 뷰로 전환 핸들러
    */
   const handleFeedbackView = (title, body) => {
+    console.log('[handleFeedbackView] 피드백 뷰로 전환', { title, body })
     setSelectedTitle(title)
     setSelectedBody(body)
     setIsSession(false)
+    setIsInitialized(false)
+    setIsAvatarLoaded(false)
+    pendingFirstMessageRef.current = null
     setEvaluating(false)
     setView('summary')
     setSummaryTab('summary')
+    console.log('[handleFeedbackView] view를 summary로 설정 완료')
   }
 
   /**
