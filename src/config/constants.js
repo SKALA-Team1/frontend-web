@@ -15,7 +15,8 @@ export const API_ENDPOINTS = {
 // Slack 설정
 export const SLACK_CONFIG = {
   CLIENT_ID: import.meta.env.VITE_SLACK_CLIENT_ID,
-  NGROK_URL: import.meta.env.VITE_NGROK_URL || 'http://localhost:8081',
+  // 프로덕션에서는 백엔드 도메인 사용, 로컬에서는 환경변수 또는 기본값
+  NGROK_URL: import.meta.env.VITE_NGROK_URL || (import.meta.env.VITE_GATEWAY_URL || 'http://localhost:8081'),
   SCOPES: 'channels:history,users:read,channels:join,channels:read',
 }
 
@@ -23,6 +24,7 @@ export const SLACK_CONFIG = {
 export const ROUTES = {
   LOGIN: '/',
   SIGNUP: '/signup',
+  JOB_ROLE_ONBOARDING: '/onboarding/job-role',
   ROLEPLAYING: '/roleplaying',
   LEARN: '/learn',
   FEEDBACK: '/feedback',

@@ -262,6 +262,21 @@ export function post(url, data, options = {}) {
 }
 
 /**
+ * PATCH 요청
+ * @param {string} url - 요청 URL
+ * @param {Object} data - 요청 바디
+ * @param {Object} options - fetch options
+ * @returns {Promise<any>}
+ */
+export function patch(url, data, options = {}) {
+  return request(url, {
+    ...options,
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  })
+}
+
+/**
  * DELETE 요청
  * @param {string} url - 요청 URL
  * @param {Object} options - fetch options

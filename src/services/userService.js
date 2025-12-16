@@ -23,3 +23,13 @@ export async function getCurrentUser() {
   return httpClient.get(url)
 }
 
+/**
+ * 사용자의 job_role 업데이트
+ * @param {string} jobRole - 직무 (예: "개발자", "디자이너")
+ * @returns {Promise<Object>} 업데이트된 사용자 정보
+ */
+export async function updateJobRole(jobRole) {
+  const url = `${API_ENDPOINTS.GATEWAY}/users/me/profile`
+  return httpClient.patch(url, { job_role: jobRole })
+}
+

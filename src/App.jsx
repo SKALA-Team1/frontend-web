@@ -19,6 +19,7 @@ import { ROUTES } from './config/constants'
 const LoginPage = lazy(() => import('./features/auth/pages/LoginPage'))
 const SignUpPage = lazy(() => import('./features/auth/pages/SignUpPage'))
 const GoogleCallbackPage = lazy(() => import('./features/auth/pages/GoogleCallbackPage'))
+const JobRoleOnboardingPage = lazy(() => import('./features/auth/pages/JobRoleOnboardingPage'))
 const RoleplayPage = lazy(() => import('./features/roleplay/pages/RoleplayPage'))
 const LearnPage = lazy(() => import('./features/learn/pages/LearnPage'))
 const FeedbackPage = lazy(() => import('./features/feedback/pages/FeedbackPage'))
@@ -29,6 +30,7 @@ const routes = [
   { path: ROUTES.LOGIN, element: <LoginPage />, public: true },
   { path: ROUTES.SIGNUP, element: <SignUpPage />, public: true },
   { path: '/auth/google/callback', element: <GoogleCallbackPage />, public: true },
+  { path: ROUTES.JOB_ROLE_ONBOARDING, element: <JobRoleOnboardingPage />, protected: true },
   { path: ROUTES.ROLEPLAYING, element: <RoleplayPage />, protected: true },
   { path: ROUTES.LEARN, element: <LearnPage />, protected: true },
   { path: ROUTES.FEEDBACK, element: <FeedbackPage />, protected: true },
