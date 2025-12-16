@@ -1,6 +1,7 @@
 import React, { useState, useEffect, lazy, Suspense, useMemo } from 'react'
-import { Stack, Box, Typography, CircularProgress, useMediaQuery, useTheme, Alert, IconButton, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button } from '@mui/material'
+import { Stack, Box, Typography, CircularProgress, useMediaQuery, useTheme, Alert, IconButton, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button, Snackbar } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
+import Notification from '../../../components/Common/Notification'
 import useCreateScenario from '../scenario-list/hooks/useCreateScenario'
 import useSessionControls from '../session/hooks/useSessionControls'
 import useScenarioData from '../scenario-list/hooks/useScenarioData'
@@ -263,24 +264,16 @@ export default function RoleplayPage() {
   // 기본 홈 화면 (시나리오 목록)
   return (
     <>
+      {/* Slack 연동 완료 토스트 알림 (로그인 성공 토스트와 같은 위치) */}
+      <Notification
+        open={slackConnectedToast}
+        message="Slack 연동이 완료되었습니다! 채널을 선택하여 시나리오를 생성하세요."
+        severity="success"
+        onClose={() => setSlackConnectedToast(false)}
+        autoHideDuration={3000}
+      />
+
       <Stack spacing={2} sx={{  px: { xs: 0, sm: 0 } }}>
-        {slackConnectedToast && (
-          <Alert
-            severity="success"
-            sx={{ mb: 1 }}
-            action={
-              <IconButton
-                size="small"
-                color="inherit"
-                onClick={() => setSlackConnectedToast(false)}
-              >
-                <CloseIcon fontSize="inherit" />
-              </IconButton>
-            }
-          >
-            Slack 연동이 완료되었습니다! 채널을 선택하여 시나리오를 생성하세요.
-          </Alert>
-        )}
         {creationToast && (
           <Alert
             severity="success"
