@@ -65,6 +65,7 @@ export default function AppLayout({ children }) {
           flex: 1,
           width: '100%',
           pt: isAuthPage ? 0 : { xs: 7, sm: 8 },
+          pb: 0,
           ...(isDesktop && !isAuthPage && { ml: `${drawerWidth}px` }),
         }}
       >
@@ -73,6 +74,7 @@ export default function AppLayout({ children }) {
           disableGutters
           sx={{
             pt: 2,
+            pb: 0.5,
             px: { xs: 2.5, sm: 3 },
             width: '100%',
             maxWidth: { xs: '100%', sm: `${UI.MAX_CONTAINER_WIDTH}px` },

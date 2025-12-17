@@ -243,7 +243,12 @@ function ScenarioList({
                 }
               }}
             >
-              <CardContent sx={{ p: 1.5 }}>
+              <CardContent sx={{ 
+                p: 1,
+                '&:last-child': {
+                  paddingBottom: 1
+                }
+              }}>
                 <Stack spacing={1}>
                   {/* 제목 */}
                   <Typography 
@@ -262,7 +267,7 @@ function ScenarioList({
                   <Divider sx={{ borderColor: 'rgba(0,0,0,0.08)' }} />
 
                   {/* 역할 정보 그리드 */}
-                  <Stack spacing={1.5}>
+                  <Stack spacing={1}>
                     {/* 나의 역할 */}
                     {item.myRole && (
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -396,7 +401,13 @@ function ScenarioList({
                 boxShadow: '0 6px 18px rgba(124,108,255,0.12)'
               }}
             >
-              <CardContent sx={{ py: 3, textAlign: 'center' }}>
+              <CardContent sx={{ 
+                py: 3, 
+                textAlign: 'center',
+                '&:last-child': {
+                  paddingBottom: 3
+                }
+              }}>
                 <Typography 
                   variant="subtitle1" 
                   sx={{ 

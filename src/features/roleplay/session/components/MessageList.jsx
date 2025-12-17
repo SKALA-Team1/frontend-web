@@ -5,7 +5,7 @@ import MessageBubble from './MessageBubble'
 export default function MessageList({ messages, bottomRef, onFetchKeywords, aiRole = 'AI' }) {
   return (
     <Stack
-      spacing={2}
+      spacing={1.5}
       sx={{
         flex: 1,
         overflowY: 'auto',

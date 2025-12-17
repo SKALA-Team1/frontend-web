@@ -15,8 +15,8 @@ export default function MicButton({
         position: 'relative', 
         display: 'flex', 
         justifyContent: 'center', 
-        py: 1, 
-        minHeight: 88 
+        py: 0.5, 
+        minHeight: 72 
       }}
     >
       <Box

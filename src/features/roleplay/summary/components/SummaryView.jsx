@@ -292,18 +292,17 @@ export default function SummaryView({
       <Stack spacing={2}>
         {/* 헤더 */}
         <Stack spacing={1.5} alignItems="center" textAlign="center" sx={{ mb: 1 }}>
-          <Typography 
-            variant="overline" 
+        <Typography 
+            variant="body1" 
+            color="text.secondary" 
             sx={{ 
-              letterSpacing: 2,
-              color: 'primary.main',
-              fontSize: '0.75rem',
-              fontWeight: 600,
-              textTransform: 'uppercase',
-              opacity: 0.9
+              fontSize: '0.9375rem',
+              lineHeight: 1.6,
+              maxWidth: '87%',
+              mt: 0.5
             }}
           >
-            롤플레이 종합 피드백
+            발음, 문법, 문맥 피드백과 대화 내역을 확인하세요
           </Typography>
           <Typography 
             variant="h4" 
@@ -316,18 +315,6 @@ export default function SummaryView({
             }}
           >
             {scenarioTitle || '롤플레이 시나리오'}
-          </Typography>
-          <Typography 
-            variant="body1" 
-            color="text.secondary" 
-            sx={{ 
-              fontSize: '0.9375rem',
-              lineHeight: 1.6,
-              maxWidth: '87%',
-              mt: 0.5
-            }}
-          >
-            발음, 문법, 문맥 피드백과 대화 내역을 확인하세요
           </Typography>
         </Stack>
 
@@ -554,7 +541,16 @@ export default function SummaryView({
                         boxShadow: '0 6px 16px rgba(0,0,0,0.08)'
                       }}
                     >
-                      <CardContent sx={{ pt: 1.5, px: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                      <CardContent sx={{ 
+                        pt: 1.5, 
+                        px: 1, 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        justifyContent: 'center',
+                        '&:last-child': {
+                          paddingBottom: 1
+                        }
+                      }}>
                         <Typography variant="body2" color="text.primary" sx={{ whiteSpace: 'pre-wrap' }}>
                           {msg.text}
                         </Typography>

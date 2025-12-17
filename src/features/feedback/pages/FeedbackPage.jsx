@@ -226,7 +226,12 @@ export default function FeedbackPage() {
                   }
                 }}
               >
-                <CardContent sx={{ p: 1.5 }}>
+                <CardContent sx={{ 
+                  p: 1.5,
+                  '&:last-child': {
+                    paddingBottom: 1
+                  }
+                }}>
                   <Stack spacing={1}>
                     {/* 시나리오 제목 */}
                     <Typography 

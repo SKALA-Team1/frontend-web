@@ -286,14 +286,14 @@ function MessageBubble({ message, index, showTranslation, onToggleTranslation, o
           sx={{
             bgcolor: messageStyle.bgcolor,
             color: '#212121',
-            px: 2,
-            py: isKeywordsMsg ? 1 : 1.5,
+            px: 1.5,
+            py: isKeywordsMsg ? 0.75 : 1,
             borderRadius: 0.5,
             border: `1px solid ${messageStyle.borderColor}`,
             backdropFilter: 'none',
             boxShadow: 'none',
             width: '100%',
-            pb: hasTranslation && isTranslationVisible ? 0 : (isKeywordsMsg ? 1 : 1.5)
+            pb: hasTranslation && isTranslationVisible ? 0 : (isKeywordsMsg ? 0.75 : 1)
           }}
         >
           {!message.isKeywordsMessage && !(feedbackSections && Array.isArray(feedbackSections) && feedbackSections.length > 0) && (
@@ -510,8 +510,8 @@ function MessageBubble({ message, index, showTranslation, onToggleTranslation, o
               sx={{
                 bgcolor: MESSAGE_STYLES.You.bgcolor,
                 color: '#212121',
-                px: 2,
-                py: 1.5,
+                px: 1.5,
+                py: 1,
                 borderRadius: 0.5,
                 border: `1px solid ${MESSAGE_STYLES.You.borderColor}`,
                 backdropFilter: 'none',
