@@ -146,6 +146,16 @@ export async function getCompletedSessions() {
 }
 
 /**
+ * scenario_feedback 테이블에 피드백이 있는 세션 목록 조회
+ * 종합 피드백 생성과는 별개의 로직으로, scenario_feedback 테이블에 실제로 저장된 피드백만 반환
+ * @returns {Promise<Array>} 피드백이 있는 세션 목록
+ */
+export async function getFeedbackSessions() {
+  const url = `${API_ENDPOINTS.GATEWAY}/roleplaying/sessions/with-feedback`
+  return httpClient.get(url)
+}
+
+/**
  * WebSocket 연결 생성
  * @param {string} wsUrl - WebSocket URL
  * @param {Function} onMessage - 메시지 수신 핸들러

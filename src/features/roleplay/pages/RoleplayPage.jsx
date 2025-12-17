@@ -212,6 +212,7 @@ export default function RoleplayPage() {
           visemeQueue={session.visemeQueue}
           audioRef={session.audioRef}
           onFetchKeywords={session.handleFetchKeywords}
+          aiRole={session.selectedAiRole}
         />
         {openEnd && (
           <Suspense fallback={null}>

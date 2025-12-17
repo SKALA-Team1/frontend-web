@@ -81,6 +81,7 @@ export default function useRoleplaySession(options = {}) {
   const [messages, setMessages] = useState([])
   const [selectedTitle, setSelectedTitle] = useState('')
   const [selectedBody, setSelectedBody] = useState('')
+  const [selectedAiRole, setSelectedAiRole] = useState('AI') // AI 역할 (기본값: 'AI')
   const [view, setView] = useState('list')
   const [summaryTab, setSummaryTab] = useState('summary')
   const [evaluating, setEvaluating] = useState(false)
@@ -978,6 +979,8 @@ export default function useRoleplaySession(options = {}) {
 
       const sessionData = await startSession(scenarioId)
       setSessionInfo(sessionData)
+      // AI 역할 저장 (시나리오의 ai_role 사용, 없으면 기본값 'AI')
+      setSelectedAiRole(sessionData?.scenario?.ai_role || 'AI')
 
       const ws = createWebSocketConnection(
         sessionData.ws_url,
@@ -1476,6 +1479,7 @@ export default function useRoleplaySession(options = {}) {
     messages,
     selectedTitle,
     selectedBody,
+    selectedAiRole,
     view,
     setView,
     summaryTab,

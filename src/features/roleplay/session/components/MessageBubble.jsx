@@ -20,7 +20,7 @@ const MESSAGE_STYLES = {
 const TYPING_SPEED = 30
 const STREAMING_TYPING_SPEED = 15 // 스트리밍 중에는 더 빠른 타이핑
 
-function MessageBubble({ message, index, showTranslation, onToggleTranslation, onFetchKeywords }) {
+function MessageBubble({ message, index, showTranslation, onToggleTranslation, onFetchKeywords, aiRole = 'AI' }) {
   const { who, text, isStreaming, translation, recommendedKeywords, feedbackSections, isFixedQuestion, skipTyping } = message || {}
   const style = MESSAGE_STYLES[who] || MESSAGE_STYLES.AI
   
@@ -314,7 +314,7 @@ function MessageBubble({ message, index, showTranslation, onToggleTranslation, o
                 mb: 0.5
               }}
             >
-              {who}
+              {who === 'AI' ? aiRole : who}
             </Typography>
           )}
           {/* 피드백 섹션이 있는 경우 */}

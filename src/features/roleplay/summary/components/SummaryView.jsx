@@ -532,13 +532,65 @@ export default function SummaryView({
                     {/* 사용자 발화 밑에 피드백 점수 및 내용 */}
                     {isUser && hasFeedback && (
                       <Box sx={{ alignSelf: 'flex-end', maxWidth: '88%', mt: 0.25 }}>
-                        {/* 점수와 토글 버튼을 고정 위치에 배치 */}
-                        <Box sx={{ mb: 0.5 }}>
-                          {/* 점수는 기본으로 항상 표시 */}
+                        {/* 토글 버튼은 왼쪽, 점수는 오른쪽 정렬로 배치 */}
+                        <Stack 
+                          direction="row" 
+                          spacing={1} 
+                          justifyContent="space-between" 
+                          alignItems="center"
+                          sx={{ mb: 0.5 }}
+                        >
+                          {/* 피드백 내용이 있는 경우에만 토글 버튼 표시 (왼쪽) */}
+                          {(() => {
+                            const feedbackSections = userUtterance?.feedback_sections || userUtterance?.feedbackSections
+                            const hasFeedbackContent = feedbackSections && Array.isArray(feedbackSections) && feedbackSections.length > 0 && 
+                              feedbackSections.some(section => {
+                                const feedbackKo = section.feedback_ko || section.feedbackKo
+                                const feedbackEn = section.feedback_en || section.feedbackEn
+                                return feedbackKo || feedbackEn
+                              })
+                            
+                            if (!hasFeedbackContent) {
+                              return <Box /> // 공간 유지를 위한 빈 Box
+                            }
+                            
+                            return (
+                              <Button
+                                variant="text"
+                                size="small"
+                                onClick={() => {
+                                  setExpandedFeedback(prev => ({
+                                    ...prev,
+                                    [messageId]: !prev[messageId]
+                                  }))
+                                }}
+                                endIcon={
+                                  <ExpandMoreIcon 
+                                    sx={{ 
+                                      transform: isFeedbackExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                                      transition: 'transform 0.2s ease'
+                                    }} 
+                                  />
+                                }
+                                sx={{
+                                  textTransform: 'none',
+                                  color: 'primary.main',
+                                  fontWeight: 600,
+                                  fontSize: '0.75rem',
+                                  py: 0.5,
+                                  px: 1
+                                }}
+                              >
+                                피드백 보기
+                              </Button>
+                            )
+                          })()}
+                          
+                          {/* 점수는 기본으로 항상 표시 (오른쪽 끝에 붙임) */}
                           {(userUtterance.pronunciation_score !== null || 
                             userUtterance.grammar_score !== null || 
                             userUtterance.relevance_score !== null) && (
-                            <Stack direction="row" spacing={1} flexWrap="wrap" gap={1} sx={{ mb: 0.5 }}>
+                            <Stack direction="row" spacing={1} gap={1} flexWrap="wrap" justifyContent="flex-end">
                               {userUtterance.pronunciation_score !== null && (
                                 <Chip
                                   label={`발음: ${userUtterance.pronunciation_score}점`}
@@ -574,53 +626,7 @@ export default function SummaryView({
                               )}
                             </Stack>
                           )}
-                          
-                          {/* 피드백 내용이 있는 경우에만 토글 버튼 표시 */}
-                          {(() => {
-                            const feedbackSections = userUtterance?.feedback_sections || userUtterance?.feedbackSections
-                            const hasFeedbackContent = feedbackSections && Array.isArray(feedbackSections) && feedbackSections.length > 0 && 
-                              feedbackSections.some(section => {
-                                const feedbackKo = section.feedback_ko || section.feedbackKo
-                                const feedbackEn = section.feedback_en || section.feedbackEn
-                                return feedbackKo || feedbackEn
-                              })
-                            
-                            if (!hasFeedbackContent) {
-                              return null
-                            }
-                            
-                            return (
-                              <Button
-                                variant="text"
-                                size="small"
-                                onClick={() => {
-                                  setExpandedFeedback(prev => ({
-                                    ...prev,
-                                    [messageId]: !prev[messageId]
-                                  }))
-                                }}
-                                endIcon={
-                                  <ExpandMoreIcon 
-                                    sx={{ 
-                                      transform: isFeedbackExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                                      transition: 'transform 0.2s ease'
-                                    }} 
-                                  />
-                                }
-                                sx={{
-                                  textTransform: 'none',
-                                  color: 'primary.main',
-                                  fontWeight: 600,
-                                  fontSize: '0.75rem',
-                                  py: 0.5,
-                                  px: 1
-                                }}
-                              >
-                                피드백 보기
-                              </Button>
-                            )
-                          })()}
-                        </Box>
+                        </Stack>
                         
                         {/* 피드백 내용 (Collapse로 펼치기/접기) */}
                         {(() => {

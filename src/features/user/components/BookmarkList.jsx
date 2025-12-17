@@ -68,11 +68,11 @@ export default function BookmarkList() {
             </Stack>
 
             <Stack spacing={0.75}>
-              {/* AI 질문 */}
+              {/* 질문 */}
               {bookmark.aiQuestion && (
                 <Box>
                   <Typography variant="caption" color="text.secondary" sx={{ mb: 0.25, display: 'block' }}>
-                    AI 질문
+                    질문
                   </Typography>
                   <Typography variant="body2" sx={{ color: '#212121', fontSize: '0.8125rem' }}>
                     {bookmark.aiQuestion}

@@ -31,7 +31,7 @@ export default function FeedbackPage() {
       setLoading(true)
       setError(null)
       try {
-        const sessions = await getCompletedSessions()
+        const sessions = await getFeedbackSessions()
         setCompletedSessions(Array.isArray(sessions) ? sessions : [])
       } catch (err) {
         console.error('Failed to load completed sessions:', err)

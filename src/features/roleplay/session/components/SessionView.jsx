@@ -22,7 +22,8 @@ export default function SessionView({
   onAvatarLoad = () => {},
   visemeQueue = null,
   audioRef = null,
-  onFetchKeywords = () => {}
+  onFetchKeywords = () => {},
+  aiRole = 'AI' // AI 역할 (기본값: 'AI')
 }) {
   return (
     <Box
@@ -43,7 +44,7 @@ export default function SessionView({
         visemeQueue={visemeQueue}
         audioRef={audioRef}
       />
-      <MessageList messages={messages} bottomRef={bottomRef} onFetchKeywords={onFetchKeywords} />
+      <MessageList messages={messages} bottomRef={bottomRef} onFetchKeywords={onFetchKeywords} aiRole={aiRole} />
       
       {isKeyboardMode ? (
         <TextInputArea
