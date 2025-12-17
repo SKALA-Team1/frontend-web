@@ -13,6 +13,7 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth'
 import SmartToyIcon from '@mui/icons-material/SmartToy'
 import PersonIcon from '@mui/icons-material/Person'
 import { getCompletedSessions, getSessionUtterances } from '../../../services/roleplayService'
+import { getCurrentUser } from '../../../services/userService'
 import LoadingSpinner from '../../../components/Common/LoadingSpinner'
 
 const SummaryView = lazy(() => import('../../roleplay/summary/components/SummaryView'))
@@ -24,6 +25,22 @@ export default function FeedbackPage() {
   const [selectedSession, setSelectedSession] = useState(null)
   const [sessionMessages, setSessionMessages] = useState([])
   const [loadingMessages, setLoadingMessages] = useState(false)
+  const [userName, setUserName] = useState('')
+
+  // 사용자 이름 로드
+  useEffect(() => {
+    const loadUserName = async () => {
+      try {
+        const userInfo = await getCurrentUser()
+        const name = userInfo.name || userInfo.username || '사용자'
+        setUserName(name)
+      } catch (error) {
+        console.warn('[FeedbackPage] 사용자 정보 로드 실패:', error)
+        setUserName('사용자')
+      }
+    }
+    loadUserName()
+  }, [])
 
   // 완료된 세션 목록 로드
   useEffect(() => {
@@ -116,15 +133,46 @@ export default function FeedbackPage() {
 
   return (
     <Stack spacing={1.5}>
-      {/* 헤더 */}
-      <Stack spacing={0.25} alignItems="center" textAlign="center">
-        <Typography variant="h4" sx={{ fontWeight: 700 }}>
-          피드백
+      {/* 사용자 환영 문구 */}
+      <Box
+        sx={{
+          background: 'linear-gradient(135deg, rgba(124,108,255,0.08) 0%, rgba(75,60,248,0.04) 100%)',
+          border: '1px solid rgba(124,108,255,0.15)',
+          borderRadius: 2,
+          py: 2.5,
+          px: { xs: 2.5, sm: 3.5 },
+          textAlign: 'center',
+          boxShadow: '0 2px 8px rgba(124,108,255,0.08)',
+          mb: 1
+        }}
+      >
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: 600,
+            background: 'linear-gradient(135deg, #7C6CFF 0%, #4B3CF8 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            fontSize: { xs: '1.125rem', sm: '1.25rem' },
+            lineHeight: 1.6,
+            mb: 0.5
+          }}
+        >
+          {userName || '사용자'}님
         </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ opacity: 0.75 }}>
-          완료된 롤플레이의 피드백을 확인하세요
+        <Typography
+          variant="body1"
+          sx={{
+            fontWeight: 500,
+            color: 'text.primary',
+            fontSize: { xs: '0.9375rem', sm: '1rem' },
+            lineHeight: 1.5
+          }}
+        >
+          완료된 롤플레이의 피드백을 확인하세요.
         </Typography>
-      </Stack>
+      </Box>
 
       {/* 피드백 카드 리스트 */}
       {completedSessions.length === 0 ? (

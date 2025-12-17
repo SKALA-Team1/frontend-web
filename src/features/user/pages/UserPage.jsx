@@ -15,11 +15,28 @@ import {
 import BookmarkIcon from '@mui/icons-material/Bookmark'
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder'
 import useBookmarks from '../../../hooks/useBookmarks'
+import { getCurrentUser } from '../../../services/userService'
 
 export default function UserPage() {
   const { bookmarks, loading, error, removeBookmark, refreshBookmarks } = useBookmarks()
   const [selectedBookmarks, setSelectedBookmarks] = useState(new Set()) // 선택된 북마크 ID들
   const [isSaving, setIsSaving] = useState(false)
+  const [userName, setUserName] = useState('')
+
+  // 사용자 이름 로드
+  useEffect(() => {
+    const loadUserName = async () => {
+      try {
+        const userInfo = await getCurrentUser()
+        const name = userInfo.name || userInfo.username || '사용자'
+        setUserName(name)
+      } catch (error) {
+        console.warn('[UserPage] 사용자 정보 로드 실패:', error)
+        setUserName('사용자')
+      }
+    }
+    loadUserName()
+  }, [])
 
   // UserPage 마운트 시 북마크 목록 로드 (한 번만 실행)
   useEffect(() => {
@@ -99,26 +116,55 @@ export default function UserPage() {
 
   return (
     <Stack spacing={3}>
-      {/* 헤더 */}
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative' }}>
-        <Stack spacing={0.5} sx={{ flex: 1, alignItems: 'center', textAlign: 'center' }}>
-          <Typography variant="h4" sx={{ fontWeight: 700 }}>
-            북마크
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ opacity: 0.75 }}>
-            북마크한 채팅을 확인하세요
-          </Typography>
-        </Stack>
+      {/* 사용자 환영 문구 */}
+      <Box
+        sx={{
+          background: 'linear-gradient(135deg, rgba(124,108,255,0.08) 0%, rgba(75,60,248,0.04) 100%)',
+          border: '1px solid rgba(124,108,255,0.15)',
+          borderRadius: 2,
+          py: 2.5,
+          px: { xs: 2.5, sm: 3.5 },
+          textAlign: 'center',
+          boxShadow: '0 2px 8px rgba(124,108,255,0.08)'
+        }}
+      >
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: 600,
+            background: 'linear-gradient(135deg, #7C6CFF 0%, #4B3CF8 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            fontSize: { xs: '1.125rem', sm: '1.25rem' },
+            lineHeight: 1.6,
+            mb: 0.5
+          }}
+        >
+          {userName || '사용자'}님
+        </Typography>
+        <Typography
+          variant="body1"
+          sx={{
+            fontWeight: 500,
+            color: 'text.primary',
+            fontSize: { xs: '0.9375rem', sm: '1rem' },
+            lineHeight: 1.5
+          }}
+        >
+          북마크한 채팅을 확인하세요.
+        </Typography>
+      </Box>
+
+      {/* 저장 버튼 */}
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
         <Button
           variant="contained"
           onClick={handleSaveBookmarks}
           disabled={isSaving || loading || !bookmarks || bookmarks.length === 0}
           sx={{
-            position: 'absolute',
-            right: 0,
             minWidth: 'auto',
             px: 2,
-            py: 1,
             textTransform: 'none',
             fontWeight: 600
           }}
