@@ -29,15 +29,31 @@ export default function MessageList({ messages, bottomRef, onFetchKeywords, aiRo
         }
       }}
     >
-      {messages.map((message, index) => (
-        <MessageBubble 
-          key={index} 
-          message={message} 
-          index={index} 
-          onFetchKeywords={onFetchKeywords}
-          aiRole={aiRole}
-        />
-      ))}
+      {messages.map((message, index) => {
+        // 피드백 후 재질문인지 확인: 바로 이전 메시지가 피드백 메시지인지 확인
+        const isRetryQuestion = message.who === 'AI' && 
+          !message.isStreaming && 
+          message.text && 
+          index > 0 && 
+          (() => {
+            const prevMessage = messages[index - 1]
+            return prevMessage.who === 'AI' && 
+              prevMessage.feedbackSections && 
+              Array.isArray(prevMessage.feedbackSections) && 
+              prevMessage.feedbackSections.length > 0
+          })()
+        
+        return (
+          <MessageBubble 
+            key={index} 
+            message={message} 
+            index={index} 
+            onFetchKeywords={onFetchKeywords}
+            aiRole={aiRole}
+            isRetryQuestion={isRetryQuestion}
+          />
+        )
+      })}
       <div ref={bottomRef} />
     </Stack>
   )

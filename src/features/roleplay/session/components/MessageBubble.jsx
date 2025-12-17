@@ -20,7 +20,7 @@ const MESSAGE_STYLES = {
 const TYPING_SPEED = 30
 const STREAMING_TYPING_SPEED = 15 // 스트리밍 중에는 더 빠른 타이핑
 
-function MessageBubble({ message, index, showTranslation, onToggleTranslation, onFetchKeywords, aiRole = 'AI' }) {
+function MessageBubble({ message, index, showTranslation, onToggleTranslation, onFetchKeywords, aiRole = 'AI', isRetryQuestion = false }) {
   const { who, text, isStreaming, translation, recommendedKeywords, feedbackSections, isFixedQuestion, skipTyping } = message || {}
   const style = MESSAGE_STYLES[who] || MESSAGE_STYLES.AI
   
@@ -465,8 +465,8 @@ function MessageBubble({ message, index, showTranslation, onToggleTranslation, o
               <TranslateIcon sx={{ fontSize: '0.75rem' }} />
             </IconButton>
           )}
-          {/* 전구 버튼: 키워드 토글 */}
-          {isAIQuestion && (hasKeywords || onFetchKeywords) && (
+          {/* 전구 버튼: 키워드 토글 - 재질문 제외 */}
+          {isAIQuestion && !isRetryQuestion && (hasKeywords || onFetchKeywords) && (
             <IconButton
               size="small"
               onClick={() => {
