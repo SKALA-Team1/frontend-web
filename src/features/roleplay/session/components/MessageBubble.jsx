@@ -414,33 +414,6 @@ function MessageBubble({ message, index, showTranslation, onToggleTranslation, o
             </>
           )}
           
-          {/* AI 메시지에서 키워드 토글로 표시 */}
-          {isAIQuestion && hasKeywords && isKeywordsVisible && (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mt: 0.75 }}>
-              <Stack direction="row" spacing={0.5} flexWrap="wrap" gap={0.5}>
-                {recommendedKeywords.map((keyword, idx) => (
-                  <Chip
-                    key={idx}
-                    label={keyword}
-                    size="small"
-                    sx={{
-                      height: 24,
-                      fontSize: '0.75rem',
-                      bgcolor: 'rgba(124,108,255,0.1)',
-                      color: '#7C6CFF',
-                      fontWeight: 500,
-                      border: '1px solid rgba(124,108,255,0.2)',
-                      '& .MuiChip-label': {
-                        px: 1,
-                        py: 0
-                      }
-                    }}
-                  />
-                ))}
-              </Stack>
-            </Box>
-          )}
-          
           {/* 키워드 메시지 표시 (사용자 메시지 영역에 표시) - 레거시 */}
           {message.isKeywordsMessage && recommendedKeywords && Array.isArray(recommendedKeywords) && recommendedKeywords.length > 0 && (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mt: 0.75 }}>
@@ -528,6 +501,61 @@ function MessageBubble({ message, index, showTranslation, onToggleTranslation, o
           )}
         </Box>
       </Box>
+      
+      {/* AI 메시지의 전구 버튼으로 표시되는 추천 키워드 (사용자 메시지 영역에 표시) */}
+      {isAIQuestion && hasKeywords && isKeywordsVisible && (
+        <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', width: '100%', alignItems: 'flex-end', mt: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5, maxWidth: '93%' }}>
+            <Box
+              sx={{
+                bgcolor: MESSAGE_STYLES.You.bgcolor,
+                color: '#212121',
+                px: 2,
+                py: 1.5,
+                borderRadius: 0.5,
+                border: `1px solid ${MESSAGE_STYLES.You.borderColor}`,
+                backdropFilter: 'none',
+                boxShadow: 'none',
+                width: '100%'
+              }}
+            >
+              <Typography 
+                variant="caption" 
+                sx={{ 
+                  opacity: 0.8,
+                  fontWeight: 600,
+                  display: 'block',
+                  mb: 0.75,
+                  fontSize: '0.7rem'
+                }}
+              >
+                추천 키워드
+              </Typography>
+              <Stack direction="row" spacing={0.5} flexWrap="wrap" gap={0.5}>
+                {recommendedKeywords.map((keyword, idx) => (
+                  <Chip
+                    key={idx}
+                    label={keyword}
+                    size="small"
+                    sx={{
+                      height: 24,
+                      fontSize: '0.75rem',
+                      bgcolor: 'rgba(124,108,255,0.1)',
+                      color: '#7C6CFF',
+                      fontWeight: 500,
+                      border: '1px solid rgba(124,108,255,0.2)',
+                      '& .MuiChip-label': {
+                        px: 1,
+                        py: 0
+                      }
+                    }}
+                  />
+                ))}
+              </Stack>
+            </Box>
+          </Box>
+        </Box>
+      )}
     </Box>
   )
 }
