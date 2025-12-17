@@ -48,7 +48,6 @@ export default function SessionHeader({ title, onEndSession }) {
         onClick={onEndSession}
         aria-label="세션 종료"
         sx={{
-          border: '1px solid rgba(0,0,0,0.35)',
           borderRadius: '4px',
           width: 40,
           height: 36,

@@ -297,17 +297,36 @@ function MessageBubble({ message, index, showTranslation, onToggleTranslation, o
           }}
         >
           {!message.isKeywordsMessage && !(feedbackSections && Array.isArray(feedbackSections) && feedbackSections.length > 0) && (
-            <Typography 
-              variant="caption" 
-              sx={{ 
-                opacity: 0.8,
-                fontWeight: 600,
-                display: 'block',
-                mb: 0.5
-              }}
-            >
-              {who === 'AI' ? aiRole : who}
-            </Typography>
+            <Stack direction="row" alignItems="center" spacing={0.75} sx={{ mb: 0.5 }}>
+              <Typography 
+                variant="caption" 
+                sx={{ 
+                  opacity: 0.8,
+                  fontWeight: 600
+                }}
+              >
+                {who === 'AI' ? aiRole : who}
+              </Typography>
+              {isRetryQuestion && (
+                <Chip
+                  label="재질문"
+                  size="small"
+                  sx={{
+                    height: 18,
+                    fontSize: '0.65rem',
+                    bgcolor: 'rgba(124,108,255,0.15)',
+                    color: '#7C6CFF',
+                    fontWeight: 600,
+                    border: '1px solid rgba(124,108,255,0.3)',
+                    '& .MuiChip-label': {
+                      px: 0.75,
+                      py: 0,
+                      lineHeight: 1.2
+                    }
+                  }}
+                />
+              )}
+            </Stack>
           )}
           {/* 피드백 섹션이 있는 경우 */}
           {feedbackSections && Array.isArray(feedbackSections) && feedbackSections.length > 0 ? (
