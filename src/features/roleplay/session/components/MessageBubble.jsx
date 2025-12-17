@@ -262,17 +262,9 @@ function MessageBubble({ message, index, showTranslation, onToggleTranslation, o
   const hasKeywords = recommendedKeywords && Array.isArray(recommendedKeywords) && recommendedKeywords.length > 0
   const prevKeywordsRef = useRef(null)
 
-  // 키워드가 새로 추가되면 자동으로 표시
+  // 키워드 변경 추적 (자동 표시하지 않음 - 전구 버튼을 눌러야만 표시)
   useEffect(() => {
     if (hasKeywords && isAIQuestion && recommendedKeywords) {
-      const prevKeywords = prevKeywordsRef.current
-      const currentKeywords = JSON.stringify(recommendedKeywords)
-      const prevKeywordsStr = prevKeywords ? JSON.stringify(prevKeywords) : null
-      
-      // 키워드가 새로 추가된 경우 자동으로 표시
-      if (!prevKeywordsStr && currentKeywords) {
-        setIsKeywordsVisible(true)
-      }
       prevKeywordsRef.current = recommendedKeywords
     } else if (!hasKeywords) {
       prevKeywordsRef.current = null
@@ -509,8 +501,9 @@ function MessageBubble({ message, index, showTranslation, onToggleTranslation, o
                   // 키워드가 이미 있으면 토글
                   setIsKeywordsVisible(prev => !prev)
                 } else if (onFetchKeywords) {
-                  // 키워드가 없으면 가져오기 (키워드 추가 후 useEffect에서 자동으로 표시됨)
+                  // 키워드가 없으면 가져오기 (가져온 후 자동 표시하지 않음)
                   onFetchKeywords(text, index)
+                  // 키워드를 가져온 후에도 자동으로 표시하지 않음 (사용자가 다시 버튼을 눌러야 표시됨)
                 }
               }}
               sx={{
