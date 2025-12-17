@@ -540,21 +540,23 @@ export default function useRoleplaySession(options = {}) {
   }
 
   /**
-   * AI_TEXT_KOREAN 메시지 처리 (한글 번역)
+   * AI_TEXT_KOREAN 메시지 처리 (한글 번역 + 추천 키워드)
    */
   const handleAIKorean = (message) => {
     const translationText = message.text_ko || message.question_ko
+    const recommendedKeywords = message.recommended_keywords || message.recommendedKeywords || null
     
     if (translationText) {
       setMessages(prev => {
         const lastMessage = prev[prev.length - 1]
-        // 마지막 메시지가 AI 메시지인 경우 번역 추가/업데이트
+        // 마지막 메시지가 AI 메시지인 경우 번역 및 키워드 추가/업데이트
         if (lastMessage && lastMessage.who === 'AI') {
           return [
             ...prev.slice(0, -1),
             {
               ...lastMessage,
-              translation: translationText
+              translation: translationText,
+              ...(recommendedKeywords && { recommendedKeywords })
             }
           ]
         }
