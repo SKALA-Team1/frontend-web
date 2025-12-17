@@ -39,7 +39,9 @@ function ScenarioList({
   loading = false,
   error = null,
   onRetry,
-  onOpenCalendar
+  onOpenCalendar,
+  startDate = null,
+  endDate = null
 }) {
   // Detail 시나리오의 AI 역할 선택 상태 관리
   const [selectedAiRoleIndices, setSelectedAiRoleIndices] = useState({})
@@ -76,8 +78,11 @@ function ScenarioList({
   // 전체 시나리오 개수 사용 (ProfileSummary의 completionStats.total과 동일)
   const scenarioCount = totalScenarios > 0 ? totalScenarios : filteredItems.length
 
-  // Slack 탭에서 시나리오가 없을 때: 채널 선택/진행 상태 표시
-  if (tab === 'linked' && !loading && filteredItems.length === 0) {
+  // 날짜 필터가 적용되었는지 확인
+  const hasDateFilter = startDate || endDate
+
+  // Slack 탭에서 시나리오가 없을 때: 채널 선택/진행 상태 표시 (단, 날짜 필터가 적용되지 않은 경우만)
+  if (tab === 'linked' && !loading && filteredItems.length === 0 && !hasDateFilter) {
     return (
       <>
         <Tabs value={tab} onChange={(_, v) => setTab(v)} variant="fullWidth">

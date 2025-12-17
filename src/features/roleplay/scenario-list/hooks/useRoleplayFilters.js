@@ -9,20 +9,51 @@ import { useMemo } from 'react'
  * 
  * @param {string} tab - 현재 탭 ('linked' | 'created')
  * @param {Array} scenarios - 시나리오 목록
+ * @param {string} startDate - 시작 날짜 (YYYY-MM-DD 형식, 선택적)
+ * @param {string} endDate - 끝 날짜 (YYYY-MM-DD 형식, 선택적)
  * 
  * @returns {Object} 필터링된 항목
  *   - filteredItems: Array - 필터 조건에 맞는 시나리오 목록
  */
-export default function useRoleplayFilters(tab, scenarios = []) {
+export default function useRoleplayFilters(tab, scenarios = [], startDate = null, endDate = null) {
   const filteredItems = useMemo(() => {
     if (!Array.isArray(scenarios)) return []
 
     let filtered = []
 
+    // 날짜 필터링 함수
+    const matchesDateFilter = (scenario) => {
+      // 날짜 필터가 없으면 모두 통과
+      if (!startDate && !endDate) return true
+
+      const createdAt = scenario.createdAt
+      if (!createdAt) {
+        // 날짜 정보가 없으면 필터가 설정된 경우 제외
+        return !startDate && !endDate
+      }
+
+      const scenarioDate = new Date(createdAt)
+      scenarioDate.setHours(0, 0, 0, 0) // 시간 부분 제거
+
+      if (startDate) {
+        const start = new Date(startDate)
+        start.setHours(0, 0, 0, 0)
+        if (scenarioDate < start) return false
+      }
+
+      if (endDate) {
+        const end = new Date(endDate)
+        end.setHours(23, 59, 59, 999) // 하루의 끝까지 포함
+        if (scenarioDate > end) return false
+      }
+
+      return true
+    }
+
     if (tab === 'linked') {
-      // Slack으로 생성된 시나리오만 필터링
+      // Slack으로 생성된 시나리오만 필터링 + 날짜 필터 적용
       filtered = scenarios.filter((item) => 
-        item.creationType === 'SLACK' || item.creationType === 'slack'
+        (item.creationType === 'SLACK' || item.creationType === 'slack') && matchesDateFilter(item)
       )
       
       // 같은 subjectId를 가진 시나리오들을 그룹화
@@ -88,11 +119,11 @@ export default function useRoleplayFilters(tab, scenarios = []) {
       return [...result, ...ungroupedScenarios]
     }
 
-    // created 탭은 프롬프트로 생성된 시나리오만 표시 (기존 동작 유지)
+    // created 탭은 프롬프트로 생성된 시나리오만 표시 + 날짜 필터 적용
     return scenarios.filter((item) => 
-      item.creationType === 'PROMPT' || item.creationType === 'prompt'
+      (item.creationType === 'PROMPT' || item.creationType === 'prompt') && matchesDateFilter(item)
     )
-  }, [tab, scenarios])
+  }, [tab, scenarios, startDate, endDate])
 
   return {
     filteredItems

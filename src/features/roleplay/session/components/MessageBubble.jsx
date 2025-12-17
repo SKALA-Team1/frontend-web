@@ -33,6 +33,7 @@ function MessageBubble({ message, index, showTranslation, onToggleTranslation, o
   const [displayedText, setDisplayedText] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const [isTranslationVisible, setIsTranslationVisible] = useState(false)
+  const [isKeywordsVisible, setIsKeywordsVisible] = useState(false)
   const prevTextLengthRef = useRef(0) // 이전에 표시된 텍스트 길이 추적
   const typingIntervalRef = useRef(null)
   const hasTypedRef = useRef(false) // 타이핑 효과가 이미 적용되었는지 추적
@@ -226,46 +227,17 @@ function MessageBubble({ message, index, showTranslation, onToggleTranslation, o
           isCompletedRef.current = true
           prevTextRef.current = text
         } else {
-          // ✅ 이미 생성된 텍스트 (고정 질문 등): 타이핑 효과로 표시
-          // 단, skipTyping이 true인 경우(첫 질문) 타이핑 효과 없이 즉시 표시
+          // ✅ AI 질문이 준비되면 타이핑 효과 없이 즉시 표시
           if (text && text.length > 0) {
-            if (skipTyping || (isFixedQuestion && index === 0)) {
-              // 첫 질문인 경우 타이핑 효과 없이 즉시 전체 텍스트 표시
-              if (displayedText !== text) {
-                setDisplayedText(text)
-                displayedTextRef.current = text
-                targetTextRef.current = text
-                prevTextLengthRef.current = text.length
-                isCompletedRef.current = true
-                prevTextRef.current = text
-                setIsTyping(false)
-                hasTypedRef.current = false
-              }
-            } else if (!displayedText || displayedText.length === 0 || displayedText !== text) {
-              // 일반 메시지는 타이핑 효과 적용
-              setIsTyping(true)
-              setDisplayedText('')
-              displayedTextRef.current = ''
-              prevTextLengthRef.current = 0
-              hasTypedRef.current = true
-              
-              let currentIndex = 0
-              typingIntervalRef.current = setInterval(() => {
-                if (currentIndex < text.length) {
-                  const newDisplayed = text.substring(0, currentIndex + 1)
-                  setDisplayedText(newDisplayed)
-                  displayedTextRef.current = newDisplayed
-                  currentIndex++
-                } else {
-                  setIsTyping(false)
-                  prevTextLengthRef.current = text.length
-                  isCompletedRef.current = true
-                  prevTextRef.current = text
-                  displayedTextRef.current = text
-                  clearInterval(typingIntervalRef.current)
-                  typingIntervalRef.current = null
-                }
-              }, TYPING_SPEED)
+            if (displayedText !== text) {
+              setDisplayedText(text)
+              displayedTextRef.current = text
+              targetTextRef.current = text
+              prevTextLengthRef.current = text.length
+              isCompletedRef.current = true
+              prevTextRef.current = text
+              setIsTyping(false)
+              hasTypedRef.current = false
             }
           }
         }
@@ -287,6 +259,26 @@ function MessageBubble({ message, index, showTranslation, onToggleTranslation, o
   const shouldShowCursor = isTyping && (who !== 'AI' || isStreaming)
   const hasTranslation = who === 'AI' && translation
   const isAIQuestion = who === 'AI' && !isStreaming && text
+  const hasKeywords = recommendedKeywords && Array.isArray(recommendedKeywords) && recommendedKeywords.length > 0
+  const prevKeywordsRef = useRef(null)
+
+  // 키워드가 새로 추가되면 자동으로 표시
+  useEffect(() => {
+    if (hasKeywords && isAIQuestion && recommendedKeywords) {
+      const prevKeywords = prevKeywordsRef.current
+      const currentKeywords = JSON.stringify(recommendedKeywords)
+      const prevKeywordsStr = prevKeywords ? JSON.stringify(prevKeywords) : null
+      
+      // 키워드가 새로 추가된 경우 자동으로 표시
+      if (!prevKeywordsStr && currentKeywords) {
+        setIsKeywordsVisible(true)
+      }
+      prevKeywordsRef.current = recommendedKeywords
+    } else if (!hasKeywords) {
+      prevKeywordsRef.current = null
+      setIsKeywordsVisible(false)
+    }
+  }, [hasKeywords, recommendedKeywords, isAIQuestion])
 
   // 키워드 메시지인 경우 스타일 조정
   const isKeywordsMsg = message.isKeywordsMessage
@@ -430,6 +422,33 @@ function MessageBubble({ message, index, showTranslation, onToggleTranslation, o
             </>
           )}
           
+          {/* AI 메시지에서 키워드 토글로 표시 */}
+          {isAIQuestion && hasKeywords && isKeywordsVisible && (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mt: 0.75 }}>
+              <Stack direction="row" spacing={0.5} flexWrap="wrap" gap={0.5}>
+                {recommendedKeywords.map((keyword, idx) => (
+                  <Chip
+                    key={idx}
+                    label={keyword}
+                    size="small"
+                    sx={{
+                      height: 24,
+                      fontSize: '0.75rem',
+                      bgcolor: 'rgba(124,108,255,0.1)',
+                      color: '#7C6CFF',
+                      fontWeight: 500,
+                      border: '1px solid rgba(124,108,255,0.2)',
+                      '& .MuiChip-label': {
+                        px: 1,
+                        py: 0
+                      }
+                    }}
+                  />
+                ))}
+              </Stack>
+            </Box>
+          )}
+          
           {/* 키워드 메시지 표시 (사용자 메시지 영역에 표시) - 레거시 */}
           {message.isKeywordsMessage && recommendedKeywords && Array.isArray(recommendedKeywords) && recommendedKeywords.length > 0 && (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mt: 0.75 }}>
@@ -481,15 +500,21 @@ function MessageBubble({ message, index, showTranslation, onToggleTranslation, o
               <TranslateIcon sx={{ fontSize: '0.75rem' }} />
             </IconButton>
           )}
-          {/* 전구 버튼 */}
-          {isAIQuestion && onFetchKeywords && (
+          {/* 전구 버튼: 키워드 토글 */}
+          {isAIQuestion && (hasKeywords || onFetchKeywords) && (
             <IconButton
               size="small"
               onClick={() => {
-                onFetchKeywords(text, index)
+                if (hasKeywords) {
+                  // 키워드가 이미 있으면 토글
+                  setIsKeywordsVisible(prev => !prev)
+                } else if (onFetchKeywords) {
+                  // 키워드가 없으면 가져오기 (키워드 추가 후 useEffect에서 자동으로 표시됨)
+                  onFetchKeywords(text, index)
+                }
               }}
               sx={{
-                bgcolor: 'white',
+                bgcolor: hasKeywords && isKeywordsVisible ? 'rgba(124,108,255,0.2)' : 'white',
                 boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
                 border: '1px solid rgba(0,0,0,0.1)',
                 borderRadius: 0.25,
@@ -498,9 +523,10 @@ function MessageBubble({ message, index, showTranslation, onToggleTranslation, o
                 flexShrink: 0,
                 minWidth: 14,
                 padding: 0,
-                '&:hover': { bgcolor: '#f5f5f5' },
+                '&:hover': { bgcolor: hasKeywords && isKeywordsVisible ? 'rgba(124,108,255,0.3)' : '#f5f5f5' },
                 '& .MuiSvgIcon-root': {
-                  fontSize: '0.75rem'
+                  fontSize: '0.75rem',
+                  color: hasKeywords && isKeywordsVisible ? '#7C6CFF' : 'inherit'
                 }
               }}
             >

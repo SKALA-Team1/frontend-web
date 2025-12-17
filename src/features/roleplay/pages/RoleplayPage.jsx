@@ -166,7 +166,7 @@ export default function RoleplayPage() {
   })
 
   // 시나리오 필터링 (메모이제이션)
-  const { filteredItems } = useRoleplayFilters(tab, scenarios)
+  const { filteredItems } = useRoleplayFilters(tab, scenarios, startDate, endDate)
   
   // 핸들러 메모이제이션
   const handleOpenCalendarMemo = useMemo(() => () => setOpenCal(true), [setOpenCal])
@@ -309,6 +309,8 @@ export default function RoleplayPage() {
           onOpenCalendar={handleOpenCalendarMemo}
           onStartRoleplay={session.startWithMic}
           onViewFeedback={handleViewFeedback}
+          startDate={startDate}
+          endDate={endDate}
         />
 
         {openCal && (
