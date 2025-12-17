@@ -29,57 +29,60 @@ export default function PracticeView() {
   const [chatbotOpen, setChatbotOpen] = useState(false)
 
   return (
-    <Stack spacing={2} sx={{ px: { xs: 0, sm: 0 } }}>
-      {/* 헤더 카드 */}
-      <Box
-        sx={{
-          background: 'linear-gradient(135deg, rgba(124,108,255,0.08) 0%, rgba(75,60,248,0.04) 100%)',
-          border: '1px solid rgba(124,108,255,0.15)',
-          borderRadius: 2,
-          py: 2.5,
-          px: { xs: 2.5, sm: 3.5 },
-          textAlign: 'center',
-          boxShadow: '0 2px 8px rgba(124,108,255,0.08)',
-          mb: 1
-        }}
-      >
-        <Typography
-          variant="h6"
+    <Stack spacing={2} >
+      {/* 헤더 카드 - 시작 화면에서만 표시 */}
+      {step === 'initial' && (
+        <Box
           sx={{
-            fontWeight: 600,
-            background: 'linear-gradient(135deg, #7C6CFF 0%, #4B3CF8 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-            fontSize: { xs: '1.125rem', sm: '1.25rem' },
-            lineHeight: 1.6,
-            mb: 0.5
+            background: 'linear-gradient(135deg, rgba(124,108,255,0.08) 0%, rgba(75,60,248,0.04) 100%)',
+            border: '1px solid rgba(124,108,255,0.15)',
+            borderRadius: 2,
+            py: 2.5,
+            px: { xs: 2.5, sm: 3.5 },
+            textAlign: 'center',
+            boxShadow: '0 2px 8px rgba(124,108,255,0.08)',
+            mb: 1,
+            width: '100%'
           }}
         >
-          오늘의 IT 개념연습
-        </Typography>
-        <Typography
-          variant="body1"
-          sx={{
-            fontWeight: 500,
-            color: 'text.primary',
-            fontSize: { xs: '0.9375rem', sm: '1rem' },
-            lineHeight: 1.5
-          }}
-        >
-          랜덤 IT 질문에 답변하고 AI 평가를 받아보세요
-        </Typography>
-      </Box>
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: 600,
+              background: 'linear-gradient(135deg, #7C6CFF 0%, #4B3CF8 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              fontSize: { xs: '1.125rem', sm: '1.25rem' },
+              lineHeight: 1.6,
+              mb: 0.5
+            }}
+          >
+            오늘의 IT 개념연습
+          </Typography>
+          <Typography
+            variant="body1"
+            sx={{
+              fontWeight: 500,
+              color: 'text.primary',
+              fontSize: { xs: '0.9375rem', sm: '1rem' },
+              lineHeight: 1.5
+            }}
+          >
+            랜덤 IT 질문에 답변하고 AI 평가를 받아보세요
+          </Typography>
+        </Box>
+      )}
 
       {error && (
-        <Alert severity="error" sx={{ mb: 3, mx: { xs: 2.5, sm: 3.5 } }} onClose={() => {}}>
+        <Alert severity="error" sx={{ mb: 3 }} onClose={() => {}}>
           {error}
         </Alert>
       )}
 
       {/* 시작 화면 */}
       {step === 'initial' && (
-        <Box sx={{ textAlign: 'center', py: 8, px: { xs: 2.5, sm: 3.5 } }}>
+        <Box sx={{ textAlign: 'center', py: 8, width: '100%' }}>
           <Typography variant="h6" sx={{ mb: 3, color: 'text.primary' }}>
             준비되셨나요?
           </Typography>
@@ -113,7 +116,7 @@ export default function PracticeView() {
 
       {/* 답변 입력 화면 */}
       {step === 'answering' && (
-        <Box sx={{ px: { xs: 2.5, sm: 3.5 } }}>
+        <Box sx={{ width: '100%' }}>
           <QuestionView question={question} />
           <AnswerInput
             value={userAnswer}
@@ -174,7 +177,7 @@ export default function PracticeView() {
 
       {/* 결과 화면 */}
       {step === 'result' && (
-        <Box sx={{ px: { xs: 2.5, sm: 3.5 } }}>
+        <Box sx={{ width: '100%' }}>
           <ResultView result={result} onTryAgain={reset} />
         </Box>
       )}

@@ -191,7 +191,7 @@ export default function UserPage() {
           </Typography>
         </Box>
       )}
-      <Stack spacing={2.5}>
+      <Stack spacing={1.25}>
         {Array.isArray(bookmarks) && bookmarks.map((bookmark) => {
           return (
           <Card
@@ -202,15 +202,21 @@ export default function UserPage() {
               background: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.95) 100%)'
             }}
           >
-            <CardContent sx={{ p: 3, position: 'relative' }}>
+            <CardContent sx={{ 
+              p: 1.5, 
+              position: 'relative',
+              '&:last-child': {
+                paddingBottom: 1.5
+              }
+            }}>
               {/* 북마크 토글 아이콘 - 카드 오른쪽 위 */}
               <IconButton
                 onClick={() => handleToggleBookmark(bookmark.bookmarkId)}
                 size="small"
                 sx={{
                   position: 'absolute',
-                  top: 16,
-                  right: 16,
+                  top: 8,
+                  right: 8,
                   color: selectedBookmarks.has(bookmark.bookmarkId) ? '#FFA500' : 'rgba(0,0,0,0.3)',
                   '&:hover': {
                     bgcolor: 'rgba(0,0,0,0.05)',
@@ -227,7 +233,7 @@ export default function UserPage() {
                 )}
               </IconButton>
 
-              <Stack spacing={2}>
+              <Stack spacing={1}>
                 {/* AI 질문 */}
                 <Box>
                     <Typography 
@@ -235,7 +241,7 @@ export default function UserPage() {
                       color="text.secondary" 
                       sx={{ 
                         display: 'block', 
-                        mb: 1,
+                        mb: 0.5,
                         fontWeight: 600
                       }}
                     >
@@ -243,7 +249,7 @@ export default function UserPage() {
                     </Typography>
                     <Box
                       sx={{
-                        p: 1.5,
+                        p: 0.75,
                         borderRadius: 1,
                         bgcolor: 'rgba(0,0,0,0.05)',
                         border: '1px solid rgba(0,0,0,0.1)'
@@ -268,7 +274,7 @@ export default function UserPage() {
                       color="text.secondary" 
                       sx={{ 
                         display: 'block', 
-                        mb: 1,
+                        mb: 0.5,
                         fontWeight: 600
                       }}
                     >
@@ -276,7 +282,7 @@ export default function UserPage() {
                     </Typography>
                     <Box
                       sx={{
-                        p: 1.5,
+                        p: 0.75,
                         borderRadius: 1,
                         bgcolor: 'rgba(124,108,255,0.08)',
                         border: '1px solid rgba(124,108,255,0.2)'
@@ -326,9 +332,9 @@ export default function UserPage() {
 
                 {/* 피드백 상세 (항상 표시) */}
                 {bookmark.feedbackSections && bookmark.feedbackSections.length > 0 && (
-                  <Box sx={{ pt: 2 }}>
-                    <Divider sx={{ mb: 2, borderColor: 'rgba(0,0,0,0.08)' }} />
-                    <Stack spacing={2.5}>
+                  <Box sx={{ pt: 1 }}>
+                    <Divider sx={{ mb: 1, borderColor: 'rgba(0,0,0,0.08)' }} />
+                    <Stack spacing={1.25}>
                       {/* 피드백 섹션들 */}
                       {bookmark.feedbackSections.map((section) => {
                         const typeColors = {
@@ -339,18 +345,18 @@ export default function UserPage() {
                         const colors = typeColors[section.type] || typeColors.pronunciation
                         return (
                           <Box key={section.type}>
-                            <Typography variant="subtitle2" fontWeight={600} color="text.primary" sx={{ mb: 1 }}>
+                            <Typography variant="subtitle2" fontWeight={600} color="text.primary" sx={{ mb: 0.5 }}>
                               {feedbackTypeLabels[section.type] || section.type} 피드백
                             </Typography>
                             <Box
                               sx={{
-                                p: 1.5,
+                                p: 0.75,
                                 borderRadius: 1,
                                 bgcolor: colors.bg,
                                 border: `1px solid ${colors.border}`
                               }}
                             >
-                              <Typography variant="body2" sx={{ color: '#212121', lineHeight: 1.6, mb: 1 }}>
+                              <Typography variant="body2" sx={{ color: '#212121', lineHeight: 1.6, mb: 0.5 }}>
                                 {section.feedbackKo || section.feedback_ko || ''}
                               </Typography>
                               <Typography variant="caption" sx={{ color: 'text.secondary', fontStyle: 'italic' }}>

@@ -16,7 +16,8 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
-  DialogActions
+  DialogActions,
+  LinearProgress
 } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import TranslateIcon from '@mui/icons-material/Translate'
@@ -336,75 +337,164 @@ export default function SummaryView({
               boxShadow: '0 8px 24px rgba(124,108,255,0.12)'
             }}
           >
-            <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              {/* 점수 표시 */}
-              {(avgPronunciation !== null || avgGrammar !== null || avgRelevance !== null) && (
-                <>
-                  <Box>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.5 }}>
+            <CardContent sx={{ 
+              p: 1,
+              '&:last-child': {
+                paddingBottom: 1
+              }
+            }}>
+              <Stack spacing={1}>
+                {/* 점수 표시 */}
+                {(avgPronunciation !== null || avgGrammar !== null || avgRelevance !== null) && (
+                  <>
+                    <Typography 
+                      variant="h6" 
+                      sx={{ 
+                        fontWeight: 700,
+                        fontSize: '1.0625rem',
+                        lineHeight: 1.4,
+                        color: '#212121',
+                        mb: 0.5
+                      }}
+                    >
                       평균 점수
                     </Typography>
-                    <Stack direction="row" spacing={1} flexWrap="wrap" gap={1}>
-                      {avgPronunciation !== null && (
-                        <Chip
-                          label={`발음: ${avgPronunciation}점`}
-                          size="small"
+                    <Divider sx={{ borderColor: 'rgba(0,0,0,0.08)' }} />
+                    {avgPronunciation !== null && (
+                      <Box sx={{ mb: 1.5 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                          <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8125rem' }}>
+                            발음
+                          </Typography>
+                          <Typography variant="body2" fontWeight="600" sx={{ fontSize: '0.8125rem' }}>
+                            {avgPronunciation}점
+                          </Typography>
+                        </Box>
+                        <LinearProgress
+                          variant="determinate"
+                          value={avgPronunciation}
                           sx={{
-                            bgcolor: 'rgba(124,108,255,0.1)',
-                            color: 'primary.main',
-                            fontWeight: 600
+                            height: 6,
+                            borderRadius: 0.5,
+                            backgroundColor: 'rgba(0, 0, 0, 0.08)',
+                            '& .MuiLinearProgress-bar': {
+                              borderRadius: 0.5,
+                              backgroundColor: avgPronunciation >= 80 ? '#4caf50' : avgPronunciation >= 60 ? '#ff9800' : '#f44336'
+                            }
                           }}
                         />
-                      )}
-                      {avgGrammar !== null && (
-                        <Chip
-                          label={`문법: ${avgGrammar}점`}
-                          size="small"
+                      </Box>
+                    )}
+                    {avgGrammar !== null && (
+                      <Box sx={{ mb: 1.5 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                          <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8125rem' }}>
+                            문법
+                          </Typography>
+                          <Typography variant="body2" fontWeight="600" sx={{ fontSize: '0.8125rem' }}>
+                            {avgGrammar}점
+                          </Typography>
+                        </Box>
+                        <LinearProgress
+                          variant="determinate"
+                          value={avgGrammar}
                           sx={{
-                            bgcolor: 'rgba(124,108,255,0.1)',
-                            color: 'primary.main',
-                            fontWeight: 600
+                            height: 6,
+                            borderRadius: 0.5,
+                            backgroundColor: 'rgba(0, 0, 0, 0.08)',
+                            '& .MuiLinearProgress-bar': {
+                              borderRadius: 0.5,
+                              backgroundColor: avgGrammar >= 80 ? '#4caf50' : avgGrammar >= 60 ? '#ff9800' : '#f44336'
+                            }
                           }}
                         />
-                      )}
-                      {avgRelevance !== null && (
-                        <Chip
-                          label={`문맥: ${avgRelevance}점`}
-                          size="small"
+                      </Box>
+                    )}
+                    {avgRelevance !== null && (
+                      <Box sx={{ mb: 1.5 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                          <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8125rem' }}>
+                            문맥
+                          </Typography>
+                          <Typography variant="body2" fontWeight="600" sx={{ fontSize: '0.8125rem' }}>
+                            {avgRelevance}점
+                          </Typography>
+                        </Box>
+                        <LinearProgress
+                          variant="determinate"
+                          value={avgRelevance}
                           sx={{
-                            bgcolor: 'rgba(124,108,255,0.1)',
-                            color: 'primary.main',
-                            fontWeight: 600
+                            height: 6,
+                            borderRadius: 0.5,
+                            backgroundColor: 'rgba(0, 0, 0, 0.08)',
+                            '& .MuiLinearProgress-bar': {
+                              borderRadius: 0.5,
+                              backgroundColor: avgRelevance >= 80 ? '#4caf50' : avgRelevance >= 60 ? '#ff9800' : '#f44336'
+                            }
                           }}
                         />
-                      )}
-                    </Stack>
-                  </Box>
-                  <Divider />
-                </>
-              )}
+                      </Box>
+                    )}
+                    <Divider sx={{ borderColor: 'rgba(0,0,0,0.08)' }} />
+                  </>
+                )}
 
-              {/* 짧은 피드백 */}
-              <Box>
-                <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.25 }}>
-                  짧은 버전
-                </Typography>
-                <Typography variant="body2" color="text.primary" sx={{ whiteSpace: 'pre-wrap' }}>
-                  {shortFeedback}
-                </Typography>
-              </Box>
+                {/* 짧은 피드백 */}
+                <Box>
+                  <Typography 
+                    variant="h6" 
+                    sx={{ 
+                      fontWeight: 700,
+                      fontSize: '1.0625rem',
+                      lineHeight: 1.4,
+                      color: '#212121'
+                    }}
+                  >
+                    짧은 버전
+                  </Typography>
+                  <Divider sx={{ borderColor: 'rgba(0,0,0,0.08)', my: 1 }} />
+                  <Typography 
+                    variant="body2" 
+                    color="text.primary" 
+                    sx={{ 
+                      whiteSpace: 'pre-wrap',
+                      lineHeight: 1.6,
+                      fontSize: '0.875rem'
+                    }}
+                  >
+                    {shortFeedback}
+                  </Typography>
+                </Box>
 
-              <Divider />
+                <Divider sx={{ borderColor: 'rgba(0,0,0,0.08)' }} />
 
-              {/* 긴 피드백 */}
-              <Box>
-                <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.25 }}>
-                  긴 버전
-                </Typography>
-                <Typography variant="body2" color="text.primary" sx={{ mt: 0.5, whiteSpace: 'pre-wrap' }}>
-                  {longFeedback}
-                </Typography>
-              </Box>
+                {/* 긴 피드백 */}
+                <Box>
+                  <Typography 
+                    variant="h6" 
+                    sx={{ 
+                      fontWeight: 700,
+                      fontSize: '1.0625rem',
+                      lineHeight: 1.4,
+                      color: '#212121'
+                    }}
+                  >
+                    긴 버전
+                  </Typography>
+                  <Divider sx={{ borderColor: 'rgba(0,0,0,0.08)', my: 1 }} />
+                  <Typography 
+                    variant="body2" 
+                    color="text.primary" 
+                    sx={{ 
+                      whiteSpace: 'pre-wrap',
+                      lineHeight: 1.6,
+                      fontSize: '0.875rem'
+                    }}
+                  >
+                    {longFeedback}
+                  </Typography>
+                </Box>
+              </Stack>
             </CardContent>
           </Card>
         )}
