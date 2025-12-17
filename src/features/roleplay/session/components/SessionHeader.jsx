@@ -38,7 +38,7 @@ export default function SessionHeader({ title, onEndSession }) {
       sx={{ 
         display: 'flex', 
         alignItems: 'center', 
-        mb: 1,
+        mb: 0.5,
         px: 1,
         py: 0
       }}

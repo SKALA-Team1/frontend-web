@@ -64,7 +64,7 @@ export default function AppLayout({ children }) {
         sx={{
           flex: 1,
           width: '100%',
-          pt: isAuthPage ? 0 : { xs: 7, sm: 8 },
+          pt: isAuthPage ? 0 : { xs: 6.25, sm: 6.25 },
           pb: 0,
           ...(isDesktop && !isAuthPage && { ml: `${drawerWidth}px` }),
         }}

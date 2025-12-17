@@ -22,9 +22,14 @@ export default function AppHeader({ onToggleDrawer, drawerWidth, isDesktop }) {
         boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
         ...(isDesktop && { width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px` }),
         display: { xs: 'block', md: 'none' },
+        height: '50px',
+        '& .MuiToolbar-root': {
+          minHeight: '50px !important',
+          height: '50px'
+        }
       }}
     >
-      <Toolbar>
+      <Toolbar sx={{ minHeight: '50px !important', height: '50px' }}>
         <IconButton
           color="inherit"
           edge="start"
@@ -33,11 +38,11 @@ export default function AppHeader({ onToggleDrawer, drawerWidth, isDesktop }) {
           sx={{
             mr: 1,
             display: { xs: 'inline-flex', md: 'none' },
-            width: 48,
-            height: 48,
+            width: 32,
+            height: 32,
           }}
         >
-          <MenuIcon sx={{ fontSize: 45 }} />
+          <MenuIcon sx={{ fontSize: 30 }} />
         </IconButton>
       </Toolbar>
     </AppBar>
