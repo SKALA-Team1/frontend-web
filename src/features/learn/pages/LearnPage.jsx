@@ -1,5 +1,5 @@
 import React from 'react'
-import { Box } from '@mui/material'
+import { Box, Stack } from '@mui/material'
 import PracticeView from '../it-practice/components/PracticeView'
 
 /**
@@ -8,8 +8,8 @@ import PracticeView from '../it-practice/components/PracticeView'
  */
 export default function LearnPage() {
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
+    <Stack spacing={2} sx={{ px: { xs: 0, sm: 0 }, minHeight: '100vh', bgcolor: 'background.default' }}>
       <PracticeView />
-    </Box>
+    </Stack>
   )
 }

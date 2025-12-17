@@ -1,7 +1,6 @@
 import React, { useRef, useEffect } from 'react'
 import {
   Box,
-  Container,
   Typography,
   Paper,
   TextField,
@@ -18,8 +17,9 @@ import useItChatbot from '../hooks/useItChatbot'
 /**
  * IT 챗봇 대화 뷰
  * @param {boolean} compact - 컴팩트 모드 (높이 제한)
+ * @param {Object} currentQuestion - 현재 연습 중인 질문 컨텍스트
  */
-export default function ChatView({ compact = false }) {
+export default function ChatView({ compact = false, currentQuestion = null }) {
   const {
     messages,
     inputMessage,
@@ -28,7 +28,7 @@ export default function ChatView({ compact = false }) {
     setInputMessage,
     sendMessage,
     reset
-  } = useItChatbot()
+  } = useItChatbot(currentQuestion)
 
   const messagesEndRef = useRef(null)
 
@@ -45,39 +45,24 @@ export default function ChatView({ compact = false }) {
   }
 
   // 컴팩트 모드일 때는 Container 제거하고 높이 제한
-  const WrapperComponent = compact ? Box : Container
-  const wrapperProps = compact
-    ? { sx: { display: 'flex', flexDirection: 'column' } }
-    : { maxWidth: 'md', sx: { py: 4, height: '100vh', display: 'flex', flexDirection: 'column' } }
+  // Drawer 안에서는 항상 Box 사용
+  const WrapperComponent = Box
+  const wrapperProps = {
+    sx: {
+      display: 'flex',
+      flexDirection: 'column',
+      height: '100%',
+      p: compact ? 0 : 2
+    }
+  }
 
   return (
     <WrapperComponent {...wrapperProps}>
-      {/* 헤더 - compact 모드일 때는 작게 */}
-      {!compact && (
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Box>
-            <Typography variant="h4" sx={{ fontWeight: 700 }}>
-              IT 개념 챗봇
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              IT 개념에 대해 질문하고 설명을 들어보세요
-            </Typography>
-          </Box>
-          {messages.length > 0 && (
-            <Button startIcon={<RefreshIcon />} onClick={reset} variant="outlined">
-              새 대화
-            </Button>
-          )}
-        </Box>
-      )}
-
-      {compact && messages.length > 0 && (
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            💬 질문 도우미
-          </Typography>
-          <Button startIcon={<RefreshIcon />} onClick={reset} variant="text" size="small">
-            초기화
+      {/* 헤더 - Drawer 안에서는 헤더 제거 (PracticeView에서 처리) */}
+      {messages.length > 0 && !compact && (
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+          <Button startIcon={<RefreshIcon />} onClick={reset} variant="outlined" size="small">
+            새 대화
           </Button>
         </Box>
       )}
@@ -92,6 +77,7 @@ export default function ChatView({ compact = false }) {
           overflowY: 'auto',
           display: 'flex',
           flexDirection: 'column',
+          minHeight: 0, // flexbox에서 스크롤을 위해 필요
           ...(compact && { maxHeight: '400px', minHeight: '300px' })
         }}
       >
@@ -168,7 +154,7 @@ export default function ChatView({ compact = false }) {
       </Paper>
 
       {/* 입력 영역 */}
-      <Box sx={{ display: 'flex', gap: 1 }}>
+      <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
         <TextField
           fullWidth
           multiline
@@ -176,14 +162,13 @@ export default function ChatView({ compact = false }) {
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder="메시지를 입력하세요... (Enter: 전송, Shift+Enter: 줄바꿈)"
+          placeholder="메시지를 입력하세요."
           disabled={loading}
         />
         <IconButton
           color="primary"
           onClick={sendMessage}
           disabled={loading || !inputMessage.trim()}
-          sx={{ alignSelf: 'flex-end' }}
         >
           <SendIcon />
         </IconButton>

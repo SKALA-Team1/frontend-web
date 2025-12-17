@@ -3,8 +3,9 @@ import { chatWithBot } from '../../../../services/itExplanationService'
 
 /**
  * IT 챗봇 대화 로직을 관리하는 훅
+ * @param {Object} currentQuestion - 현재 연습 중인 질문 컨텍스트
  */
-export default function useItChatbot() {
+export default function useItChatbot(currentQuestion = null) {
   const [messages, setMessages] = useState([])
   const [inputMessage, setInputMessage] = useState('')
   const [loading, setLoading] = useState(false)
@@ -33,9 +34,16 @@ export default function useItChatbot() {
         content: msg.content
       }))
 
+      // 현재 질문 컨텍스트 구성
+      const currentQuestionContext = currentQuestion ? {
+        question_text: currentQuestion.questionTextEn || currentQuestion.questionText || '',
+        question_text_ko: currentQuestion.questionText || ''
+      } : null
+
       const chatData = {
         user_message: userMessage,
-        conversation_history: conversationHistory
+        conversation_history: conversationHistory,
+        ...(currentQuestionContext && { current_question: currentQuestionContext })
       }
 
       const data = await chatWithBot(chatData)
@@ -65,7 +73,7 @@ export default function useItChatbot() {
     } finally {
       setLoading(false)
     }
-  }, [inputMessage, messages])
+  }, [inputMessage, messages, currentQuestion])
 
   /**
    * 대화 초기화
