@@ -289,17 +289,45 @@ export default function SummaryView({
 
   return (
     <Box sx={{ py: { xs: 1, sm: 1.5 }, px: { xs: 0, sm: 0 } }}>
-      <Stack spacing={1.5}>
+      <Stack spacing={2}>
         {/* 헤더 */}
-        <Stack spacing={0.25} alignItems="center" textAlign="center">
-          <Typography variant="overline" sx={{ letterSpacing: 1.2, color: 'text.secondary' }}>
+        <Stack spacing={1.5} alignItems="center" textAlign="center" sx={{ mb: 1 }}>
+          <Typography 
+            variant="overline" 
+            sx={{ 
+              letterSpacing: 2,
+              color: 'primary.main',
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              opacity: 0.9
+            }}
+          >
             롤플레이 종합 피드백
           </Typography>
-          <Typography variant="h5" sx={{ fontWeight: 800 }}>
+          <Typography 
+            variant="h4" 
+            sx={{ 
+              fontWeight: 700,
+              color: 'text.primary',
+              lineHeight: 1.3,
+              maxWidth: '90%',
+              wordBreak: 'keep-all'
+            }}
+          >
             {scenarioTitle || '롤플레이 시나리오'}
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ opacity: 0.8 }}>
-            짧은 요약과 상세 피드백을 확인하고 대화 로그를 복기하세요.
+          <Typography 
+            variant="body1" 
+            color="text.secondary" 
+            sx={{ 
+              fontSize: '0.9375rem',
+              lineHeight: 1.6,
+              maxWidth: '87%',
+              mt: 0.5
+            }}
+          >
+            발음, 문법, 문맥 피드백과 대화 내역을 확인하세요
           </Typography>
         </Stack>
 
@@ -544,29 +572,70 @@ export default function SummaryView({
                     {/* 사용자 발화 밑에 피드백 점수 및 내용 */}
                     {isUser && hasFeedback && (
                       <Box sx={{ alignSelf: 'flex-end', maxWidth: '88%', mt: 0.25 }}>
-                        {/* 토글 버튼은 왼쪽, 점수는 오른쪽 정렬로 배치 */}
-                        <Stack 
-                          direction="row" 
-                          spacing={1} 
-                          justifyContent="space-between" 
-                          alignItems="center"
-                          sx={{ mb: 0.5 }}
-                        >
-                          {/* 피드백 내용이 있는 경우에만 토글 버튼 표시 (왼쪽) */}
-                          {(() => {
-                            const feedbackSections = userUtterance?.feedback_sections || userUtterance?.feedbackSections
-                            const hasFeedbackContent = feedbackSections && Array.isArray(feedbackSections) && feedbackSections.length > 0 && 
-                              feedbackSections.some(section => {
-                                const feedbackKo = section.feedback_ko || section.feedbackKo
-                                const feedbackEn = section.feedback_en || section.feedbackEn
-                                return feedbackKo || feedbackEn
-                              })
-                            
-                            if (!hasFeedbackContent) {
-                              return <Box /> // 공간 유지를 위한 빈 Box
-                            }
-                            
-                            return (
+                        {/* 점수는 먼저 표시 (오른쪽 정렬) */}
+                        {(userUtterance.pronunciation_score !== null || 
+                          userUtterance.grammar_score !== null || 
+                          userUtterance.relevance_score !== null) && (
+                          <Stack 
+                            direction="row" 
+                            spacing={1} 
+                            gap={1} 
+                            flexWrap="wrap" 
+                            justifyContent="flex-end"
+                            sx={{ mb: 0.5 }}
+                          >
+                            {userUtterance.pronunciation_score !== null && (
+                              <Chip
+                                label={`발음: ${userUtterance.pronunciation_score}점`}
+                                size="small"
+                                sx={{
+                                  bgcolor: 'rgba(124,108,255,0.1)',
+                                  color: 'primary.main',
+                                  fontWeight: 600
+                                }}
+                              />
+                            )}
+                            {userUtterance.grammar_score !== null && (
+                              <Chip
+                                label={`문법: ${userUtterance.grammar_score}점`}
+                                size="small"
+                                sx={{
+                                  bgcolor: 'rgba(124,108,255,0.1)',
+                                  color: 'primary.main',
+                                  fontWeight: 600
+                                }}
+                              />
+                            )}
+                            {userUtterance.relevance_score !== null && (
+                              <Chip
+                                label={`문맥: ${userUtterance.relevance_score}점`}
+                                size="small"
+                                sx={{
+                                  bgcolor: 'rgba(124,108,255,0.1)',
+                                  color: 'primary.main',
+                                  fontWeight: 600
+                                }}
+                              />
+                            )}
+                          </Stack>
+                        )}
+                        
+                        {/* 피드백 내용이 있는 경우에만 토글 버튼 표시 (점수 밑에 왼쪽 정렬) */}
+                        {(() => {
+                          const feedbackSections = userUtterance?.feedback_sections || userUtterance?.feedbackSections
+                          const hasFeedbackContent = feedbackSections && Array.isArray(feedbackSections) && feedbackSections.length > 0 && 
+                            feedbackSections.some(section => {
+                              const feedbackKo = section.feedback_ko || section.feedbackKo
+                              const feedbackEn = section.feedback_en || section.feedbackEn
+                              return feedbackKo || feedbackEn
+                            })
+                          
+                          if (!hasFeedbackContent) {
+                            return null
+                          }
+                          
+                          return (
+                            <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
                               <Button
                                 variant="text"
                                 size="small"
@@ -595,50 +664,9 @@ export default function SummaryView({
                               >
                                 피드백 보기
                               </Button>
-                            )
-                          })()}
-                          
-                          {/* 점수는 기본으로 항상 표시 (오른쪽 끝에 붙임) */}
-                          {(userUtterance.pronunciation_score !== null || 
-                            userUtterance.grammar_score !== null || 
-                            userUtterance.relevance_score !== null) && (
-                            <Stack direction="row" spacing={1} gap={1} flexWrap="wrap" justifyContent="flex-end">
-                              {userUtterance.pronunciation_score !== null && (
-                                <Chip
-                                  label={`발음: ${userUtterance.pronunciation_score}점`}
-                                  size="small"
-                                  sx={{
-                                    bgcolor: 'rgba(124,108,255,0.1)',
-                                    color: 'primary.main',
-                                    fontWeight: 600
-                                  }}
-                                />
-                              )}
-                              {userUtterance.grammar_score !== null && (
-                                <Chip
-                                  label={`문법: ${userUtterance.grammar_score}점`}
-                                  size="small"
-                                  sx={{
-                                    bgcolor: 'rgba(124,108,255,0.1)',
-                                    color: 'primary.main',
-                                    fontWeight: 600
-                                  }}
-                                />
-                              )}
-                              {userUtterance.relevance_score !== null && (
-                                <Chip
-                                  label={`문맥: ${userUtterance.relevance_score}점`}
-                                  size="small"
-                                  sx={{
-                                    bgcolor: 'rgba(124,108,255,0.1)',
-                                    color: 'primary.main',
-                                    fontWeight: 600
-                                  }}
-                                />
-                              )}
-                            </Stack>
-                          )}
-                        </Stack>
+                            </Box>
+                          )
+                        })()}
                         
                         {/* 피드백 내용 (Collapse로 펼치기/접기) */}
                         {(() => {

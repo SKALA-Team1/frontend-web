@@ -6,7 +6,7 @@ import useCreateScenario from '../scenario-list/hooks/useCreateScenario'
 import useSessionControls from '../session/hooks/useSessionControls'
 import useScenarioData from '../scenario-list/hooks/useScenarioData'
 import useRoleplayFilters from '../scenario-list/hooks/useRoleplayFilters'
-import ProfileSummary from '../../user/components/ProfileSummary'
+import { getCurrentUser } from '../../../services/userService'
 import RoleplayCTACard from '../scenario-list/components/RoleplayCTACard'
 import ScenarioList from '../scenario-list/components/ScenarioList'
 import LoadingSpinner from '../../../components/Common/LoadingSpinner'
@@ -27,6 +27,7 @@ const CalendarDialog = lazy(() => import('../scenario-list/components/CalendarDi
 export default function RoleplayPage() {
   const { scenarios, loading: scenariosLoading, error: scenariosError, isSlackIntegrated, userJobRole, refresh } = useScenarioData()
   const [pendingSlackGeneration, setPendingSlackGeneration] = useState(false)
+  const [userName, setUserName] = useState('')
   const scenariosCountRef = React.useRef(scenarios.length)
   const pollTimerRef = React.useRef(null)
   const idleStreakRef = React.useRef(0)
@@ -36,6 +37,21 @@ export default function RoleplayPage() {
 
   // Slack 연동 완료 알림 상태
   const [slackConnectedToast, setSlackConnectedToast] = useState(false)
+
+  // 사용자 이름 로드
+  useEffect(() => {
+    const loadUserName = async () => {
+      try {
+        const userInfo = await getCurrentUser()
+        const name = userInfo.name || userInfo.username || '사용자'
+        setUserName(name)
+      } catch (error) {
+        console.warn('[RoleplayPage] 사용자 정보 로드 실패:', error)
+        setUserName('사용자')
+      }
+    }
+    loadUserName()
+  }, [])
 
   // Slack OAuth 콜백 처리 (slack_connected=true 쿼리 파라미터 감지)
   useEffect(() => {
@@ -322,7 +338,46 @@ export default function RoleplayPage() {
           </Alert>
         )}
 
-        <ProfileSummary />
+        {/* 사용자 환영 문구 */}
+        <Box
+          sx={{
+            background: 'linear-gradient(135deg, rgba(124,108,255,0.08) 0%, rgba(75,60,248,0.04) 100%)',
+            border: '1px solid rgba(124,108,255,0.15)',
+            borderRadius: 2,
+            py: 2.5,
+            px: { xs: 2.5, sm: 3.5 },
+            textAlign: 'center',
+            boxShadow: '0 2px 8px rgba(124,108,255,0.08)',
+            mb: 1
+          }}
+        >
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: 600,
+              background: 'linear-gradient(135deg, #7C6CFF 0%, #4B3CF8 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              fontSize: { xs: '1.125rem', sm: '1.25rem' },
+              lineHeight: 1.6,
+              mb: 0.5
+            }}
+          >
+            {userName || '사용자'}님
+          </Typography>
+          <Typography
+            variant="body1"
+            sx={{
+              fontWeight: 500,
+              color: 'text.primary',
+              fontSize: { xs: '0.9375rem', sm: '1rem' },
+              lineHeight: 1.5
+            }}
+          >
+            영어 실력 향상을 위해 롤플레이를 시작해보세요.
+          </Typography>
+        </Box>
 
         <ScenarioList
           tab={tab}

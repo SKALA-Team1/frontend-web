@@ -83,34 +83,48 @@ export default function useRoleplayFilters(tab, scenarios = [], startDate = null
         }
       })
       
-      // 그룹화된 시나리오를 Overview 1개 + Detail 1개로 변환
+      // 그룹화된 시나리오를 Detail 1개만 표시 (Overview는 드롭다운에 포함)
       const result = []
       Object.keys(groupedBySubject).forEach((subjectId) => {
         const group = groupedBySubject[subjectId]
-        
-        // Overview 시나리오 추가
-        if (group.overview) {
-          result.push({
-            ...group.overview,
-            isGrouped: true,
-            groupType: 'overview'
-          })
-        }
         
         // Detail 시나리오 1개 추가 (첫 번째 것을 기본으로, 나머지는 availableAiRoles에 포함)
         if (group.details.length > 0) {
           const firstDetail = group.details[0]
           const availableAiRoles = group.details.map(d => ({
             aiRole: d.aiRole,
-            scenarioId: d.scenarioId
+            scenarioId: d.scenarioId,
+            isOverview: false
           }))
+          
+          // Overview 시나리오가 있으면 availableAiRoles에 추가
+          if (group.overview) {
+            availableAiRoles.unshift({
+              aiRole: 'Overview',
+              scenarioId: group.overview.scenarioId,
+              isOverview: true
+            })
+          }
           
           result.push({
             ...firstDetail,
             isGrouped: true,
             groupType: 'detail',
-            availableAiRoles, // 드롭다운에서 선택 가능한 AI 역할 목록
+            availableAiRoles, // 드롭다운에서 선택 가능한 AI 역할 목록 (Overview 포함)
             selectedAiRoleIndex: 0 // 현재 선택된 AI 역할 인덱스
+          })
+        } else if (group.overview) {
+          // Detail이 없고 Overview만 있는 경우 (드물지만 처리)
+          result.push({
+            ...group.overview,
+            isGrouped: true,
+            groupType: 'detail',
+            availableAiRoles: [{
+              aiRole: 'Overview',
+              scenarioId: group.overview.scenarioId,
+              isOverview: true
+            }],
+            selectedAiRoleIndex: 0
           })
         }
       })
