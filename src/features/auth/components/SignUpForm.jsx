@@ -458,7 +458,7 @@ export default function SignUpForm(props) {
               <Typography variant="subtitle2" sx={{ fontWeight: 700, mt: 2, mb: 1 }}>2. 개인정보의 이용 목적</Typography>
               <Typography variant="body2" sx={{ mb: 2, lineHeight: 1.8, pl: 2 }}>
                 • 서비스 로그인 및 사용자 인증<br />
-                • 롤플레잉 시나리오 생성 및 업무 맥락 분석<br />
+                • 롤플레이 시나리오 생성 및 업무 맥락 분석<br />
                 • 영어 회화 훈련/AI 응답 생성<br />
                 • 서비스 품질 개선 및 기능 업데이트<br />
                 • 이상 행위 탐지 등 보안 관리<br />

@@ -31,7 +31,7 @@ export default function FeedbackPage() {
       setLoading(true)
       setError(null)
       try {
-        const sessions = await getFeedbackSessions()
+        const sessions = await getCompletedSessions()
         setCompletedSessions(Array.isArray(sessions) ? sessions : [])
       } catch (err) {
         console.error('Failed to load completed sessions:', err)
@@ -122,7 +122,7 @@ export default function FeedbackPage() {
           피드백
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ opacity: 0.75 }}>
-          완료된 롤플레잉의 피드백을 확인하세요
+          완료된 롤플레이의 피드백을 확인하세요
         </Typography>
       </Stack>
 
@@ -130,7 +130,7 @@ export default function FeedbackPage() {
       {completedSessions.length === 0 ? (
         <Box sx={{ textAlign: 'center', py: 2 }}>
           <Typography variant="body2" color="text.secondary">
-            완료된 롤플레잉이 없습니다.
+            완료된 롤플레이가 없습니다.
           </Typography>
         </Box>
       ) : (

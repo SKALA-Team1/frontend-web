@@ -168,6 +168,19 @@ export default function RoleplayPage() {
   // 시나리오 필터링 (메모이제이션)
   const { filteredItems } = useRoleplayFilters(tab, scenarios, startDate, endDate)
   
+  // 탭별 전체 시나리오 개수 계산 (날짜 필터 없을 때)
+  const tabTotalScenarios = useMemo(() => {
+    if (!Array.isArray(scenarios)) return 0
+    
+    if (tab === 'linked') {
+      // Slack 시나리오만 개수
+      return scenarios.filter(item => item.creationType === 'SLACK' || item.creationType === 'slack').length
+    } else {
+      // 나의 롤플레이 시나리오만 개수
+      return scenarios.filter(item => item.creationType === 'PROMPT' || item.creationType === 'prompt').length
+    }
+  }, [tab, scenarios])
+  
   // 핸들러 메모이제이션
   const handleOpenCalendarMemo = useMemo(() => () => setOpenCal(true), [setOpenCal])
 
@@ -190,6 +203,14 @@ export default function RoleplayPage() {
     setPendingFeedbackScenario(item)
     setFeedbackModalOpen(true)
   }
+
+  // 피드백 요약 화면 관련 상태 및 hook (조건부 return 이전에 선언)
+  const summarySessionId = session.sessionInfo?.sessionId || session.sessionInfo?.session_id
+
+  // SummaryView의 onClose 핸들러 메모이제이션
+  const handleSummaryClose = useMemo(() => () => {
+    session.setView('list')
+  }, [session])
 
   // 롤플레잉 세션 화면 (isSession이 false여도 view가 'session'이면 표시)
   if (session.view === 'session') {
@@ -250,13 +271,21 @@ export default function RoleplayPage() {
 
   // 피드백 요약 화면
   if (session.view === 'summary') {
+    if (!summarySessionId) {
+      return (
+        <Box sx={{ py: { xs: 1, sm: 1.5 }, px: { xs: 0, sm: 0 }, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+          <CircularProgress />
+        </Box>
+      )
+    }
+
     return (
       <Suspense fallback={<LoadingSpinner message="요약 로딩 중..." />}>
         <SummaryView
-          messages={session.messages}
+          messages={[]}
           scenarioTitle={session.selectedTitle}
-          sessionId={session.sessionInfo?.sessionId || session.sessionInfo?.session_id}
-          onClose={() => session.setView('list')}
+          sessionId={summarySessionId}
+          onClose={handleSummaryClose}
         />
       </Suspense>
     )
@@ -299,7 +328,7 @@ export default function RoleplayPage() {
           tab={tab}
           setTab={setTab}
           filteredItems={filteredItems}
-          totalScenarios={scenarios.length}
+          totalScenarios={tabTotalScenarios}
           isSlackIntegrated={isSlackIntegrated}
           pendingSlackGeneration={pendingSlackGeneration}
           onChannelSelected={() => setPendingSlackGeneration(true)}
@@ -369,7 +398,7 @@ export default function RoleplayPage() {
               pb: 1
             }}
           >
-            롤플레잉을 실행할까요?
+            롤플레이을 실행할까요?
           </DialogTitle>
           <DialogContent>
             <DialogContentText 
@@ -440,7 +469,7 @@ export default function RoleplayPage() {
               pb: 1
             }}
           >
-            롤플레잉이 종료되었습니다
+            롤플레이가 종료되었습니다
           </DialogTitle>
           <DialogContent>
             <DialogContentText 

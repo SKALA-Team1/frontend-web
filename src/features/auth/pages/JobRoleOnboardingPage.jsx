@@ -88,7 +88,7 @@ export default function JobRoleOnboardingPage() {
               color="text.secondary"
               textAlign="center"
             >
-              롤플레잉 시나리오 생성에 사용할 직무를 입력해주세요.
+              롤플레이 시나리오 생성에 사용할 직무를 입력해주세요.
             </Typography>
 
             {error && (

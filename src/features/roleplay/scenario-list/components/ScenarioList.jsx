@@ -75,11 +75,11 @@ function ScenarioList({
     }))
   }, [])
 
-  // 전체 시나리오 개수 사용 (ProfileSummary의 completionStats.total과 동일)
-  const scenarioCount = totalScenarios > 0 ? totalScenarios : filteredItems.length
-
   // 날짜 필터가 적용되었는지 확인
   const hasDateFilter = startDate || endDate
+
+  // 탭별 시나리오 개수 계산 (날짜 필터가 있으면 필터링된 개수, 없으면 탭별 전체 개수)
+  const scenarioCount = hasDateFilter ? filteredItems.length : (totalScenarios > 0 ? totalScenarios : filteredItems.length)
 
   // Slack 탭에서 시나리오가 없을 때: 채널 선택/진행 상태 표시 (단, 날짜 필터가 적용되지 않은 경우만)
   if (tab === 'linked' && !loading && filteredItems.length === 0 && !hasDateFilter) {
@@ -87,7 +87,7 @@ function ScenarioList({
       <>
         <Tabs value={tab} onChange={(_, v) => setTab(v)} variant="fullWidth">
           <Tab value="linked" label="Slack" />
-          <Tab value="created" label="나의 롤플레잉" />
+          <Tab value="created" label="나의 롤플레이" />
         </Tabs>
         {!channelSelected && (
           <SlackIntegrationPrompt
@@ -140,7 +140,7 @@ function ScenarioList({
         }}
       >
         <Tab value="linked" label="Slack" />
-        <Tab value="created" label="나의 롤플레잉" />
+        <Tab value="created" label="나의 롤플레이" />
       </Tabs>
 
       <Box sx={{ 
@@ -261,21 +261,97 @@ function ScenarioList({
 
                   {/* 역할 정보 그리드 */}
                   <Stack spacing={1.5}>
-                    {/* 나의 역할 */}
-                    {item.myRole && (
-                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
-                          <PersonIcon sx={{ fontSize: 18, color: 'primary.main', opacity: 0.8 }} />
-                          <Box>
+                    {/* Overview 태그가 있는 경우 나의 역할과 AI 역할 표시하지 않음 */}
+                    {!(item.isGrouped && item.groupType === 'overview') && (
+                      <>
+                        {/* 나의 역할 */}
+                        {item.myRole && (
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
+                              <PersonIcon sx={{ fontSize: 18, color: 'primary.main', opacity: 0.8 }} />
+                              <Box>
+                                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.125 }}>
+                                  나의 역할
+                                </Typography>
+                                <Typography variant="body2" fontWeight={600} color="text.primary">
+                                  {item.myRole}
+                                </Typography>
+                              </Box>
+                            </Box>
+                            {item.isGrouped && item.groupType === 'detail' && (
+                              <Chip
+                                label="Detail"
+                                size="small"
+                                sx={{
+                                  height: 24,
+                                  fontSize: '0.75rem',
+                                  fontWeight: 600,
+                                  background: 'linear-gradient(135deg, rgba(76,175,80,0.15) 0%, rgba(56,142,60,0.1) 100%)',
+                                  color: '#4caf50',
+                                  border: '1px solid rgba(76,175,80,0.3)',
+                                  '& .MuiChip-label': {
+                                    px: 1.5
+                                  }
+                                }}
+                              />
+                            )}
+                          </Box>
+                        )}
+
+                        {/* AI 역할 */}
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <SmartToyIcon sx={{ fontSize: 18, color: 'primary.main', opacity: 0.8 }} />
+                          <Box sx={{ flex: 1 }}>
                             <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.125 }}>
-                              나의 역할
+                              AI 역할
                             </Typography>
+                            {item.isGrouped && item.groupType === 'detail' && item.availableAiRoles && item.availableAiRoles.length > 1 ? (
+                              <FormControl size="small" sx={{ mt: 0.25, width: 'auto', minWidth: 120 }}>
+                                <Select
+                                  value={selectedAiRoleIndices[item.scenarioId] ?? item.selectedAiRoleIndex ?? 0}
+                                  onChange={(e) => {
+                                    e.stopPropagation() // 카드 클릭 이벤트 방지
+                                    handleAiRoleChange(item.scenarioId, e.target.value)
+                                  }}
+                                  onClick={(e) => e.stopPropagation()} // 카드 클릭 이벤트 방지
+                                  sx={{
+                                    height: 32,
+                                    fontSize: '0.875rem',
+                                    fontWeight: 600,
+                                    '& .MuiOutlinedInput-notchedOutline': {
+                                      borderColor: 'rgba(124,108,255,0.3)',
+                                    },
+                                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                                      borderColor: 'primary.main',
+                                    },
+                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                      borderColor: 'primary.main',
+                                    },
+                                  }}
+                                >
+                                  {item.availableAiRoles.map((role, idx) => (
+                                    <MenuItem key={idx} value={idx}>
+                                      {role.aiRole}
+                                    </MenuItem>
+                                  ))}
+                                </Select>
+                              </FormControl>
+                            ) : (
                             <Typography variant="body2" fontWeight={600} color="text.primary">
-                              {item.myRole}
+                                {displayAiRole || 'AI 역할 미정'}
                             </Typography>
+                            )}
                           </Box>
                         </Box>
-                        {item.isGrouped && item.groupType === 'overview' && (
+                      </>
+                    )}
+                    
+                    {/* 생성날짜 + Overview 칩(overview인 경우) + 플레이 버튼 */}
+                    {item.isGrouped && item.groupType === 'overview' ? (
+                      <Box>
+                        {/* 첫 번째 줄: Overview 칩(오른쪽) */}
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' , mb: 1}}>
+                          {/* Overview 태그 (오른쪽) */}
                           <Chip
                             label="Overview"
                             size="small"
@@ -286,113 +362,89 @@ function ScenarioList({
                               background: 'linear-gradient(135deg, rgba(124,108,255,0.15) 0%, rgba(75,60,248,0.1) 100%)',
                               color: 'primary.main',
                               border: '1px solid rgba(124,108,255,0.3)',
+                              mb: 0.5,
                               '& .MuiChip-label': {
                                 px: 1.5
                               }
                             }}
                           />
-                        )}
-                        {item.isGrouped && item.groupType === 'detail' && (
-                          <Chip
-                            label="Detail"
-                            size="small"
+                        </Box>
+
+                        {/* 두 번째 줄: 생성날짜(왼쪽 끝) - 재생 버튼(오른쪽 끝) */}
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          {/* 생성날짜 (왼쪽 끝) */}
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <AccessTimeIcon sx={{ fontSize: 18, color: 'text.secondary', opacity: 0.6 }} />
+                            <Box>
+                              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.125 }}>
+                                생성날짜
+                              </Typography>
+                              <Typography variant="body2" fontWeight={500} color="text.secondary">
+                                {item.createdAtLabel || item.date || '날짜 정보 없음'}
+                              </Typography>
+                            </Box>
+                          </Box>
+
+                          {/* 플레이 버튼 아이콘 (오른쪽 끝) */}
+                          <Box
+                            className="play-icon"
                             sx={{
-                              height: 24,
-                              fontSize: '0.75rem',
-                              fontWeight: 600,
-                              background: 'linear-gradient(135deg, rgba(76,175,80,0.15) 0%, rgba(56,142,60,0.1) 100%)',
-                              color: '#4caf50',
-                              border: '1px solid rgba(76,175,80,0.3)',
-                              '& .MuiChip-label': {
-                                px: 1.5
-                              }
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              width: 48,
+                              height: 48,
+                              borderRadius: '50%',
+                              background: 'linear-gradient(135deg, #7C6CFF 0%, #4B3CF8 100%)',
+                              color: 'white',
+                              opacity: 0.7,
+                              transition: 'all 0.3s ease',
+                              boxShadow: '0 4px 12px rgba(124,108,255,0.3)',
+                              flexShrink: 0
                             }}
-                          />
-                        )}
-                      </Box>
-                    )}
-
-                    {/* AI 역할 */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <SmartToyIcon sx={{ fontSize: 18, color: 'primary.main', opacity: 0.8 }} />
-                      <Box sx={{ flex: 1 }}>
-                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.125 }}>
-                          AI 역할
-                        </Typography>
-                        {item.isGrouped && item.groupType === 'detail' && item.availableAiRoles && item.availableAiRoles.length > 1 ? (
-                          <FormControl size="small" sx={{ mt: 0.25, width: 'auto', minWidth: 120 }}>
-                            <Select
-                              value={selectedAiRoleIndices[item.scenarioId] ?? item.selectedAiRoleIndex ?? 0}
-                              onChange={(e) => {
-                                e.stopPropagation() // 카드 클릭 이벤트 방지
-                                handleAiRoleChange(item.scenarioId, e.target.value)
-                              }}
-                              onClick={(e) => e.stopPropagation()} // 카드 클릭 이벤트 방지
-                              sx={{
-                                height: 32,
-                                fontSize: '0.875rem',
-                                fontWeight: 600,
-                                '& .MuiOutlinedInput-notchedOutline': {
-                                  borderColor: 'rgba(124,108,255,0.3)',
-                                },
-                                '&:hover .MuiOutlinedInput-notchedOutline': {
-                                  borderColor: 'primary.main',
-                                },
-                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                  borderColor: 'primary.main',
-                                },
-                              }}
-                            >
-                              {item.availableAiRoles.map((role, idx) => (
-                                <MenuItem key={idx} value={idx}>
-                                  {role.aiRole}
-                                </MenuItem>
-                              ))}
-                            </Select>
-                          </FormControl>
-                        ) : (
-                        <Typography variant="body2" fontWeight={600} color="text.primary">
-                            {displayAiRole || 'AI 역할 미정'}
-                        </Typography>
-                        )}
-                      </Box>
-                    </Box>
-
-                    {/* 생성날짜 + 플레이 버튼 */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
-                        <AccessTimeIcon sx={{ fontSize: 18, color: 'text.secondary', opacity: 0.6 }} />
-                        <Box>
-                          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.125 }}>
-                            생성날짜
-                          </Typography>
-                          <Typography variant="body2" fontWeight={500} color="text.secondary">
-                            {item.createdAtLabel || item.date || '날짜 정보 없음'}
-                          </Typography>
+                          >
+                            <PlayArrowIcon sx={{ fontSize: 24, ml: 0.5 }} />
+                          </Box>
                         </Box>
                       </Box>
+                    ) : (
+                      /* detail 또는 일반 시나리오: 생성날짜와 재생 버튼을 같은 줄에 배치 */
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        {/* 생성날짜 (왼쪽) */}
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <AccessTimeIcon sx={{ fontSize: 18, color: 'text.secondary', opacity: 0.6 }} />
+                          <Box>
+                            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.125 }}>
+                              생성날짜
+                            </Typography>
+                            <Typography variant="body2" fontWeight={500} color="text.secondary">
+                              {item.createdAtLabel || item.date || '날짜 정보 없음'}
+                            </Typography>
+                          </Box>
+                        </Box>
 
-                      {/* 플레이 버튼 아이콘 */}
-                      <Box
-                        className="play-icon"
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          width: 48,
-                          height: 48,
-                          borderRadius: '50%',
-                          background: 'linear-gradient(135deg, #7C6CFF 0%, #4B3CF8 100%)',
-                          color: 'white',
-                          opacity: 0.7,
-                          transition: 'all 0.3s ease',
-                          boxShadow: '0 4px 12px rgba(124,108,255,0.3)',
-                          flexShrink: 0
-                        }}
-                      >
-                        <PlayArrowIcon sx={{ fontSize: 24, ml: 0.5 }} />
+                        {/* 플레이 버튼 아이콘 (오른쪽 끝) */}
+                        <Box
+                          className="play-icon"
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: 48,
+                            height: 48,
+                            borderRadius: '50%',
+                            background: 'linear-gradient(135deg, #7C6CFF 0%, #4B3CF8 100%)',
+                            color: 'white',
+                            opacity: 0.7,
+                            transition: 'all 0.3s ease',
+                            boxShadow: '0 4px 12px rgba(124,108,255,0.3)',
+                            flexShrink: 0
+                          }}
+                        >
+                          <PlayArrowIcon sx={{ fontSize: 24, ml: 0.5 }} />
+                        </Box>
                       </Box>
-                    </Box>
+                    )}
                   </Stack>
                 </Stack>
               </CardContent>

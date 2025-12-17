@@ -138,7 +138,7 @@ export default function ProfileSummary() {
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                     <CheckCircleOutlineIcon sx={{ fontSize: 16, color: 'primary.main' }} />
                     <Typography variant="body2" fontWeight={600} color="text.primary">
-                      완료한 롤플레잉
+                      완료한 롤플레이
                     </Typography>
                   </Box>
                   <Typography variant="body2" fontWeight={700} sx={{ 

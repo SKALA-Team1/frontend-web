@@ -71,7 +71,7 @@ export default function RoleplayCTACard({ onClick }) {
               fontSize: { xs: '1rem', sm: '1.125rem' }
             }}
           >
-            내 상황에 딱 맞는 롤플레잉
+            내 상황에 딱 맞는 롤플레이
           </Typography>
           <Typography 
             variant="body2" 

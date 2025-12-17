@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import {
   Stack,
   Card,
@@ -69,7 +69,7 @@ const normalizeConversationMessages = (rawMessages = []) => {
 export default function SummaryView({
   messages,
   onClose,
-  scenarioTitle = '롤플레잉 시나리오',
+  scenarioTitle = '롤플레이 시나리오',
   sessionId = null
 }) {
   const [isConversationOpen, setIsConversationOpen] = React.useState(true)
@@ -85,56 +85,75 @@ export default function SummaryView({
   const [utterances, setUtterances] = useState([]) // utterances 데이터 (피드백 포함)
   const [expandedFeedback, setExpandedFeedback] = useState({}) // 피드백 토글 상태 (messageId -> boolean)
   const [showSaveConfirmDialog, setShowSaveConfirmDialog] = useState(false) // 북마크 저장 확인 다이얼로그 상태
+  const [loadedMessages, setLoadedMessages] = useState([]) // SummaryView 내부에서 로드한 messages
 
-  const normalizedMessages = normalizeConversationMessages(messages)
-  const displayMessages = normalizedMessages.length > 0 ? normalizedMessages : MOCK_CONVERSATION
+  // messages prop이 있으면 사용하고, 없으면 내부에서 로드한 messages 사용
+  const messagesToUse = messages && messages.length > 0 ? messages : loadedMessages
 
-  // utterances 가져와서 messageId 매핑 (한 번만 실행)
-  useEffect(() => {
+  // messages를 메모이제이션하여 불필요한 재계산 방지
+  const normalizedMessages = useMemo(() => {
+    console.log('[SummaryView] messagesToUse:', messagesToUse)
+    const normalized = normalizeConversationMessages(messagesToUse)
+    console.log('[SummaryView] normalizedMessages:', normalized)
+    return normalized
+  }, [messagesToUse])
+  const displayMessages = useMemo(() => {
+    const display = normalizedMessages.length > 0 ? normalizedMessages : MOCK_CONVERSATION
+    console.log('[SummaryView] displayMessages:', display, 'isMOCK:', display === MOCK_CONVERSATION)
+    return display
+  }, [normalizedMessages])
+
+  // utterances 가져와서 messageId 매핑 및 messages 로드 (피드백이 준비된 후에만 실행)
+  const loadUtterances = React.useCallback(async () => {
     if (!sessionId) return
 
-    const loadUtterances = async () => {
-      try {
-        const utterancesData = await getSessionUtterances(sessionId)
-        const utterances = utterancesData?.utterances || []
-        
-        // utterances를 turn_index 순서로 정렬
-        const sortedUtterances = [...utterances].sort((a, b) => 
-          (a.utterance_index || 0) - (b.utterance_index || 0)
-        )
-        
-        // displayMessages의 인덱스와 utterances의 turn_index를 매칭
-        // displayMessages는 AI와 User가 번갈아 나오므로, turn_index로 직접 매칭 불가
-        // 대신 텍스트 매칭으로 user 메시지의 messageId 찾기
-        const idMap = {}
-        const currentDisplayMessages = normalizedMessages.length > 0 ? normalizedMessages : MOCK_CONVERSATION
-        
-        sortedUtterances.forEach(utterance => {
-          if ((utterance.speaker === 'user' || utterance.speaker === 'USER') && utterance.id) {
-            // currentDisplayMessages에서 같은 텍스트를 가진 사용자 메시지 찾기
-            currentDisplayMessages.forEach((msg, idx) => {
-              if (msg.who === 'You' && msg.text && utterance.text) {
-                const msgText = msg.text.trim()
-                const utteranceText = utterance.text.trim()
-                if (msgText === utteranceText) {
-                  idMap[idx] = utterance.id
-                }
+    try {
+      console.log('[SummaryView] utterances 로드 시작, sessionId:', sessionId)
+      const utterancesData = await getSessionUtterances(sessionId)
+      const utterances = utterancesData?.utterances || []
+      console.log('[SummaryView] utterances 로드 완료, length:', utterances.length)
+      
+      // utterances를 messages 형식으로 변환
+      const messages = utterances.map(utterance => ({
+        who: utterance.speaker === 'user' ? 'You' : 'AI',
+        text: utterance.text || '',
+        translation: utterance.question_ko || null
+      }))
+      console.log('[SummaryView] 변환된 messages:', messages)
+      setLoadedMessages(messages)
+      
+      // utterances를 turn_index 순서로 정렬
+      const sortedUtterances = [...utterances].sort((a, b) => 
+        (a.utterance_index || 0) - (b.utterance_index || 0)
+      )
+      
+      // displayMessages의 인덱스와 utterances의 turn_index를 매칭
+      // displayMessages는 AI와 User가 번갈아 나오므로, turn_index로 직접 매칭 불가
+      // 대신 텍스트 매칭으로 user 메시지의 messageId 찾기
+      const idMap = {}
+      // messagesToUse를 직접 정규화하여 사용
+      const currentNormalizedMessages = normalizeConversationMessages(messages)
+      const currentDisplayMessages = currentNormalizedMessages.length > 0 ? currentNormalizedMessages : MOCK_CONVERSATION
+      
+      sortedUtterances.forEach(utterance => {
+        if ((utterance.speaker === 'user' || utterance.speaker === 'USER') && utterance.id) {
+          // currentDisplayMessages에서 같은 텍스트를 가진 사용자 메시지 찾기
+          currentDisplayMessages.forEach((msg, idx) => {
+            if (msg.who === 'You' && msg.text && utterance.text) {
+              const msgText = msg.text.trim()
+              const utteranceText = utterance.text.trim()
+              if (msgText === utteranceText) {
+                idMap[idx] = utterance.id
               }
-            })
-          }
-        })
-        
-        setMessageIdMap(idMap)
-        setUtterances(sortedUtterances) // utterances 데이터 저장
-      } catch (err) {
-        console.error('[SummaryView] Failed to load utterances:', err)
-      }
-    }
-
-    loadUtterances()
-    
-    // 북마크 불러오기
-    const loadBookmarks = async () => {
+            }
+          })
+        }
+      })
+      
+      setMessageIdMap(idMap)
+      setUtterances(sortedUtterances) // utterances 데이터 저장
+      
+      // 북마크 불러오기
       try {
         const bookmarks = await getMyBookmarks()
         if (!bookmarks || !Array.isArray(bookmarks)) return
@@ -160,11 +179,10 @@ export default function SummaryView({
       } catch (err) {
         console.error('[SummaryView] Failed to load bookmarks:', err)
       }
+    } catch (err) {
+      console.error('[SummaryView] Failed to load utterances:', err)
     }
-    
-    loadBookmarks()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sessionId]) // displayMessages 제거 - messages prop이 변경될 때만 재실행되도록
+  }, [sessionId])
   
   // messageIdMap과 북마크를 매칭하여 bookmarkedMessages 업데이트
   useEffect(() => {
@@ -223,6 +241,8 @@ export default function SummaryView({
             // success가 true이거나 undefined/null인 경우 모두 정상 응답으로 처리
             console.log('[SummaryView] 피드백 조회 성공, 피드백 설정:', feedbackData)
             setFeedback(feedbackData)
+            // 피드백이 성공적으로 로드되면 utterances도 로드
+            loadUtterances()
           }
           setLoading(false)
         } catch (err) {
@@ -260,7 +280,7 @@ export default function SummaryView({
   if (loading) {
     return (
       <Box sx={{ py: { xs: 1, sm: 1.5 }, px: { xs: 0, sm: 0 }, minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <LoadingSpinner message="종합 피드백을 생성하고 있습니다..." />
+        <LoadingSpinner/>
       </Box>
     )
   }
@@ -273,10 +293,10 @@ export default function SummaryView({
         {/* 헤더 */}
         <Stack spacing={0.25} alignItems="center" textAlign="center">
           <Typography variant="overline" sx={{ letterSpacing: 1.2, color: 'text.secondary' }}>
-            롤플레잉 종합 피드백
+            롤플레이 종합 피드백
           </Typography>
           <Typography variant="h5" sx={{ fontWeight: 800 }}>
-            {scenarioTitle || '롤플레잉 시나리오'}
+            {scenarioTitle || '롤플레이 시나리오'}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ opacity: 0.8 }}>
             짧은 요약과 상세 피드백을 확인하고 대화 로그를 복기하세요.
@@ -354,7 +374,7 @@ export default function SummaryView({
                 <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.25 }}>
                   짧은 버전
                 </Typography>
-                <Typography variant="body2" color="text.primary">
+                <Typography variant="body2" color="text.primary" sx={{ whiteSpace: 'pre-wrap' }}>
                   {shortFeedback}
                 </Typography>
               </Box>
@@ -363,23 +383,12 @@ export default function SummaryView({
 
               {/* 긴 피드백 */}
               <Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-                    긴 버전
-                  </Typography>
-                  <IconButton
-                    size="small"
-                    onClick={() => setIsLongOpen((prev) => !prev)}
-                    sx={{ transform: isLongOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}
-                  >
-                    <ExpandMoreIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-                <Collapse in={isLongOpen} timeout="auto" unmountOnExit>
-                  <Typography variant="body2" color="text.primary" sx={{ mt: 0.5, whiteSpace: 'pre-wrap' }}>
-                    {longFeedback}
-                  </Typography>
-                </Collapse>
+                <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.25 }}>
+                  긴 버전
+                </Typography>
+                <Typography variant="body2" color="text.primary" sx={{ mt: 0.5, whiteSpace: 'pre-wrap' }}>
+                  {longFeedback}
+                </Typography>
               </Box>
             </CardContent>
           </Card>
@@ -517,14 +526,17 @@ export default function SummaryView({
                         boxShadow: '0 6px 16px rgba(0,0,0,0.08)'
                       }}
                     >
-                      <CardContent sx={{ py: 0.75, px: 1 }}>
+                      <CardContent sx={{ pt: 1.5, px: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                         <Typography variant="body2" color="text.primary" sx={{ whiteSpace: 'pre-wrap' }}>
                           {msg.text}
                         </Typography>
                         {msg.translation && (
-                          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.375 }}>
-                            {msg.translation}
-                          </Typography>
+                          <>
+                            <Divider sx={{ my: 0.5 }} />
+                            <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                              {msg.translation}
+                            </Typography>
+                          </>
                         )}
                       </CardContent>
                     </Card>
