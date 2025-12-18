@@ -777,37 +777,13 @@ export default function useRoleplaySession(options = {}) {
 
   /**
    * FEEDBACK_STREAMING 메시지 처리
+   * FEEDBACK_STREAMING은 피드백 섹션 생성 중의 중간 스트리밍 메시지이므로
+   * 별도 메시지 버블로 표시하지 않음 (최종 FEEDBACK_SECTIONS 메시지만 표시)
    */
   const handleFeedbackStreaming = (message) => {
-    if (!needsCorrectionRef.current || !message.chunk) {
-      return
-    }
-    
-    setMessages(prev => {
-      const lastMessage = prev[prev.length - 1]
-      if (lastMessage && lastMessage.who === 'AI' && lastMessage.isFeedbackStreaming) {
-        return [
-          ...prev.slice(0, -1),
-          {
-            ...lastMessage,
-            text: lastMessage.text + message.chunk,
-            isStreaming: true,
-            isFeedbackStreaming: true
-          }
-        ]
-      } else {
-        return [
-          ...prev,
-          {
-            who: 'AI',
-            text: message.chunk,
-            isFixedQuestion: false,
-            isStreaming: true,
-            isFeedbackStreaming: true
-          }
-        ]
-      }
-    })
+    // FEEDBACK_STREAMING 메시지는 표시하지 않음
+    // 최종 피드백은 FEEDBACK_SECTIONS 메시지로 표시됨
+    return
   }
 
   /**

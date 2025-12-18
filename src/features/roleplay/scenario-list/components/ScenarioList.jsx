@@ -87,7 +87,7 @@ function ScenarioList({
       <>
         <Tabs value={tab} onChange={(_, v) => setTab(v)} variant="fullWidth">
           <Tab value="linked" label="Slack" />
-          <Tab value="created" label="나의 롤플레이" />
+          <Tab value="created" label="Custom" />
         </Tabs>
         {!channelSelected && (
           <SlackIntegrationPrompt
@@ -140,7 +140,7 @@ function ScenarioList({
         }}
       >
         <Tab value="linked" label="Slack" />
-        <Tab value="created" label="나의 롤플레이" />
+        <Tab value="created" label="Custom" />
       </Tabs>
 
       <Box sx={{ 

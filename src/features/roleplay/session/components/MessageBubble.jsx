@@ -372,7 +372,16 @@ function MessageBubble({ message, index, showTranslation, onToggleTranslation, o
                       color: '#212121'
                     }}
                   >
-                    {section.feedback_ko || section.feedback_en}
+                    {section.feedback_ko || (() => {
+                      // JSON 문자열인 경우 파싱하여 feedback 필드만 추출
+                      if (!section.feedback_en) return ''
+                      try {
+                        const parsed = JSON.parse(section.feedback_en)
+                        return parsed.feedback || section.feedback_en
+                      } catch (e) {
+                        return section.feedback_en
+                      }
+                    })()}
                   </Typography>
                 </Box>
               ))}
