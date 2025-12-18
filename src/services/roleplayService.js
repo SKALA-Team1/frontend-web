@@ -66,11 +66,16 @@ export async function saveScenarioToSpring2(scenarioData) {
  * 롤플레이 세션 시작
  * @param {number} scenarioId - 시나리오 ID
  * @param {string} interactionMode - 상호작용 모드 (기본값: "default")
+ * @param {string} voiceId - ElevenLabs Voice ID (선택적)
  * @returns {Promise<Object>} 세션 정보
  */
-export async function startSession(scenarioId, interactionMode = 'default') {
+export async function startSession(scenarioId, interactionMode = 'default', voiceId = null) {
   const url = `${API_ENDPOINTS.GATEWAY}/roleplaying/sessions`
-  return httpClient.post(url, { scenarioId, interactionMode })
+  const payload = { scenarioId, interactionMode }
+  if (voiceId) {
+    payload.voiceId = voiceId
+  }
+  return httpClient.post(url, payload)
 }
 
 /**
