@@ -9,13 +9,16 @@
  * - 타입 안전성: userId를 정수로 변환하여 타입 일관성 보장
  */
 
+import { getAccessToken } from '../services/httpClient'
+
 /**
  * JWT 토큰에서 userId 추출
  * Gateway의 JwtService에서 userId는 Subject(sub)에 저장됨
  * @returns {number|null} userId 또는 null
  */
 export function getUserIdFromToken() {
-  const token = localStorage.getItem('accessToken')
+  // 메모리에서 Access Token 읽기
+  const token = getAccessToken()
   if (!token) {
     console.warn('[JWT] accessToken이 없습니다.')
     return null
