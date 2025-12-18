@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import {
   Drawer,
   Box,
@@ -27,6 +27,7 @@ import LogoutIcon from '@mui/icons-material/Logout'
 import { NAV_LINKS, ROUTES } from '../../config/constants'
 import { getCurrentUser } from '../../services/userService'
 import { logout } from '../../services/authService'
+import { getAccessToken } from '../../services/httpClient'
 import skuseMeLogo from '../../images/skuse_me.png'
 
 // 아이콘 매핑
@@ -47,6 +48,7 @@ export default function AppDrawer({
   isDesktop,
 }) {
   const navigate = useNavigate()
+  const location = useLocation()
   const [userName, setUserName] = useState('')
   const [userEmail, setUserEmail] = useState('')
 
@@ -63,6 +65,14 @@ export default function AppDrawer({
 
   useEffect(() => {
     const fetchUserInfo = async () => {
+      const token = getAccessToken()
+      // 토큰이 없으면 사용자 정보를 가져오지 않음
+      if (!token) {
+        setUserName('')
+        setUserEmail('')
+        return
+      }
+
       try {
         const userInfo = await getCurrentUser()
         const name = userInfo.name || userInfo.username || ''
@@ -70,11 +80,13 @@ export default function AppDrawer({
         setUserEmail(userInfo.email || '')
       } catch (error) {
         console.error('사용자 정보를 가져오는데 실패했습니다:', error)
+        setUserName('')
+        setUserEmail('')
       }
     }
 
     fetchUserInfo()
-  }, [])
+  }, [location.pathname]) // 페이지 이동 시 사용자 정보 다시 가져오기 (구글 로그인 후 페이지 이동 시 업데이트)
 
   return (
     <Drawer

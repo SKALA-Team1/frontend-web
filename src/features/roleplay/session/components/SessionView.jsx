@@ -56,6 +56,7 @@ export default function SessionView({
           onMicToggle={onKeyboardToggle}
           isKeyboardMode={isKeyboardMode}
           showModeToggle={initialInputMode !== 'text'} // 초기 모드가 텍스트가 아니면 전환 버튼 표시
+          isTTSPlaying={isTTSPlaying}
         />
       ) : (
         <MicButton 
@@ -64,6 +65,7 @@ export default function SessionView({
           onKeyboardToggle={onKeyboardToggle}
           isKeyboardMode={isKeyboardMode}
           showModeToggle={initialInputMode !== 'voice'} // 초기 모드가 음성이 아니면 전환 버튼 표시
+          isTTSPlaying={isTTSPlaying}
         />
       )}
     </Box>

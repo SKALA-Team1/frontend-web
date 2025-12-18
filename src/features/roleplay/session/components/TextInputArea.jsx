@@ -11,19 +11,20 @@ export default function TextInputArea({
   onMicToggle,
   isKeyboardMode = true,
   placeholder = "답변을 입력하세요...",
-  showModeToggle = true // 모드 전환 버튼 표시 여부
+  showModeToggle = true, // 모드 전환 버튼 표시 여부
+  isTTSPlaying = false // TTS 재생 중 여부
 }) {
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
-      if (value.trim()) {
+      if (value.trim() && !isTTSPlaying) {
         onSend()
       }
     }
   }
 
   const handleSend = () => {
-    if (value.trim()) {
+    if (value.trim() && !isTTSPlaying) {
       onSend()
     }
   }
@@ -54,28 +55,32 @@ export default function TextInputArea({
           value={value}
           onChange={onChange}
           onKeyPress={handleKeyPress}
-          placeholder={placeholder}
+          placeholder={isTTSPlaying ? 'AI가 말하는 중...' : placeholder}
           variant="outlined"
           size="small"
+          disabled={isTTSPlaying}
           sx={{
             '& .MuiOutlinedInput-root': {
-              backgroundColor: '#ffffff',
+              backgroundColor: isTTSPlaying ? '#f5f5f5' : '#ffffff',
               borderRadius: 1,
-              color: '#212121',
+              color: isTTSPlaying ? '#9e9e9e' : '#212121',
               '& fieldset': {
-                borderColor: 'rgba(0,0,0,0.23)'
+                borderColor: isTTSPlaying ? 'rgba(0,0,0,0.12)' : 'rgba(0,0,0,0.23)'
               },
               '&:hover fieldset': {
-                borderColor: 'rgba(0,0,0,0.4)'
+                borderColor: isTTSPlaying ? 'rgba(0,0,0,0.12)' : 'rgba(0,0,0,0.4)'
               },
               '&.Mui-focused fieldset': {
-                borderColor: '#6C63FF'
+                borderColor: isTTSPlaying ? 'rgba(0,0,0,0.12)' : '#6C63FF'
+              },
+              '&.Mui-disabled': {
+                backgroundColor: '#f5f5f5'
               }
             },
             '& .MuiInputBase-input': {
-              color: '#212121',
+              color: isTTSPlaying ? '#9e9e9e' : '#212121',
               '&::placeholder': {
-                color: 'rgba(245,246,255,0.5)',
+                color: isTTSPlaying ? 'rgba(108, 99, 255, 0.6)' : 'rgba(245,246,255,0.5)',
                 opacity: 1
               }
             }
@@ -101,14 +106,14 @@ export default function TextInputArea({
         )}
         <IconButton
           onClick={handleSend}
-          disabled={!value.trim()}
+          disabled={!value.trim() || isTTSPlaying}
           sx={{
             width: 40,
             height: 40,
-            backgroundColor: value.trim() ? '#6C63FF' : '#e0e0e0',
-            color: value.trim() ? '#ffffff' : '#9e9e9e',
+            backgroundColor: (value.trim() && !isTTSPlaying) ? '#6C63FF' : '#e0e0e0',
+            color: (value.trim() && !isTTSPlaying) ? '#ffffff' : '#9e9e9e',
             '&:hover': {
-              backgroundColor: value.trim() ? '#5B4DFF' : '#d5d5d5'
+              backgroundColor: (value.trim() && !isTTSPlaying) ? '#5B4DFF' : '#d5d5d5'
             },
             '&.Mui-disabled': {
               backgroundColor: '#e0e0e0',
