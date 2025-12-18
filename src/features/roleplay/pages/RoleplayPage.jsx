@@ -1,6 +1,5 @@
 import React, { useState, useEffect, lazy, Suspense, useMemo } from 'react'
-import { Stack, Box, Typography, CircularProgress, useMediaQuery, useTheme, Alert, IconButton, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button, Snackbar } from '@mui/material'
-import CloseIcon from '@mui/icons-material/Close'
+import { Stack, Box, Typography, CircularProgress, useMediaQuery, useTheme, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button } from '@mui/material'
 import Notification from '../../../components/Common/Notification'
 import useCreateScenario from '../scenario-list/hooks/useCreateScenario'
 import useSessionControls from '../session/hooks/useSessionControls'
@@ -150,8 +149,7 @@ export default function RoleplayPage() {
     situation,
     createLoading,
     createError,
-    creationToast,
-    clearCreationToast,
+    createSuccess,
     handleOpenCreate,
     handleCloseCreate,
     handleAiRoleChange,
@@ -307,23 +305,6 @@ export default function RoleplayPage() {
       />
 
       <Stack spacing={2} sx={{  px: { xs: 0, sm: 0 } }}>
-        {creationToast && (
-          <Alert
-            severity="success"
-            sx={{ mb: 1 }}
-            action={
-              <IconButton
-                size="small"
-                color="inherit"
-                onClick={clearCreationToast}
-              >
-                <CloseIcon fontSize="inherit" />
-              </IconButton>
-            }
-          >
-            {creationToast}
-          </Alert>
-        )}
 
         {/* 사용자 환영 문구 */}
         <Box
@@ -412,6 +393,7 @@ export default function RoleplayPage() {
               onStart={handleCreateScenario}
               loading={createLoading}
               errorMessage={createError}
+              successMessage={createSuccess ? '시나리오가 성공적으로 생성되었습니다.' : null}
             />
           </Suspense>
         )}

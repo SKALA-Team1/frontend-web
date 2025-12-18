@@ -23,7 +23,6 @@ const ACCENT_OPTIONS = [
   { label: '인도', value: 'xnx6sPTtvU635ocDt2j7' },
   { label: '베트남', value: 'U7vsLCpbWl9Lt8M1Gjtk' },
   { label: '필리핀', value: 'neuKegR4bFeXZWzEAgYg' },
-  { label: '중국', value: '8xsdoepm9GrzPPzYsiLP' },
 ]
 
 const INPUT_MODES = {
