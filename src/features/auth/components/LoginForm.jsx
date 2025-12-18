@@ -149,6 +149,9 @@ export default function LoginForm({ onLogin, onGoogleLogin, onNavigateSignup }) 
             alignItems: 'center',
             justifyContent: 'center',
             p: 0,
+            '&:hover': {
+              backgroundColor: 'transparent',
+            },
           }}
         >
           <Box component="img" src={googleLogo} alt="Google" sx={{ width: 40, height: 40, objectFit: 'contain' }} />

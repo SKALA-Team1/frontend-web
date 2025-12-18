@@ -453,7 +453,7 @@ export default function RoleplayPage() {
               pb: 1
             }}
           >
-            롤플레이을 실행할까요?
+            롤플레이를 실행할까요?
           </DialogTitle>
           <DialogContent>
             <DialogContentText 
@@ -574,8 +574,8 @@ export default function RoleplayPage() {
     </Stack>
 
       {/* 고정 버튼: 스크롤이 맨 위에 있을 때만 표시 */}
-      {/* Slack 시나리오가 있을 때는 CTA 카드 숨기기 */}
-      {!filteredItems.some(item => item.creationType === 'SLACK') && (
+      {/* 슬랙 탭이 아니고, Slack 시나리오가 없을 때만 CTA 카드 표시 */}
+      {tab !== 'linked' && !filteredItems.some(item => item.creationType === 'SLACK') && (
         <Box
           sx={{
             position: 'fixed',
