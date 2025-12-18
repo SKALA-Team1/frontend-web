@@ -16,6 +16,7 @@
 
 import * as httpClient from './httpClient'
 import { setAccessToken, clearAccessToken, getAccessToken } from './httpClient'
+import { clearUserCache } from './userService'
 import { API_ENDPOINTS, STORAGE_KEYS } from '../config/constants'
 
 /**
@@ -144,7 +145,9 @@ export async function logout() {
   } finally {
     // 메모리에서 Access Token 제거 (항상 실행)
     clearAccessToken()
-    console.log('[authService] Access Token 메모리에서 제거 완료')
+    // 사용자 정보 캐시도 무효화
+    clearUserCache()
+    console.log('[authService] Access Token 메모리에서 제거 완료, 사용자 정보 캐시 무효화')
     // Refresh Token은 백엔드에서 httpOnly 쿠키로 삭제됨
   }
 }

@@ -6,7 +6,6 @@ import useCreateScenario from '../scenario-list/hooks/useCreateScenario'
 import useSessionControls from '../session/hooks/useSessionControls'
 import useScenarioData from '../scenario-list/hooks/useScenarioData'
 import useRoleplayFilters from '../scenario-list/hooks/useRoleplayFilters'
-import { getCurrentUser } from '../../../services/userService'
 import RoleplayCTACard from '../scenario-list/components/RoleplayCTACard'
 import ScenarioList from '../scenario-list/components/ScenarioList'
 import LoadingSpinner from '../../../components/Common/LoadingSpinner'
@@ -25,9 +24,8 @@ const CalendarDialog = lazy(() => import('../scenario-list/components/CalendarDi
  * - 프로필 요약, 롤플레이 생성 다이얼로그 포함
  */
 export default function RoleplayPage() {
-  const { scenarios, loading: scenariosLoading, error: scenariosError, isSlackIntegrated, userJobRole, refresh } = useScenarioData()
+  const { scenarios, loading: scenariosLoading, error: scenariosError, isSlackIntegrated, userJobRole, userName, refresh } = useScenarioData()
   const [pendingSlackGeneration, setPendingSlackGeneration] = useState(false)
-  const [userName, setUserName] = useState('')
   const scenariosCountRef = React.useRef(scenarios.length)
   const pollTimerRef = React.useRef(null)
   const idleStreakRef = React.useRef(0)
@@ -38,20 +36,7 @@ export default function RoleplayPage() {
   // Slack 연동 완료 알림 상태
   const [slackConnectedToast, setSlackConnectedToast] = useState(false)
 
-  // 사용자 이름 로드
-  useEffect(() => {
-    const loadUserName = async () => {
-      try {
-        const userInfo = await getCurrentUser()
-        const name = userInfo.name || userInfo.username || '사용자'
-        setUserName(name)
-      } catch (error) {
-        console.warn('[RoleplayPage] 사용자 정보 로드 실패:', error)
-        setUserName('사용자')
-      }
-    }
-    loadUserName()
-  }, [])
+  // 사용자 이름은 useScenarioData에서 가져옴 (중복 호출 방지)
 
   // Slack OAuth 콜백 처리 (slack_connected=true 쿼리 파라미터 감지)
   useEffect(() => {
@@ -65,7 +50,8 @@ export default function RoleplayPage() {
       // Slack 채널 선택 후 시나리오 생성 중으로 표시
       setPendingSlackGeneration(true)
     }
-  }, [refresh])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // 마운트 시 한 번만 실행
 
   // 스크롤 위치 감지
   const [isAtTop, setIsAtTop] = useState(true)
@@ -453,7 +439,7 @@ export default function RoleplayPage() {
               pb: 1
             }}
           >
-            롤플레이을 실행할까요?
+            롤플레이를 실행할까요?
           </DialogTitle>
           <DialogContent>
             <DialogContentText 
@@ -574,8 +560,8 @@ export default function RoleplayPage() {
     </Stack>
 
       {/* 고정 버튼: 스크롤이 맨 위에 있을 때만 표시 */}
-      {/* Slack 시나리오가 있을 때는 CTA 카드 숨기기 */}
-      {!filteredItems.some(item => item.creationType === 'SLACK') && (
+      {/* 슬랙 탭이 아니고, Slack 시나리오가 없을 때만 CTA 카드 표시 */}
+      {tab !== 'linked' && !filteredItems.some(item => item.creationType === 'SLACK') && (
         <Box
           sx={{
             position: 'fixed',
