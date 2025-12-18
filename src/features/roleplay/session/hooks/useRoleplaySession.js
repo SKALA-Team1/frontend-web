@@ -86,6 +86,7 @@ export default function useRoleplaySession(options = {}) {
   const [summaryTab, setSummaryTab] = useState('summary')
   const [evaluating, setEvaluating] = useState(false)
   const [isKeyboardMode, setIsKeyboardMode] = useState(false)
+  const [initialInputMode, setInitialInputMode] = useState(null) // 초기 입력 모드 저장 ('text' | 'voice' | null)
   const [textInput, setTextInput] = useState('')
   const [isRecording, setIsRecording] = useState(false)
   const [wsConnection, setWsConnection] = useState(null)
@@ -939,11 +940,19 @@ export default function useRoleplaySession(options = {}) {
 
   /**
    * 마이크로 롤플레이 세션 시작
+   * @param {string} title - 시나리오 제목
+   * @param {string} body - 시나리오 본문
+   * @param {number} scenarioId - 시나리오 ID
+   * @param {string} voiceId - ElevenLabs Voice ID
+   * @param {string} inputMode - 입력 모드 ('text' | 'voice')
    */
-  const startWithMic = async (title, body, scenarioId = 1, voiceId = null) => {
+  const startWithMic = async (title, body, scenarioId = 1, voiceId = null, inputMode = 'voice') => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      if (stream) stream.getTracks().forEach(t => t.stop())
+      // 텍스트 모드로 시작하는 경우 마이크 권한 요청 생략
+      if (inputMode === 'voice') {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+        if (stream) stream.getTracks().forEach(t => t.stop())
+      }
 
       setSelectedTitle(title)
       setSelectedBody(body)
@@ -952,6 +961,8 @@ export default function useRoleplaySession(options = {}) {
       setMessages([])
       setIsInitialized(false)
       setIsAvatarLoaded(false)
+      setIsKeyboardMode(inputMode === 'text') // 텍스트 모드면 키보드 모드 활성화
+      setInitialInputMode(inputMode) // 초기 입력 모드 저장
       pendingFirstMessageRef.current = null
       isFirstTTSAudioRef.current = true // 첫 TTS 오디오 플래그 리셋
 
@@ -1013,6 +1024,7 @@ export default function useRoleplaySession(options = {}) {
     setIsSession(false)
     setIsInitialized(false)
     setIsAvatarLoaded(false)
+    setInitialInputMode(null) // 초기 입력 모드 초기화
     pendingFirstMessageRef.current = null
     isFirstTTSAudioRef.current = true // 첫 TTS 오디오 플래그 리셋
     setEvaluating(false)
@@ -1491,6 +1503,9 @@ export default function useRoleplaySession(options = {}) {
     isAvatarLoaded,
     handleAvatarLoad,
     visemeQueue,
-    audioRef
+    audioRef,
+    
+    // 초기 입력 모드
+    initialInputMode
   }
 }

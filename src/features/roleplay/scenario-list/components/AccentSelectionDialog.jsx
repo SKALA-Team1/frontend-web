@@ -10,7 +10,10 @@ import {
   FormControlLabel,
   FormControl,
   Typography,
-  Box
+  Box,
+  Select,
+  MenuItem,
+  InputLabel
 } from '@mui/material'
 
 // Voice ID 매핑
@@ -23,6 +26,11 @@ const ACCENT_OPTIONS = [
   { label: '중국', value: '8xsdoepm9GrzPPzYsiLP' },
 ]
 
+const INPUT_MODES = {
+  TEXT: 'text',
+  VOICE: 'voice'
+}
+
 export default function AccentSelectionDialog({
   open,
   onClose,
@@ -30,40 +38,79 @@ export default function AccentSelectionDialog({
   scenarioTitle
 }) {
   const [selectedAccent, setSelectedAccent] = useState(ACCENT_OPTIONS[0].value)
+  const [inputMode, setInputMode] = useState(INPUT_MODES.VOICE)
 
   const handleStart = () => {
-    onStart(selectedAccent)
+    onStart(selectedAccent, inputMode)
     onClose()
   }
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
-      <DialogTitle>억양 선택</DialogTitle>
+      <DialogTitle 
+        sx={{ 
+          textAlign: 'center',
+          fontSize: '1.5rem',
+          fontWeight: 500
+        }}
+      >
+        시작 설정
+      </DialogTitle>
       <DialogContent>
-        <Box sx={{ mt: 1 }}>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+        <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 3 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
             {scenarioTitle}
           </Typography>
-          <FormControl component="fieldset" fullWidth>
-            <RadioGroup
+          
+          {/* 나라 선택 드롭다운 */}
+          <FormControl fullWidth>
+            <InputLabel id="accent-select-label">나라</InputLabel>
+            <Select
+              labelId="accent-select-label"
               value={selectedAccent}
+              label="나라"
               onChange={(e) => setSelectedAccent(e.target.value)}
             >
               {ACCENT_OPTIONS.map((option) => (
-                <FormControlLabel
-                  key={option.value}
-                  value={option.value}
-                  control={<Radio />}
-                  label={option.label}
-                  sx={{
-                    mb: 1,
-                    '& .MuiFormControlLabel-label': {
-                      fontSize: '0.9375rem',
-                      fontWeight: 500
-                    }
-                  }}
-                />
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
               ))}
+            </Select>
+          </FormControl>
+
+          {/* 텍스트 모드 / 음성 모드 선택 */}
+          <FormControl component="fieldset" fullWidth>
+            <Typography variant="body2" sx={{ mb: 1.5, fontWeight: 500 }}>
+              입력방법
+            </Typography>
+            <RadioGroup
+              value={inputMode}
+              onChange={(e) => setInputMode(e.target.value)}
+            >
+              <FormControlLabel
+                value={INPUT_MODES.VOICE}
+                control={<Radio />}
+                label="음성 모드"
+                sx={{
+                  '& .MuiFormControlLabel-label': {
+                    fontSize: '0.9375rem',
+                    fontWeight: 500
+                  }
+                }}
+              />
+              <FormControlLabel
+                value={INPUT_MODES.TEXT}
+                control={<Radio />}
+                label="텍스트 모드"
+                sx={{
+                  mb: 1,
+                  '& .MuiFormControlLabel-label': {
+                    fontSize: '0.9375rem',
+                    fontWeight: 500
+                  }
+                }}
+              />
             </RadioGroup>
           </FormControl>
         </Box>

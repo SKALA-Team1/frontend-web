@@ -236,6 +236,7 @@ export default function RoleplayPage() {
           audioRef={session.audioRef}
           onFetchKeywords={session.handleFetchKeywords}
           aiRole={session.selectedAiRole}
+          initialInputMode={session.initialInputMode}
         />
         {openEnd && (
           <Suspense fallback={null}>
