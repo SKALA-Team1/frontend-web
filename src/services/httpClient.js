@@ -48,8 +48,9 @@ export function clearAccessToken() {
 }
 
 // 개발용: 브라우저 콘솔에서 Access Token 확인 가능
-// 콘솔에서 window.__getAccessToken() 호출
-if (typeof window !== 'undefined') {
+// 프로덕션 환경에서는 보안을 위해 노출되지 않음
+// 콘솔에서 window.__getAccessToken() 호출 (개발 환경에서만)
+if (typeof window !== 'undefined' && import.meta.env.DEV) {
   window.__getAccessToken = () => {
     const token = getAccessToken()
     if (token) {
