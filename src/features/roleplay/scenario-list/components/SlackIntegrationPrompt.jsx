@@ -67,18 +67,15 @@ export default function SlackIntegrationPrompt({ isIntegrated = false, onChannel
             src={slackLogo}
             alt="Slack Logo"
             sx={{
-              width: 64,
-              height: 64,
-              mb: 2,
+              width: 220,
+              height: 220,
               objectFit: 'contain'
             }}
           />
-          <Typography variant="h6" gutterBottom>
+          <Typography variant="h6" gutterBottom sx={{ mb: 3}}>
             Slack 워크스페이스 연동이 필요합니다
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            시나리오를 생성하려면 Slack 워크스페이스에 앱을 설치해주세요.
-          </Typography>
+
           <Button
             variant="contained"
             onClick={handleSlackConnect}
@@ -89,17 +86,6 @@ export default function SlackIntegrationPrompt({ isIntegrated = false, onChannel
               '&:hover': { bgcolor: '#350D36' }
             }}
           >
-            <Box
-              component="img"
-              src={slackLogo}
-              alt="Slack"
-              sx={{
-                width: 20,
-                height: 20,
-                mr: 1,
-                objectFit: 'contain'
-              }}
-            />
             {loading ? '연동 중...' : 'Slack 연동하기'}
           </Button>
         </Box>

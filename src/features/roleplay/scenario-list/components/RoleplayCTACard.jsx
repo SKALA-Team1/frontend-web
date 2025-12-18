@@ -94,8 +94,6 @@ export default function RoleplayCTACard({ onClick }) {
             borderRadius: '50%',
             backgroundColor: 'rgba(255,255,255,0.2)',
             backdropFilter: 'blur(8px)',
-            transition: 'all 0.3s ease',
-            border: '2px solid rgba(255,255,255,0.3)'
           }}
         >
           <AddCircleOutlineIcon sx={{ fontSize: 32, color: 'white' }} />

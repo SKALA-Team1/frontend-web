@@ -42,7 +42,12 @@ export default function ResultView({ result, onTryAgain }) {
           borderRadius: 1.5,
           border: '1px solid rgba(0,0,0,0.08)',
           background: 'linear-gradient(135deg, rgba(124,108,255,0.1) 0%, rgba(75,60,248,0.08) 100%)',
-          boxShadow: '0 2px 8px rgba(124,108,255,0.12)'
+          boxShadow: '0 2px 8px rgba(124,108,255,0.12)',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          '&:hover': {
+            boxShadow: '0 4px 12px rgba(124,108,255,0.2)',
+            borderColor: 'rgba(124,108,255,0.25)'
+          }
         }}
       >
         <CardContent sx={{ 
@@ -77,7 +82,12 @@ export default function ResultView({ result, onTryAgain }) {
           borderRadius: 1.5,
           border: '1px solid rgba(0,0,0,0.08)',
           background: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.95) 100%)',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+          boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          '&:hover': {
+            boxShadow: '0 4px 12px rgba(124,108,255,0.15)',
+            borderColor: 'rgba(124,108,255,0.2)'
+          }
         }}
       >
         <CardContent sx={{ 
@@ -113,7 +123,12 @@ export default function ResultView({ result, onTryAgain }) {
           borderRadius: 1.5,
           border: '1px solid rgba(0,0,0,0.08)',
           background: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.95) 100%)',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+          boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          '&:hover': {
+            boxShadow: '0 4px 12px rgba(124,108,255,0.15)',
+            borderColor: 'rgba(124,108,255,0.2)'
+          }
         }}
       >
         <CardContent sx={{ 
@@ -156,7 +171,12 @@ export default function ResultView({ result, onTryAgain }) {
           borderRadius: 1.5,
           border: '1px solid rgba(0,0,0,0.08)',
           background: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.95) 100%)',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+          boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          '&:hover': {
+            boxShadow: '0 4px 12px rgba(124,108,255,0.15)',
+            borderColor: 'rgba(124,108,255,0.2)'
+          }
         }}
       >
         <CardContent sx={{ 

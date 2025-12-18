@@ -24,7 +24,43 @@ export default function AnswerInput({ value, onChange, onSubmit, loading, disabl
         onKeyDown={handleKeyPress}
         placeholder="여기에 답변을 작성하세요."
         disabled={disabled || loading}
-        sx={{ mb: 2 }}
+        sx={{ 
+          mb: 2,
+          '& .MuiOutlinedInput-root': {
+            backgroundColor: '#FFFFFF',
+            borderRadius: 1.25,
+            transition: 'all 0.3s ease',
+            '& fieldset': {
+              borderColor: 'rgba(124,108,255,0.3)',
+              borderWidth: 2
+            },
+            '&:hover': {
+              backgroundColor: 'rgba(124,108,255,0.02)',
+              '& fieldset': {
+                borderColor: 'rgba(124,108,255,0.5)'
+              }
+            },
+            '&.Mui-focused': {
+              backgroundColor: 'rgba(124,108,255,0.06)',
+              '& fieldset': {
+                borderColor: '#7C6CFF',
+                borderWidth: 2,
+                boxShadow: '0 0 0 3px rgba(124,108,255,0.15)'
+              }
+            },
+            '&.Mui-disabled': {
+              backgroundColor: 'rgba(0,0,0,0.02)',
+              '& fieldset': {
+                borderColor: 'rgba(0,0,0,0.1)'
+              }
+            }
+          },
+          '& .MuiInputBase-input': {
+            color: '#212121',
+            fontSize: '0.9375rem',
+            fontWeight: 500
+          }
+        }}
       />
 
       {/* 챗봇 토글 버튼 - 입력창 하단 오른쪽 플로팅 */}
@@ -62,11 +98,12 @@ export default function AnswerInput({ value, onChange, onSubmit, loading, disabl
       <Button
         variant="contained"
         onClick={onSubmit}
-        disabled={disabled || loading || !value.trim()}
+        disabled={false}
         fullWidth
         size="large"
         sx={{
           background: 'linear-gradient(135deg, #7C6CFF 0%, #4B3CF8 100%)',
+          color: '#FFFFFF',
           textTransform: 'none',
           fontWeight: 600,
           py: 1.5,
@@ -75,9 +112,11 @@ export default function AnswerInput({ value, onChange, onSubmit, loading, disabl
           '&:hover': {
             background: 'linear-gradient(135deg, #6B5CE6 0%, #3B2CE8 100%)',
             boxShadow: '0 6px 20px rgba(124,108,255,0.4)',
+            color: '#FFFFFF'
           },
           '&:disabled': {
             background: 'rgba(124,108,255,0.3)',
+            color: '#FFFFFF'
           }
         }}
       >

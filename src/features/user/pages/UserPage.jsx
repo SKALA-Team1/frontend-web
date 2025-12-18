@@ -166,7 +166,18 @@ export default function UserPage() {
             minWidth: 'auto',
             px: 2,
             textTransform: 'none',
-            fontWeight: 600
+            fontWeight: 600,
+            background: 'linear-gradient(135deg, #7C6CFF 0%, #4B3CF8 100%)',
+            color: '#FFFFFF',
+            boxShadow: '0 4px 16px rgba(124,108,255,0.3)',
+            '&:hover': {
+              background: 'linear-gradient(135deg, #6B5CE6 0%, #3B2CE8 100%)',
+              boxShadow: '0 6px 20px rgba(124,108,255,0.4)',
+            },
+            '&:disabled': {
+              background: 'rgba(124,108,255,0.3)',
+              color: '#FFFFFF'
+            }
           }}
         >
           {isSaving ? '저장 중...' : '저장'}
