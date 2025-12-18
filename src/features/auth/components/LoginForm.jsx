@@ -132,7 +132,7 @@ export default function LoginForm({ onLogin, onGoogleLogin, onNavigateSignup }) 
           }} 
           onClick={onNavigateSignup}
         >
-          회원가입하기
+          회원가입
         </Button>
       </Stack>
 

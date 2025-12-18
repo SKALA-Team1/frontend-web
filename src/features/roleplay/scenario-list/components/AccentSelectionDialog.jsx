@@ -57,7 +57,16 @@ export default function AccentSelectionDialog({
       </DialogTitle>
       <DialogContent>
         <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 3 }}>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+          <Typography 
+            variant="body2" 
+            color="text.secondary" 
+            sx={{ 
+              mb: 1,
+              fontSize: '1.3rem', // body2 기본 크기(0.875rem)의 약 2배
+              textAlign: 'center',
+              fontWeight: 500
+            }}
+          >
             {scenarioTitle}
           </Typography>
           
