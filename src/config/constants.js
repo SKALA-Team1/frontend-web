@@ -34,9 +34,9 @@ export const ROUTES = {
 
 // 네비게이션 링크
 export const NAV_LINKS = [
-  { label: '롤플레잉', path: ROUTES.ROLEPLAYING, key: 'roleplay' },
-  { label: '학습', path: ROUTES.LEARN, key: 'learn' },
+  { label: '롤플레이', path: ROUTES.ROLEPLAYING, key: 'roleplay' },
   { label: '피드백', path: ROUTES.FEEDBACK, key: 'feedback' },
+  { label: 'IT 영어학습', path: ROUTES.LEARN, key: 'learn' },
   { label: '북마크', path: ROUTES.BOOKMARK, key: 'bookmark' },
   { label: '마이페이지', path: ROUTES.MYPAGE, key: 'mypage' },
 ]
