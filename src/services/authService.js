@@ -50,7 +50,6 @@ export async function signup(userData) {
     email: userData.email,
     password: userData.password,
     name: userData.name,
-    emailVerificationCode: userData.emailVerificationCode,
     passwordConfirm: userData.passwordConfirm,
     agreeToTerms: userData.agreeToTerms,
     agreeToPrivacy: userData.agreeToPrivacy,

@@ -12,7 +12,8 @@ export default function CreateRoleplayDialog({
   onSituationChange,
   onStart,
   loading = false,
-  errorMessage = null
+  errorMessage = null,
+  successMessage = null
 }) {
   return (
     <Dialog
@@ -180,7 +181,7 @@ export default function CreateRoleplayDialog({
                 gap: 0.5
               }}
             >
-              목적 상황
+              상황
             </Typography>
             <TextField
               fullWidth
@@ -225,6 +226,11 @@ export default function CreateRoleplayDialog({
           {errorMessage && (
             <Alert severity="error" sx={{ mt: 1 }}>
               {errorMessage}
+            </Alert>
+          )}
+          {successMessage && (
+            <Alert severity="success" sx={{ mt: 1 }}>
+              {successMessage}
             </Alert>
           )}
         </Stack>

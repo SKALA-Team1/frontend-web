@@ -232,14 +232,6 @@ export default function useSignupForm(onComplete, notification = null) {
       setErrors((prev) => ({ ...prev, email: '이메일을 입력해주세요.' }))
       return false
     }
-    if (!emailVerificationCode || emailVerificationCode.length !== 6) {
-      setErrors((prev) => ({ ...prev, emailVerificationCode: '인증 코드 6자리를 입력해주세요.' }))
-      return false
-    }
-    if (!emailVerified) {
-      setErrors((prev) => ({ ...prev, emailVerificationCode: '이메일 인증을 완료해주세요.' }))
-      return false
-    }
     
     // 비밀번호 검증
     const passwordError = validatePassword(signupPassword)
@@ -291,7 +283,6 @@ export default function useSignupForm(onComplete, notification = null) {
       const response = await signup({
         name,
         email: signupEmail,
-        emailVerificationCode,
         password: signupPassword,
         passwordConfirm: confirmPassword,
         agreeToTerms: agreeTerms,

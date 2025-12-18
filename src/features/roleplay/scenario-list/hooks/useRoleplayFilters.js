@@ -130,13 +130,27 @@ export default function useRoleplayFilters(tab, scenarios = [], startDate = null
       })
       
       // 그룹화된 결과와 subjectId가 없는 시나리오를 병합하여 반환
-      return [...result, ...ungroupedScenarios]
+      const merged = [...result, ...ungroupedScenarios]
+      
+      // 시간 내림차순 정렬 (최신순)
+      return merged.sort((a, b) => {
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0
+        return dateB - dateA // 내림차순 (최신이 먼저)
+      })
     }
 
     // created 탭은 프롬프트로 생성된 시나리오만 표시 + 날짜 필터 적용
-    return scenarios.filter((item) => 
+    const createdScenarios = scenarios.filter((item) => 
       (item.creationType === 'PROMPT' || item.creationType === 'prompt') && matchesDateFilter(item)
     )
+    
+    // 시간 내림차순 정렬 (최신순)
+    return createdScenarios.sort((a, b) => {
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0
+      return dateB - dateA // 내림차순 (최신이 먼저)
+    })
   }, [tab, scenarios, startDate, endDate])
 
   return {

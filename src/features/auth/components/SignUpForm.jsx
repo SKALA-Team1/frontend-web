@@ -92,73 +92,13 @@ export default function SignUpForm(props) {
 
           <Box>
             <Typography variant="body2" sx={{ mb: 0.5 }}>이메일</Typography>
-            <Stack direction="row" spacing={1}>
-              <TextField
-                placeholder="이메일을 입력해주세요."
-                value={signupEmail}
-                onChange={handleEmailChange}
-                fullWidth
-                error={!!errors.email}
-                sx={{
-                  '& .MuiInputBase-input': {
-                    color: '#212121'
-                  },
-                  '& .MuiInputLabel-root': {
-                    color: 'rgba(0,0,0,0.6)'
-                  },
-                  '& .MuiOutlinedInput-root': {
-                    height: '56px',
-                    '& fieldset': {
-                      borderColor: 'rgba(0,0,0,0.23)'
-                    },
-                    '&:hover fieldset': {
-                      borderColor: 'rgba(0,0,0,0.4)'
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'rgba(124,108,255,0.8)'
-                    }
-                  }
-                }}
-              />
-              <Button 
-                variant="outlined" 
-                sx={{ 
-                  minWidth: 120, 
-                  py: 1.5,
-                  borderColor: 'rgba(124,108,255,0.5)',
-                  color: '#7C6CFF',
-                  '&:hover': {
-                    borderColor: '#7C6CFF',
-                    backgroundColor: 'rgba(124,108,255,0.04)'
-                  }
-                }} 
-                onClick={handleSendVerificationCode}
-                disabled={sendingCode || !signupEmail || !!errors.email}
-              >
-                {sendingCode ? <CircularProgress size={20} /> : '인증코드 발송'}
-              </Button>
-            </Stack>
-            {errors.email && (
-              <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
-                {errors.email}
-              </Typography>
-            )}
-          </Box>
-
-          
-          <Box>
-            <Typography variant="body2" sx={{ mb: 0.5 }}>이메일 인증 코드</Typography>
-            <Stack direction="row" spacing={1}>
             <TextField
-              type="text"
-              placeholder="이메일 인증 코드를 입력하세요"
-              value={emailVerificationCode}
-              onChange={handleEmailVerificationCodeChange}
-              error={!!errors.emailVerificationCode}
-              inputProps={{ maxLength: 6 }}
-                disabled={emailVerified}
+              placeholder="이메일을 입력해주세요."
+              value={signupEmail}
+              onChange={handleEmailChange}
+              fullWidth
+              error={!!errors.email}
               sx={{
-                  flex: 1,
                 '& .MuiInputBase-input': {
                   color: '#212121'
                 },
@@ -168,49 +108,20 @@ export default function SignUpForm(props) {
                 '& .MuiOutlinedInput-root': {
                   height: '56px',
                   '& fieldset': {
-                      borderColor: emailVerified ? 'rgba(76,175,80,0.5)' : 'rgba(0,0,0,0.23)'
+                    borderColor: 'rgba(0,0,0,0.23)'
                   },
                   '&:hover fieldset': {
-                      borderColor: emailVerified ? 'rgba(76,175,80,0.7)' : 'rgba(124,108,255,0.4)'
+                    borderColor: 'rgba(0,0,0,0.4)'
                   },
                   '&.Mui-focused fieldset': {
-                      borderColor: emailVerified ? 'rgba(76,175,80,0.8)' : '#7C6CFF'
+                    borderColor: 'rgba(124,108,255,0.8)'
                   }
                 }
               }}
             />
-              <Button 
-                variant="outlined" 
-                sx={{ 
-                  minWidth: 100, 
-                  py: 1.5,
-                  borderColor: emailVerified ? 'rgba(76,175,80,0.5)' : 'rgba(124,108,255,0.5)',
-                  color: emailVerified ? '#4CAF50' : '#7C6CFF',
-                  '&:hover': {
-                    borderColor: emailVerified ? 'rgba(76,175,80,0.7)' : '#7C6CFF',
-                    backgroundColor: emailVerified ? 'rgba(76,175,80,0.04)' : 'rgba(124,108,255,0.04)'
-                  }
-                }} 
-                onClick={handleVerifyCode}
-                disabled={verifyingCode || !emailVerificationCode || emailVerificationCode.length !== 6 || emailVerified}
-              >
-                {verifyingCode ? (
-                  <CircularProgress size={20} />
-                ) : emailVerified ? (
-                  '인증완료'
-                ) : (
-                  '인증확인'
-                )}
-              </Button>
-            </Stack>
-            {errors.emailVerificationCode && (
+            {errors.email && (
               <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
-                {errors.emailVerificationCode}
-              </Typography>
-            )}
-            {emailVerified && (
-              <Typography variant="caption" color="success.main" sx={{ mt: 0.5, display: 'block' }}>
-                이메일 인증이 완료되었습니다.
+                {errors.email}
               </Typography>
             )}
           </Box>

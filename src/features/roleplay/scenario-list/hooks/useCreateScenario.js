@@ -13,8 +13,7 @@ import { requestPromptScenario } from '../../../../services/roleplayService'
  *   - situation: string - 목적 상황 입력값
  *   - createLoading: boolean - 시나리오 생성 중 상태
  *   - createError: string | null - 시나리오 생성 에러 메시지
- *   - creationToast: string | null - 시나리오 생성 성공 토스트 메시지
- *   - clearCreationToast: Function - 토스트 메시지 제거 핸들러
+ *   - createSuccess: boolean - 시나리오 생성 성공 상태
  *   - handleOpenCreate: Function - 생성 다이얼로그 열기 핸들러
  *   - handleCloseCreate: Function - 생성 다이얼로그 닫기 핸들러
  *   - handleAiRoleChange: Function - AI 역할 변경 핸들러
@@ -38,7 +37,7 @@ export default function useCreateScenario(scenarios = [], options = {}) {
 
   const [createLoading, setCreateLoading] = React.useState(false)
   const [createError, setCreateError] = React.useState(null)
-  const [creationToast, setCreationToast] = React.useState(null)
+  const [createSuccess, setCreateSuccess] = React.useState(false)
   
   // 롤플레잉 시작 확인 다이얼로그 상태
   const [openStartConfirm, setOpenStartConfirm] = React.useState(false)
@@ -109,20 +108,17 @@ export default function useCreateScenario(scenarios = [], options = {}) {
         throw new Error(response?.message || '시나리오 생성에 실패했습니다.')
       }
 
-      // 시나리오 생성 성공 - 롤플레잉 시작 확인 다이얼로그 표시
-      setCreatedScenario({
-        scenarioId: response.scenarioId,
-        title: `${trimmedMyRole} - ${trimmedAiRole}`,
-        body: trimmedSituation || `AI 역할 ${trimmedAiRole}와의 대화`,
-        aiRole: trimmedAiRole,
-        myRole: trimmedMyRole
-      })
-      setOpenStartConfirm(true)
-
-      setAiRole('')
-      setMyRole('')
-      setSituation('')
-      setOpenCreate(false)
+      // 시나리오 생성 성공 - 모달창 내에서 성공 메시지 표시
+      setCreateSuccess(true)
+      
+      // 2초 후 모달 닫기
+      setTimeout(() => {
+        setCreateSuccess(false)
+        setAiRole('')
+        setMyRole('')
+        setSituation('')
+        setOpenCreate(false)
+      }, 2000)
 
       if (typeof onScenarioCreated === 'function') {
         onScenarioCreated()
@@ -134,13 +130,6 @@ export default function useCreateScenario(scenarios = [], options = {}) {
     }
   }, [aiRole, myRole, situation, onScenarioCreated])
 
-  React.useEffect(() => {
-    if (!creationToast) return
-    const timer = setTimeout(() => setCreationToast(null), 5000)
-    return () => clearTimeout(timer)
-  }, [creationToast])
-
-  const clearCreationToast = React.useCallback(() => setCreationToast(null), [])
 
   /**
    * 롤플레잉 시작 확인 다이얼로그에서 "예" 선택 핸들러
@@ -177,8 +166,7 @@ export default function useCreateScenario(scenarios = [], options = {}) {
     situation,
     createLoading,
     createError,
-    creationToast,
-    clearCreationToast,
+    createSuccess,
     handleOpenCreate,
     handleCloseCreate,
     handleAiRoleChange,
