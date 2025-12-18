@@ -23,7 +23,8 @@ export default function SessionView({
   visemeQueue = null,
   audioRef = null,
   onFetchKeywords = () => {},
-  aiRole = 'AI' // AI 역할 (기본값: 'AI')
+  aiRole = 'AI', // AI 역할 (기본값: 'AI')
+  initialInputMode = null // 초기 입력 모드 ('text' | 'voice' | null)
 }) {
   return (
     <Box
@@ -54,6 +55,7 @@ export default function SessionView({
           onKeyboardToggle={onKeyboardToggle}
           onMicToggle={onKeyboardToggle}
           isKeyboardMode={isKeyboardMode}
+          showModeToggle={initialInputMode !== 'text'} // 초기 모드가 텍스트가 아니면 전환 버튼 표시
         />
       ) : (
         <MicButton 
@@ -61,6 +63,7 @@ export default function SessionView({
           isRecording={isRecording}
           onKeyboardToggle={onKeyboardToggle}
           isKeyboardMode={isKeyboardMode}
+          showModeToggle={initialInputMode !== 'voice'} // 초기 모드가 음성이 아니면 전환 버튼 표시
         />
       )}
     </Box>

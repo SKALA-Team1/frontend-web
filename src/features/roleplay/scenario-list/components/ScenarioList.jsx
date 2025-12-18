@@ -61,7 +61,7 @@ function ScenarioList({
     setAccentDialogOpen(true)
   }, [])
 
-  const handleAccentSelected = useCallback((voiceId) => {
+  const handleAccentSelected = useCallback((voiceId, inputMode) => {
     if (!selectedScenario) return
 
     // 그룹화된 Detail 시나리오인 경우, 선택된 AI 역할의 scenarioId 사용
@@ -78,7 +78,7 @@ function ScenarioList({
     }
     
     const body = selectedScenario.description || selectedScenario.summary || `AI 역할 ${aiRole}과의 대화`
-    onStartRoleplay(selectedScenario.title, body, scenarioId, voiceId)
+    onStartRoleplay(selectedScenario.title, body, scenarioId, voiceId, inputMode)
     setSelectedScenario(null)
   }, [onStartRoleplay, selectedAiRoleIndices, selectedScenario])
 
