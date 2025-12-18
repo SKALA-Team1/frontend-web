@@ -11,7 +11,7 @@ export default function EndSessionDialog({
       <DialogTitle sx={{ fontWeight: 700 }}>종료하시겠습니까?</DialogTitle>
       <DialogContent>
         <Typography variant="body2" color="text.primary">
-          현재 진행 중인 롤플레잉이 종료됩니다. 저장된 내용은 유지되지 않습니다.
+          현재 진행 중인 롤플레이가 종료됩니다. 저장된 내용은 유지되지 않습니다.
         </Typography>
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>

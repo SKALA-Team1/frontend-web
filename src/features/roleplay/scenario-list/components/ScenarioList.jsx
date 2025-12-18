@@ -24,6 +24,7 @@ import PersonIcon from '@mui/icons-material/Person'
 import SmartToyIcon from '@mui/icons-material/SmartToy'
 import SlackIntegrationPrompt from './SlackIntegrationPrompt'
 import SlackChannelSelectDialog from './SlackChannelSelectDialog'
+import AccentSelectionDialog from './AccentSelectionDialog'
 
 function ScenarioList({
   tab,
@@ -50,23 +51,36 @@ function ScenarioList({
   const [channelSelectOpen, setChannelSelectOpen] = useState(false)
   const [channelSelected, setChannelSelected] = useState(false)
 
+  // 억양 선택 모달 상태
+  const [accentDialogOpen, setAccentDialogOpen] = useState(false)
+  const [selectedScenario, setSelectedScenario] = useState(null)
+
   const handleStart = useCallback((item) => {
+    // 억양 선택 모달 열기
+    setSelectedScenario(item)
+    setAccentDialogOpen(true)
+  }, [])
+
+  const handleAccentSelected = useCallback((voiceId) => {
+    if (!selectedScenario) return
+
     // 그룹화된 Detail 시나리오인 경우, 선택된 AI 역할의 scenarioId 사용
-    let scenarioId = item.scenarioId || 1
-    let aiRole = item.aiRole
+    let scenarioId = selectedScenario.scenarioId || 1
+    let aiRole = selectedScenario.aiRole
     
-    if (item.isGrouped && item.groupType === 'detail' && item.availableAiRoles) {
-      const selectedIndex = selectedAiRoleIndices[item.scenarioId] ?? item.selectedAiRoleIndex ?? 0
-      const selectedRole = item.availableAiRoles[selectedIndex]
+    if (selectedScenario.isGrouped && selectedScenario.groupType === 'detail' && selectedScenario.availableAiRoles) {
+      const selectedIndex = selectedAiRoleIndices[selectedScenario.scenarioId] ?? selectedScenario.selectedAiRoleIndex ?? 0
+      const selectedRole = selectedScenario.availableAiRoles[selectedIndex]
       if (selectedRole) {
         scenarioId = selectedRole.scenarioId
         aiRole = selectedRole.aiRole
       }
     }
     
-    const body = item.description || item.summary || `AI 역할 ${aiRole}과의 대화`
-    onStartRoleplay(item.title, body, scenarioId)
-  }, [onStartRoleplay, selectedAiRoleIndices])
+    const body = selectedScenario.description || selectedScenario.summary || `AI 역할 ${aiRole}과의 대화`
+    onStartRoleplay(selectedScenario.title, body, scenarioId, voiceId)
+    setSelectedScenario(null)
+  }, [onStartRoleplay, selectedAiRoleIndices, selectedScenario])
 
   const handleAiRoleChange = useCallback((scenarioId, index) => {
     setSelectedAiRoleIndices(prev => ({
@@ -426,6 +440,17 @@ function ScenarioList({
           )}
         </Stack>
       )}
+
+      {/* 억양 선택 모달 */}
+      <AccentSelectionDialog
+        open={accentDialogOpen}
+        onClose={() => {
+          setAccentDialogOpen(false)
+          setSelectedScenario(null)
+        }}
+        onStart={handleAccentSelected}
+        scenarioTitle={selectedScenario?.title || ''}
+      />
     </>
   )
 }

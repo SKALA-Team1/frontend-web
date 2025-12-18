@@ -940,7 +940,7 @@ export default function useRoleplaySession(options = {}) {
   /**
    * 마이크로 롤플레이 세션 시작
    */
-  const startWithMic = async (title, body, scenarioId = 1) => {
+  const startWithMic = async (title, body, scenarioId = 1, voiceId = null) => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
       if (stream) stream.getTracks().forEach(t => t.stop())
@@ -955,7 +955,7 @@ export default function useRoleplaySession(options = {}) {
       pendingFirstMessageRef.current = null
       isFirstTTSAudioRef.current = true // 첫 TTS 오디오 플래그 리셋
 
-      const sessionData = await startSession(scenarioId)
+      const sessionData = await startSession(scenarioId, 'default', voiceId)
       setSessionInfo(sessionData)
       // AI 역할 저장 (시나리오의 ai_role 사용, 없으면 기본값 'AI')
       setSelectedAiRole(sessionData?.scenario?.ai_role || 'AI')
