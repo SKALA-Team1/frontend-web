@@ -115,13 +115,20 @@ export default function AppDrawer({
             component="img"
             src={skuseMeLogo}
             alt="SKuse ME"
+            onClick={() => onNavigate(ROUTES.ROLEPLAYING)}
             sx={{
               width: '100%',
               maxWidth: '140px',
               height: 'auto',
               objectFit: 'contain',
               mb: 3,
-              filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
+              filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))',
+              cursor: 'pointer',
+              transition: 'transform 0.2s ease, filter 0.2s ease',
+              '&:hover': {
+                transform: 'scale(1.05)',
+                filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.15))',
+              }
             }}
           />
           
