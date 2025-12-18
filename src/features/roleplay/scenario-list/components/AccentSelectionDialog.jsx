@@ -56,13 +56,13 @@ export default function AccentSelectionDialog({
         시작 설정
       </DialogTitle>
       <DialogContent>
-        <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
           <Typography 
             variant="body2" 
             color="text.secondary" 
             sx={{ 
               mb: 1,
-              fontSize: '1.3rem', // body2 기본 크기(0.875rem)의 약 2배
+              fontSize: '1.1rem',
               textAlign: 'center',
               fontWeight: 500
             }}
@@ -89,7 +89,7 @@ export default function AccentSelectionDialog({
 
           {/* 텍스트 모드 / 음성 모드 선택 */}
           <FormControl component="fieldset" fullWidth>
-            <Typography variant="body2" sx={{ mb: 1.5, fontWeight: 500 }}>
+            <Typography variant="body2" sx={{ mt: 2, fontWeight: 500 }}>
               입력방법
             </Typography>
             <RadioGroup
@@ -102,8 +102,8 @@ export default function AccentSelectionDialog({
                 label="음성 모드"
                 sx={{
                   '& .MuiFormControlLabel-label': {
-                    fontSize: '0.9375rem',
-                    fontWeight: 500
+                    fontSize: '0.8rem',
+                    fontWeight: 450
                   }
                 }}
               />
@@ -114,8 +114,8 @@ export default function AccentSelectionDialog({
                 sx={{
                   mb: 1,
                   '& .MuiFormControlLabel-label': {
-                    fontSize: '0.9375rem',
-                    fontWeight: 500
+                    fontSize: '0.8rem',
+                    fontWeight: 450
                   }
                 }}
               />
@@ -123,8 +123,8 @@ export default function AccentSelectionDialog({
           </FormControl>
         </Box>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>취소</Button>
+      <DialogActions sx={{ px: 3, pb: 2 }}>
+        <Button onClick={onClose} sx={{ border: '1px solid #7C6CFF' }}>취소</Button>
         <Button variant="contained" onClick={handleStart}>
           시작
         </Button>

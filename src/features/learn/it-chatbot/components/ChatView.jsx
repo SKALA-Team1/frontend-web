@@ -61,9 +61,7 @@ export default function ChatView({ compact = false, currentQuestion = null }) {
       {/* 헤더 - Drawer 안에서는 헤더 제거 (PracticeView에서 처리) */}
       {messages.length > 0 && !compact && (
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-          <Button startIcon={<RefreshIcon />} onClick={reset} variant="outlined" size="small">
-            새 대화
-          </Button>
+ 
         </Box>
       )}
 
