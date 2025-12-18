@@ -14,6 +14,7 @@ export default function useScenarioData() {
   const [error, setError] = useState(null)
   const [isSlackIntegrated, setIsSlackIntegrated] = useState(false)
   const [userJobRole, setUserJobRole] = useState(null)
+  const [userName, setUserName] = useState('')
 
   const normalizeScenario = useCallback((item) => {
     const createdAt = item.createdAt || item.created_at || null
@@ -53,12 +54,14 @@ export default function useScenarioData() {
         throw new Error('로그인이 필요합니다.')
       }
 
-      // 1-1. 사용자 정보 조회 (jobRole 가져오기)
+      // 1-1. 사용자 정보 조회 (jobRole, name 가져오기)
       try {
         const userInfo = await getCurrentUser()
         setUserJobRole(userInfo.job_role || userInfo.jobRole || null)
+        setUserName(userInfo.name || userInfo.username || '사용자')
       } catch (userError) {
         setUserJobRole(null)
+        setUserName('사용자')
       }
 
       // 2. 시나리오 먼저 로드 시도 (시나리오가 있으면 Slack 연동 여부와 관계없이 표시)
@@ -101,7 +104,8 @@ export default function useScenarioData() {
 
   useEffect(() => {
     loadScenarios()
-  }, [loadScenarios])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // 마운트 시 한 번만 실행
 
   return {
     scenarios,
@@ -109,6 +113,7 @@ export default function useScenarioData() {
     error,
     isSlackIntegrated,
     userJobRole,
+    userName,
     refresh: loadScenarios
   }
 }
