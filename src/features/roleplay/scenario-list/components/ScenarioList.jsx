@@ -372,7 +372,7 @@ function ScenarioList({
                             <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.125 }}>
                               생성날짜
                             </Typography>
-                            <Typography variant="body2" fontWeight={500} color="text.secondary">
+                            <Typography variant="body2" fontWeight={500} color="#212121">
                               {item.createdAtLabel || item.date || '날짜 정보 없음'}
                             </Typography>
                           </Box>

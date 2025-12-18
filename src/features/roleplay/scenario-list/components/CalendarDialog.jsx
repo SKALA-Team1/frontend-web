@@ -37,7 +37,15 @@ export default function CalendarDialog({
 
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="xs">
-      <DialogTitle>기간 선택</DialogTitle>
+      <DialogTitle 
+        sx={{ 
+          textAlign: 'center',
+          fontSize: '1.5rem',
+          fontWeight: 500
+        }}
+      >
+        기간 선택
+      </DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
           <TextField
@@ -49,7 +57,7 @@ export default function CalendarDialog({
             InputLabelProps={{ shrink: true }}
           />
           <TextField
-            label="끝 날짜"
+            label="종료 날짜"
             type="date"
             fullWidth
             value={tempEndDate}
@@ -58,9 +66,11 @@ export default function CalendarDialog({
           />
         </Stack>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose}>닫기</Button>
-        <Button variant="contained" onClick={handleApply}>적용</Button>
+      <DialogActions sx={{ px: 3, pb: 2 }}>
+        <Button onClick={handleClose} sx={{border: '1px solid #7C6CFF'}}>취소</Button>
+        <Button variant="contained" onClick={handleApply}>
+          적용
+        </Button>
       </DialogActions>
     </Dialog>
   )

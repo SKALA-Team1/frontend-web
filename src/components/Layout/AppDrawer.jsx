@@ -166,7 +166,7 @@ export default function AppDrawer({
             <Typography 
               variant="caption" 
               sx={{ 
-                color: 'rgba(0,0,0,0.6)',
+                color: '#212121',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
@@ -260,22 +260,22 @@ export default function AppDrawer({
             fullWidth
             onClick={handleLogout}
             sx={{
-              color: '#FF6B6B',
-              borderColor: 'rgba(255,107,107,0.3)',
+              color: '#7C6CFF',
+              borderColor: 'rgba(124,108,255,0.3)',
               borderWidth: 2,
               borderRadius: 1.25,
               py: 1.25,
               justifyContent: 'center',
               fontWeight: 600,
               fontSize: '0.875rem',
-              background: 'linear-gradient(135deg, rgba(255,107,107,0.05) 0%, rgba(255,82,82,0.03) 100%)',
+              background: 'linear-gradient(135deg, rgba(124,108,255,0.05) 0%, rgba(75,60,248,0.03) 100%)',
               transition: 'all 0.3s ease',
               '&:hover': {
-                background: 'linear-gradient(135deg, rgba(255,107,107,0.12) 0%, rgba(255,82,82,0.08) 100%)',
-                borderColor: 'rgba(255,107,107,0.5)',
+                background: 'linear-gradient(135deg, rgba(124,108,255,0.12) 0%, rgba(75,60,248,0.08) 100%)',
+                borderColor: 'rgba(124,108,255,0.5)',
                 borderWidth: 2,
                 transform: 'translateY(-2px)',
-                boxShadow: '0 4px 12px rgba(255,107,107,0.2)',
+                boxShadow: '0 4px 12px rgba(124,108,255,0.2)',
               },
             }}
           >
