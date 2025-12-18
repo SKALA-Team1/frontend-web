@@ -15,6 +15,7 @@
  */
 
 import * as httpClient from './httpClient'
+import { setAccessToken, clearAccessToken, getAccessToken } from './httpClient'
 import { API_ENDPOINTS, STORAGE_KEYS } from '../config/constants'
 
 /**
@@ -82,7 +83,10 @@ export async function login(email, password) {
     const accessToken = response.accessToken || response.access_token
     const refreshToken = response.refreshToken || response.refresh_token
 
+    console.log('[authService] 로그인 성공 - Access Token 저장:', accessToken ? '있음' : '없음')
     saveTokens(accessToken, refreshToken)
+  } else {
+    console.warn('[authService] 로그인 응답에 Access Token이 없습니다:', response)
   }
 
   return response
@@ -120,36 +124,42 @@ export async function getGoogleLoginUrl() {
 
 /**
  * 로그아웃
- * 백엔드에 로그아웃 요청을 보내고, 성공/실패 여부와 관계없이 로컬 토큰을 제거합니다.
+ * 백엔드에 로그아웃 요청을 보내고, 성공/실패 여부와 관계없이 모든 토큰을 제거합니다.
+ * 
+ * 삭제되는 토큰:
+ * - Access Token: 메모리에서 제거
+ * - Refresh Token: 백엔드에서 httpOnly 쿠키 삭제
+ * 
  * @returns {Promise<void>}
  */
 export async function logout() {
   try {
-    // 백엔드에 로그아웃 요청 (Refresh Token 무효화)
+    // 백엔드에 로그아웃 요청 (Refresh Token 쿠키 삭제 및 무효화)
     const url = `${API_ENDPOINTS.GATEWAY}/auth/logout`
-    await httpClient.post(url, {}, { skipAuth: false }) // 인증 필요 (JWT 토큰 포함)
+    await httpClient.post(url, {}, { skipAuth: false }) // 인증 필요 (Access Token 헤더 + Refresh Token 쿠키)
+    console.log('[authService] 로그아웃 성공 - 백엔드에서 Refresh Token 쿠키 삭제됨')
   } catch (error) {
-    // 백엔드 요청 실패해도 로컬 토큰은 제거 (사용자는 로그아웃됨)
-    console.warn('로그아웃 API 호출 실패 (로컬 토큰은 제거됨):', error)
+    // 백엔드 요청 실패해도 메모리 토큰은 제거
+    console.warn('[authService] 로그아웃 API 호출 실패, 하지만 로컬 토큰은 제거합니다:', error)
   } finally {
-    // 성공/실패 여부와 관계없이 로컬 토큰 제거
-    localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN)
-    localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN)
+    // 메모리에서 Access Token 제거 (항상 실행)
+    clearAccessToken()
+    console.log('[authService] Access Token 메모리에서 제거 완료')
+    // Refresh Token은 백엔드에서 httpOnly 쿠키로 삭제됨
   }
 }
 
 /**
  * 토큰 저장
- * @param {string} accessToken - Access Token
- * @param {string} refreshToken - Refresh Token
+ * @param {string} accessToken - Access Token (메모리에 저장)
+ * @param {string} refreshToken - Refresh Token (백엔드에서 httpOnly 쿠키로 설정)
  */
 function saveTokens(accessToken, refreshToken) {
+  // Access Token은 메모리에 저장 (페이지 새로고침 시 사라짐)
   if (accessToken) {
-    localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, accessToken)
+    setAccessToken(accessToken)
   }
-  if (refreshToken) {
-    localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, refreshToken)
-  }
+  // Refresh Token은 백엔드에서 httpOnly 쿠키로 설정되므로 프론트엔드에서 저장 불필요
 }
 
 /**
@@ -158,8 +168,8 @@ function saveTokens(accessToken, refreshToken) {
  */
 export function getStoredTokens() {
   return {
-    accessToken: localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN),
-    refreshToken: localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN),
+    accessToken: getAccessToken(),  // 메모리에서 읽기
+    refreshToken: null,  // httpOnly 쿠키는 JavaScript로 접근 불가
   }
 }
 
@@ -168,7 +178,7 @@ export function getStoredTokens() {
  * @returns {boolean}
  */
 export function isAuthenticated() {
-  const { accessToken } = getStoredTokens()
+  const accessToken = getAccessToken()
   return !!accessToken
 }
 

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Box, CircularProgress, Typography } from '@mui/material'
-import { ROUTES, STORAGE_KEYS } from '../../../config/constants'
+import { ROUTES } from '../../../config/constants'
 import { getCurrentUser } from '../../../services/userService'
+import { setAccessToken } from '../../../services/httpClient'
 
 export default function GoogleCallbackPage() {
   const navigate = useNavigate()
@@ -12,7 +13,6 @@ export default function GoogleCallbackPage() {
   useEffect(() => {
     const handleCallback = async () => {
       const accessToken = searchParams.get('access_token')
-      const refreshToken = searchParams.get('refresh_token')
       const error = searchParams.get('error')
 
       if (error) {
@@ -22,23 +22,21 @@ export default function GoogleCallbackPage() {
         return
       }
 
-      if (!accessToken || !refreshToken) {
-        // 토큰이 없으면 로그인 페이지로 리다이렉트
-        console.error('Google OAuth callback: 토큰을 받지 못했습니다.')
+      if (!accessToken) {
+        // Access Token이 없으면 로그인 페이지로 리다이렉트
+        // Refresh Token은 백엔드에서 쿠키로 설정됨
+        console.error('Google OAuth callback: Access Token을 받지 못했습니다.')
         navigate(ROUTES.LOGIN, { replace: true })
         return
       }
 
-      // 토큰 저장 (URL 디코딩된 토큰 사용)
+      // Access Token을 메모리에 저장 (URL 디코딩된 토큰 사용)
       const decodedAccessToken = decodeURIComponent(accessToken)
-      const decodedRefreshToken = decodeURIComponent(refreshToken)
+      setAccessToken(decodedAccessToken)
       
-      localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, decodedAccessToken)
-      localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, decodedRefreshToken)
-      
-      console.log('토큰 저장 완료:', {
-        accessTokenLength: decodedAccessToken.length,
-        refreshTokenLength: decodedRefreshToken.length
+      // Refresh Token은 백엔드에서 httpOnly 쿠키로 설정되므로 프론트엔드에서 저장 불필요
+      console.log('Access Token 저장 완료 (메모리):', {
+        accessTokenLength: decodedAccessToken.length
       })
 
       try {
