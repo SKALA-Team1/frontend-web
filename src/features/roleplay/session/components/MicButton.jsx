@@ -87,24 +87,24 @@ export default function MicButton({
         <IconButton
           color="primary"
           onClick={onClick}
-          disabled={isTTSPlaying}
+          disabled={isTTSPlaying || isEvaluating}
           sx={{
             width: 64,
             height: 64,
             border: isRecording ? 'none' : '1px solid rgba(0,0,0,0.2)',
             background: isRecording 
               ? 'linear-gradient(135deg, #FF6B6B 0%, #FF5252 100%)' 
-              : isTTSPlaying 
+              : (isTTSPlaying || isEvaluating) 
                 ? '#f5f5f5' 
                 : '#FFFFFF',
-            color: isRecording ? '#FFFFFF' : isTTSPlaying ? '#9e9e9e' : '#212121',
+            color: isRecording ? '#FFFFFF' : (isTTSPlaying || isEvaluating) ? '#9e9e9e' : '#212121',
             borderRadius: '50%',
             boxShadow: 'none',
             transition: 'transform 0.15s ease',
             '&:hover': { 
               background: isRecording 
                 ? 'linear-gradient(135deg, #FF7B7B 0%, #FF6262 100%)' 
-                : isTTSPlaying
+                : (isTTSPlaying || isEvaluating)
                   ? '#f5f5f5'
                   : '#f5f5f5',
               borderColor: isRecording ? 'none' : 'rgba(0,0,0,0.3)'

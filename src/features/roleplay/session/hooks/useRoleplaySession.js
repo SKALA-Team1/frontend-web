@@ -478,12 +478,12 @@ export default function useRoleplaySession(options = {}) {
     const isFixedQuestion = message.is_fixed_question || false
     const recommendedKeywords = message.recommended_keywords || message.recommendedKeywords || null
     
-    // 재질문인지 확인: 바로 이전 메시지가 피드백 메시지인지 확인
-    const isRetryQuestion = messages.length > 0 && 
+    // 재질문인지 확인: 백엔드 플래그 우선, 없으면 이전 메시지 내용으로 판단 (fallback)
+    const isRetryQuestion = message.is_retry_question || (messages.length > 0 && 
       messages[messages.length - 1].who === 'AI' && 
       messages[messages.length - 1].feedbackSections && 
       Array.isArray(messages[messages.length - 1].feedbackSections) && 
-      messages[messages.length - 1].feedbackSections.length > 0
+      messages[messages.length - 1].feedbackSections.length > 0)
     
     if (!isAvatarLoaded && messages.length === 0) {
       pendingFirstMessageRef.current = {
@@ -1326,7 +1326,7 @@ export default function useRoleplaySession(options = {}) {
         
         scriptProcessor.onaudioprocess = (event) => {
           const currentWs = wsConnection
-          if (!currentWs || currentWs.readyState !== WebSocket.OPEN || !isInitialized) {
+          if (!currentWs || currentWs.readyState !== WebSocket.OPEN || !isInitialized || !isRecordingRef.current) {
             return
           }
           
