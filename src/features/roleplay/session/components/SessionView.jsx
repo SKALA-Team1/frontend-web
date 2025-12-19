@@ -24,7 +24,8 @@ export default function SessionView({
   audioRef = null,
   onFetchKeywords = () => {},
   aiRole = 'AI', // AI 역할 (기본값: 'AI')
-  initialInputMode = null // 초기 입력 모드 ('text' | 'voice' | null)
+  initialInputMode = null, // 초기 입력 모드 ('text' | 'voice' | null)
+  isEvaluating = false // 평가 중 여부
 }) {
   return (
     <Box
@@ -57,6 +58,7 @@ export default function SessionView({
           isKeyboardMode={isKeyboardMode}
           showModeToggle={initialInputMode !== 'text'} // 초기 모드가 텍스트가 아니면 전환 버튼 표시
           isTTSPlaying={isTTSPlaying}
+          isEvaluating={isEvaluating}
         />
       ) : (
         <MicButton 
@@ -66,6 +68,7 @@ export default function SessionView({
           isKeyboardMode={isKeyboardMode}
           showModeToggle={initialInputMode !== 'voice'} // 초기 모드가 음성이 아니면 전환 버튼 표시
           isTTSPlaying={isTTSPlaying}
+          isEvaluating={isEvaluating}
         />
       )}
     </Box>

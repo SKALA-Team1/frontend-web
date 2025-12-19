@@ -116,6 +116,7 @@ export default function useRoleplaySession(options = {}) {
   const lipSyncDelayTimeoutRef = useRef(null)
   const lipSyncEndTimeoutRef = useRef(null)
   const isFirstTTSAudioRef = useRef(true) // 첫 TTS 오디오인지 추적
+  const retryTTSDelayTimeoutRef = useRef(null) // 재질문 TTS 지연 재생용
 
   // ========================================
   // 유틸리티 함수
@@ -162,7 +163,7 @@ export default function useRoleplaySession(options = {}) {
    * 타이핑 효과 후 TTS 재생까지 처리
    * 첫 질문(isFixedQuestion=true)인 경우 타이핑 효과 없이 즉시 표시하고 TTS 재생
    */
-  const addAIMessage = (text, translation, isFixedQuestion = false, isStreaming = false, recommendedKeywords = null) => {
+  const addAIMessage = (text, translation, isFixedQuestion = false, isStreaming = false, recommendedKeywords = null, isRetryQuestion = false) => {
     let skipTyping = false
     
     setMessages(prev => {
@@ -176,7 +177,8 @@ export default function useRoleplaySession(options = {}) {
         isFixedQuestion,
         isStreaming,
         skipTyping, // 타이핑 효과 스킵 플래그
-        recommendedKeywords // 추천 키워드 (scenario_message 테이블에서 가져옴)
+        recommendedKeywords, // 추천 키워드 (scenario_message 테이블에서 가져옴)
+        isRetryQuestion // 재질문 플래그
       }]
     })
 
@@ -344,13 +346,44 @@ export default function useRoleplaySession(options = {}) {
         })
       }
       
-      // 첫 TTS 오디오인 경우 2초 딜레이, 아니면 즉시 재생
-      if (isFirstTTSAudioRef.current) {
+      // 재질문인지 확인: 마지막 메시지가 재질문인지 확인
+      const lastMessage = messages[messages.length - 1]
+      const isRetryQuestion = lastMessage && lastMessage.isRetryQuestion
+      
+      if (isRetryQuestion) {
+        // 재질문인 경우: 피드백 표시 완료 + 재질문 텍스트 타이핑 완료 후 TTS 재생
+        // 피드백 메시지 찾기
+        const feedbackMessage = [...messages].reverse().find(msg => 
+          msg.who === 'AI' && 
+          msg.feedbackSections && 
+          Array.isArray(msg.feedbackSections) && 
+          msg.feedbackSections.length > 0
+        )
+        
+        // 피드백 섹션 표시 시간 계산 (각 섹션이 순서대로 표시되는 시간)
+        const SECTION_DISPLAY_DELAY = 300 // 각 섹션 표시 간격 (ms)
+        const feedbackDisplayDuration = feedbackMessage ? feedbackMessage.feedbackSections.length * SECTION_DISPLAY_DELAY : 0
+        
+        // 재질문 텍스트의 타이핑 시간 계산
+        const retryText = lastMessage.text || ''
+        const retryTypingDuration = retryText.length * TYPING_SPEED_MS_PER_CHAR + TYPING_DELAY_MS
+        
+        // 총 대기 시간: 피드백 표시 + 재질문 타이핑 + 여유 시간
+        const totalWaitTime = feedbackDisplayDuration + retryTypingDuration + 500
+        
+        // 지연 후 TTS 재생
+        clearTimeoutRef(retryTTSDelayTimeoutRef)
+        retryTTSDelayTimeoutRef.current = setTimeout(() => {
+          playAudio()
+        }, totalWaitTime)
+      } else if (isFirstTTSAudioRef.current) {
+        // 첫 TTS 오디오인 경우 2초 딜레이
         isFirstTTSAudioRef.current = false // 다음부터는 즉시 재생
         setTimeout(() => {
           playAudio()
         }, 2000) // 2초 딜레이
       } else {
+        // 일반 메시지는 즉시 재생
         playAudio()
       }
     } catch (error) {
@@ -438,9 +471,19 @@ export default function useRoleplaySession(options = {}) {
    * AI_TEXT 메시지 처리
    */
   const handleAIText = (message) => {
+    // AI 응답이 도착하면 평가 중 상태 해제
+    setEvaluating(false)
+    
     const translationText = extractTranslation(message)
     const isFixedQuestion = message.is_fixed_question || false
     const recommendedKeywords = message.recommended_keywords || message.recommendedKeywords || null
+    
+    // 재질문인지 확인: 백엔드 플래그 우선, 없으면 이전 메시지 내용으로 판단 (fallback)
+    const isRetryQuestion = message.is_retry_question || (messages.length > 0 && 
+      messages[messages.length - 1].who === 'AI' && 
+      messages[messages.length - 1].feedbackSections && 
+      Array.isArray(messages[messages.length - 1].feedbackSections) && 
+      messages[messages.length - 1].feedbackSections.length > 0)
     
     if (!isAvatarLoaded && messages.length === 0) {
       pendingFirstMessageRef.current = {
@@ -477,13 +520,17 @@ export default function useRoleplaySession(options = {}) {
       return
     }
     
-    addAIMessage(message.text, translationText, isFixedQuestion, false, recommendedKeywords)
+    // 재질문인 경우 플래그 추가
+    addAIMessage(message.text, translationText, isFixedQuestion, false, recommendedKeywords, isRetryQuestion)
   }
 
   /**
    * AI_TEXT_STREAMING 메시지 처리
    */
   const handleAIStreaming = (message) => {
+    // AI 응답 스트리밍이 시작되면 평가 중 상태 해제
+    setEvaluating(false)
+    
     const streamingTranslation = extractTranslation(message)
     
     clearTimeoutRef(aiTypingTimeoutRef)
@@ -720,6 +767,9 @@ export default function useRoleplaySession(options = {}) {
    * RETRY_REQUIRED 메시지 처리
    */
   const handleRetryRequired = () => {
+    // 재시도 요청이 도착하면 평가 중 상태 해제 (피드백이 표시되므로)
+    setEvaluating(false)
+    
     needsCorrectionRef.current = true
     
     if (pendingFeedbackSectionsRef.current.length > 0) {
@@ -734,6 +784,9 @@ export default function useRoleplaySession(options = {}) {
    * 각 피드백 섹션이 생성될 때마다 즉시 화면에 표시하여 사용자 대기 시간 감소
    */
   const handleFeedbackSections = (message) => {
+    // 피드백이 도착하면 평가 중 상태 해제
+    setEvaluating(false)
+    
     storeFeedbackSections(message.sections)
     
     // 현재까지 모인 모든 피드백 섹션 가져오기 (정렬 포함)
@@ -807,6 +860,9 @@ export default function useRoleplaySession(options = {}) {
    * ERROR 메시지 처리
    */
   const handleError = (message) => {
+    // 에러 발생 시 평가 중 상태 해제
+    setEvaluating(false)
+    
     if (message.code === 'SILENCE_DETECTED') {
       console.info('음성이 감지되지 않았습니다. 다시 말씀해주세요.')
       setMessages(prev => {
@@ -1201,6 +1257,8 @@ export default function useRoleplaySession(options = {}) {
       text: userText
     }
     wsConnection.send(JSON.stringify(userMessage))
+    // 사용자 텍스트 전송 후 평가 중 상태로 설정
+    setEvaluating(true)
   }
 
   // ========================================
@@ -1268,7 +1326,7 @@ export default function useRoleplaySession(options = {}) {
         
         scriptProcessor.onaudioprocess = (event) => {
           const currentWs = wsConnection
-          if (!currentWs || currentWs.readyState !== WebSocket.OPEN || !isInitialized) {
+          if (!currentWs || currentWs.readyState !== WebSocket.OPEN || !isInitialized || !isRecordingRef.current) {
             return
           }
           
@@ -1382,6 +1440,8 @@ export default function useRoleplaySession(options = {}) {
           type: 'UTTERANCE_END'
         }
         wsConnection.send(JSON.stringify(utteranceEndMessage))
+        // UTTERANCE_END 메시지 전송 후 평가 중 상태로 설정
+        setEvaluating(true)
       } catch (error) {
         // UTTERANCE_END 메시지 전송 실패 무시
       }

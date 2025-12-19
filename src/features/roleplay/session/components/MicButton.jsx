@@ -9,7 +9,8 @@ export default function MicButton({
   onKeyboardToggle,
   isKeyboardMode = false,
   showModeToggle = true, // 모드 전환 버튼 표시 여부
-  isTTSPlaying = false // TTS 재생 중 여부
+  isTTSPlaying = false, // TTS 재생 중 여부
+  isEvaluating = false // 평가 중 여부
 }) {
   return (
     <Box 
@@ -48,8 +49,25 @@ export default function MicButton({
             녹음 중
           </Typography>
         )}
+        {/* 평가 중 텍스트 - 버튼 위쪽에 고정 */}
+        {isEvaluating && !isRecording && !isTTSPlaying && (
+          <Typography 
+            variant="caption" 
+            sx={{ 
+              position: 'absolute',
+              bottom: '100%',
+              mb: 0.75,
+              fontWeight: 600,
+              fontSize: '0.75rem',
+              color: 'rgba(124, 108, 255, 0.85)',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            평가하는 중
+          </Typography>
+        )}
         {/* TTS 재생 중 텍스트 - 버튼 위쪽에 고정 */}
-        {isTTSPlaying && !isRecording && (
+        {isTTSPlaying && !isRecording && !isEvaluating && (
           <Typography 
             variant="caption" 
             sx={{ 
@@ -69,24 +87,24 @@ export default function MicButton({
         <IconButton
           color="primary"
           onClick={onClick}
-          disabled={isTTSPlaying}
+          disabled={isTTSPlaying || isEvaluating}
           sx={{
             width: 64,
             height: 64,
             border: isRecording ? 'none' : '1px solid rgba(0,0,0,0.2)',
             background: isRecording 
               ? 'linear-gradient(135deg, #FF6B6B 0%, #FF5252 100%)' 
-              : isTTSPlaying 
+              : (isTTSPlaying || isEvaluating) 
                 ? '#f5f5f5' 
                 : '#FFFFFF',
-            color: isRecording ? '#FFFFFF' : isTTSPlaying ? '#9e9e9e' : '#212121',
+            color: isRecording ? '#FFFFFF' : (isTTSPlaying || isEvaluating) ? '#9e9e9e' : '#212121',
             borderRadius: '50%',
             boxShadow: 'none',
             transition: 'transform 0.15s ease',
             '&:hover': { 
               background: isRecording 
                 ? 'linear-gradient(135deg, #FF7B7B 0%, #FF6262 100%)' 
-                : isTTSPlaying
+                : (isTTSPlaying || isEvaluating)
                   ? '#f5f5f5'
                   : '#f5f5f5',
               borderColor: isRecording ? 'none' : 'rgba(0,0,0,0.3)'

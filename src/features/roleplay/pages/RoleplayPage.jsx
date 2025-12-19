@@ -227,6 +227,7 @@ export default function RoleplayPage() {
           onKeyboardToggle={session.toggleKeyboardMode}
           textInput={session.textInput}
           onTextInputChange={session.handleTextInputChange}
+          isEvaluating={session.evaluating}
           onSendMessage={session.sendMessage}
           isTTSPlaying={session.isTTSPlaying}
           onAvatarLoad={session.handleAvatarLoad}
@@ -249,8 +250,8 @@ export default function RoleplayPage() {
     )
   }
 
-  // 분석 중 화면
-  if (session.evaluating) {
+  // 분석 중 화면 (세션 중이 아닐 때만 전체 화면 표시)
+  if (session.evaluating && session.view !== 'session') {
     return (
       <Box
         sx={{

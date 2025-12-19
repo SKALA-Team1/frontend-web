@@ -12,19 +12,20 @@ export default function TextInputArea({
   isKeyboardMode = true,
   placeholder = "답변을 입력하세요...",
   showModeToggle = true, // 모드 전환 버튼 표시 여부
-  isTTSPlaying = false // TTS 재생 중 여부
+  isTTSPlaying = false, // TTS 재생 중 여부
+  isEvaluating = false // 평가 중 여부
 }) {
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
-      if (value.trim() && !isTTSPlaying) {
+      if (value.trim() && !isTTSPlaying && !isEvaluating) {
         onSend()
       }
     }
   }
 
   const handleSend = () => {
-    if (value.trim() && !isTTSPlaying) {
+    if (value.trim() && !isTTSPlaying && !isEvaluating) {
       onSend()
     }
   }
@@ -55,32 +56,32 @@ export default function TextInputArea({
           value={value}
           onChange={onChange}
           onKeyPress={handleKeyPress}
-          placeholder={isTTSPlaying ? 'AI가 말하는 중...' : placeholder}
+          placeholder={isTTSPlaying ? 'AI가 말하는 중...' : isEvaluating ? '평가하는 중...' : placeholder}
           variant="outlined"
           size="small"
-          disabled={isTTSPlaying}
+          disabled={isTTSPlaying || isEvaluating}
           sx={{
             '& .MuiOutlinedInput-root': {
-              backgroundColor: isTTSPlaying ? '#f5f5f5' : '#ffffff',
+              backgroundColor: (isTTSPlaying || isEvaluating) ? '#f5f5f5' : '#ffffff',
               borderRadius: 1,
-              color: isTTSPlaying ? '#9e9e9e' : '#212121',
+              color: (isTTSPlaying || isEvaluating) ? '#9e9e9e' : '#212121',
               '& fieldset': {
-                borderColor: isTTSPlaying ? 'rgba(0,0,0,0.12)' : 'rgba(0,0,0,0.23)'
+                borderColor: (isTTSPlaying || isEvaluating) ? 'rgba(0,0,0,0.12)' : 'rgba(0,0,0,0.23)'
               },
               '&:hover fieldset': {
-                borderColor: isTTSPlaying ? 'rgba(0,0,0,0.12)' : 'rgba(0,0,0,0.4)'
+                borderColor: (isTTSPlaying || isEvaluating) ? 'rgba(0,0,0,0.12)' : 'rgba(0,0,0,0.4)'
               },
               '&.Mui-focused fieldset': {
-                borderColor: isTTSPlaying ? 'rgba(0,0,0,0.12)' : '#6C63FF'
+                borderColor: (isTTSPlaying || isEvaluating) ? 'rgba(0,0,0,0.12)' : '#6C63FF'
               },
               '&.Mui-disabled': {
                 backgroundColor: '#f5f5f5'
               }
             },
             '& .MuiInputBase-input': {
-              color: isTTSPlaying ? '#9e9e9e' : '#212121',
+              color: (isTTSPlaying || isEvaluating) ? '#9e9e9e' : '#212121',
               '&::placeholder': {
-                color: isTTSPlaying ? 'rgba(108, 99, 255, 0.6)' : 'rgba(245,246,255,0.5)',
+                color: (isTTSPlaying || isEvaluating) ? 'rgba(108, 99, 255, 0.6)' : 'rgba(245,246,255,0.5)',
                 opacity: 1
               }
             }
@@ -89,11 +90,12 @@ export default function TextInputArea({
         {showModeToggle && (
           <IconButton
             onClick={onMicToggle}
+            disabled={isEvaluating}
             sx={{
               width: 40,
               height: 40,
               backgroundColor: '#ffffff',
-              color: '#212121',
+              color: isEvaluating ? '#9e9e9e' : '#212121',
               border: '1px solid rgba(0,0,0,0.2)',
               '&:hover': {
                 backgroundColor: '#f5f5f5'
@@ -106,14 +108,14 @@ export default function TextInputArea({
         )}
         <IconButton
           onClick={handleSend}
-          disabled={!value.trim() || isTTSPlaying}
+          disabled={!value.trim() || isTTSPlaying || isEvaluating}
           sx={{
             width: 40,
             height: 40,
-            backgroundColor: (value.trim() && !isTTSPlaying) ? '#6C63FF' : '#e0e0e0',
-            color: (value.trim() && !isTTSPlaying) ? '#ffffff' : '#9e9e9e',
+            backgroundColor: (value.trim() && !isTTSPlaying && !isEvaluating) ? '#6C63FF' : '#e0e0e0',
+            color: (value.trim() && !isTTSPlaying && !isEvaluating) ? '#ffffff' : '#9e9e9e',
             '&:hover': {
-              backgroundColor: (value.trim() && !isTTSPlaying) ? '#5B4DFF' : '#d5d5d5'
+              backgroundColor: (value.trim() && !isTTSPlaying && !isEvaluating) ? '#5B4DFF' : '#d5d5d5'
             },
             '&.Mui-disabled': {
               backgroundColor: '#e0e0e0',
