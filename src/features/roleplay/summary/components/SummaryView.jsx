@@ -841,7 +841,8 @@ export default function SummaryView({
                                                   lineHeight: 1.6,
                                                   wordBreak: 'break-word',
                                                   fontSize: '0.75rem',
-                                                  color: '#212121'
+                                                  color: '#212121',
+                                                  whiteSpace: 'pre-wrap'
                                                 }}
                                               >
                                                 {feedbackText}
