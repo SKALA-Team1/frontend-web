@@ -27,7 +27,6 @@ import LogoutIcon from '@mui/icons-material/Logout'
 import { NAV_LINKS, ROUTES } from '../../config/constants'
 import { getCurrentUser } from '../../services/userService'
 import { logout } from '../../services/authService'
-import { getAccessToken } from '../../services/httpClient'
 import skuseMeLogo from '../../images/skuse_me.png'
 
 // 아이콘 매핑
@@ -65,21 +64,16 @@ export default function AppDrawer({
 
   useEffect(() => {
     const fetchUserInfo = async () => {
-      const token = getAccessToken()
-      // 토큰이 없으면 사용자 정보를 가져오지 않음
-      if (!token) {
-        setUserName('')
-        setUserEmail('')
-        return
-      }
-
       try {
+        // 토큰이 없어도 getCurrentUser()를 호출
+        // httpClient가 401 에러 시 자동으로 토큰을 갱신하고 재시도함
         const userInfo = await getCurrentUser()
         const name = userInfo.name || userInfo.username || ''
         setUserName(name)
         setUserEmail(userInfo.email || '')
       } catch (error) {
         console.error('사용자 정보를 가져오는데 실패했습니다:', error)
+        // 에러 발생 시 빈 문자열로 설정 (인증 실패 시 httpClient가 로그인 페이지로 리다이렉트)
         setUserName('')
         setUserEmail('')
       }
