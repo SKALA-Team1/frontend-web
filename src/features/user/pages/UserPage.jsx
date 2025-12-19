@@ -367,7 +367,7 @@ export default function UserPage() {
                                 border: `1px solid ${colors.border}`
                               }}
                             >
-                              <Typography variant="body2" sx={{ color: '#212121', lineHeight: 1.6, mb: 0.5 }}>
+                              <Typography variant="body2" sx={{ color: '#212121', lineHeight: 1.6, mb: 0.5, whiteSpace: 'pre-wrap' }}>
                                 {section.feedbackKo || section.feedback_ko || ''}
                               </Typography>
                               <Typography variant="caption" sx={{ color: 'text.secondary', fontStyle: 'italic' }}>

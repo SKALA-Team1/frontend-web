@@ -731,46 +731,62 @@ export default function useRoleplaySession(options = {}) {
 
   /**
    * FEEDBACK_SECTIONS 메시지 처리
-   * 발음, 문법, 문맥 피드백이 모두 생성되면 하나의 메시지 버블에 한번에 표시
+   * 각 피드백 섹션이 생성될 때마다 즉시 화면에 표시하여 사용자 대기 시간 감소
    */
   const handleFeedbackSections = (message) => {
     storeFeedbackSections(message.sections)
     
-    // 현재 저장된 피드백 섹션 확인
-      const feedbackToShow = filterAndSortFeedbackSections(pendingFeedbackSectionsRef.current)
-      
-    // 발음, 문법, 문맥 피드백이 모두 있는지 확인
-    const hasPronunciation = feedbackToShow.some(s => s.type === 'pronunciation')
-    const hasGrammar = feedbackToShow.some(s => s.type === 'grammar')
-    const hasRelevance = feedbackToShow.some(s => s.type === 'relevance')
+    // 현재까지 모인 모든 피드백 섹션 가져오기 (정렬 포함)
+    const feedbackToShow = filterAndSortFeedbackSections(pendingFeedbackSectionsRef.current)
     
-    // 세 가지 피드백이 모두 생성되었을 때만 표시
-    if (hasPronunciation && hasGrammar && hasRelevance && feedbackToShow.length >= 3) {
-        // 모든 피드백을 하나의 메시지로 합치기
-        const feedbackSections = feedbackToShow.map(section => ({
-          type: section.type,
-          feedback_en: parseFeedbackText(section.feedback_en),
-          feedback_ko: section.feedback_ko,
-          score: section.score
-        }))
-        
-        // 피드백 섹션을 포함한 하나의 메시지 추가 (타이핑 효과 없음)
-        setMessages(prev => [...prev, {
+    if (feedbackToShow.length === 0) return
+
+    // 화면 표시용 데이터 구성
+    const feedbackSections = feedbackToShow.map(section => ({
+      type: section.type,
+      feedback_en: parseFeedbackText(section.feedback_en),
+      feedback_ko: section.feedback_ko,
+      score: section.score
+    }))
+    
+    // 메시지 상태 업데이트: 기존 피드백 메시지가 있으면 업데이트, 없으면 새로 추가
+    setMessages(prev => {
+      const lastMessage = prev[prev.length - 1]
+      
+      // 마지막 메시지가 이미 피드백 메시지인 경우 (실시간 업데이트 중)
+      if (lastMessage && lastMessage.who === 'AI' && lastMessage.feedbackSections) {
+        return [
+          ...prev.slice(0, -1),
+          {
+            ...lastMessage,
+            feedbackSections: feedbackSections
+          }
+        ]
+      } else {
+        // 처음 피드백이 도착한 경우
+        return [...prev, {
           who: 'AI',
-          text: '', // 피드백은 feedbackSections로 표시
+          text: '',
           translation: '',
           isFixedQuestion: false,
           isStreaming: false,
           feedbackSections: feedbackSections
-        }])
-      
-      // 표시한 피드백 섹션은 pending에서 제거
+        }]
+      }
+    })
+    
+    // 3가지 피드백이 모두 모였을 때만 pending 비우기 (기존 로직 유지)
+    const hasPronunciation = feedbackToShow.some(s => s.type === 'pronunciation')
+    const hasGrammar = feedbackToShow.some(s => s.type === 'grammar')
+    const hasRelevance = feedbackToShow.some(s => s.type === 'relevance')
+    
+    if (hasPronunciation && hasGrammar && hasRelevance && feedbackToShow.length >= 3) {
       pendingFeedbackSectionsRef.current = pendingFeedbackSectionsRef.current.filter(
         section => section.type !== 'grammar' && section.type !== 'pronunciation' && section.type !== 'relevance'
       )
     }
     
-    // 재시도가 필요한 경우에만 needsCorrectionRef 초기화 (재시도 플로우 유지)
+    // 재시도가 필요한 경우에만 needsCorrectionRef 초기화
     if (needsCorrectionRef.current) {
       needsCorrectionRef.current = false
     }
