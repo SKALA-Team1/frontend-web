@@ -227,6 +227,7 @@ export default function RoleplayPage() {
           onKeyboardToggle={session.toggleKeyboardMode}
           textInput={session.textInput}
           onTextInputChange={session.handleTextInputChange}
+          isEvaluating={session.evaluating}
           onSendMessage={session.sendMessage}
           isTTSPlaying={session.isTTSPlaying}
           onAvatarLoad={session.handleAvatarLoad}
